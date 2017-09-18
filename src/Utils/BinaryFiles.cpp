@@ -20,7 +20,7 @@ static void readByteArray(uint8_t *Output, std::size_t Length,
   assert(Length >= 1 && Length <= 8 && "Unexpected length");
 
   Input.read(reinterpret_cast<char*>(Output), Length);
-  if (Input.fail() || Input.gcount() != Length)
+  if (Input.fail() || static_cast<std::size_t>(Input.gcount()) != Length)
     throw Utils::ReadError();
 }
 

@@ -48,5 +48,6 @@ std::unique_ptr<JavaTypes::JavaClass> ClassFileReader::loadClassFromStream(
     throw FormatError("Unable to read constant pool count");
   }
 
+  (void)constant_pool_count;
   return nullptr;
 }
