@@ -19,10 +19,13 @@ set(SOURCE_FILES
         src/ClassFileReader/ClassFileReader.cpp
         src/ClassFileReader/ClassFileReader.h
         src/Utils/BinaryFiles.cpp
-        src/Utils/BinaryFiles.h)
+        src/Utils/BinaryFiles.h src/JavaTypes/ConstantPool.cpp
+        src/JavaTypes/ConstantPool.h
+        src/JavaTypes/ConstantPoolRecords.h)
 
 set (TEST_FILES
-        tests/ClassFileReader/ClassFileReaderTests.cpp)
+        tests/ClassFileReader/ClassFileReaderTests.cpp
+        tests/JavaTypes/ConstantPoolTests.cpp)
 
 add_executable(IJVM
         src/main.cpp

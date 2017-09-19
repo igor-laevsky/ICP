@@ -4,7 +4,6 @@
 
 #include <istream>
 #include <fstream>
-#include <sstream>
 
 #include "ClassFileReader.h"
 #include "Utils/BinaryFiles.h"

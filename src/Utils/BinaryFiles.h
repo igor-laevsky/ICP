@@ -1,5 +1,5 @@
 //
-// Utility functions for working with binary files in big-endian format.
+// Utility functions for working with binary files.
 //
 
 #ifndef IJVM_BINARYFILES_H
