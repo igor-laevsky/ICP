@@ -3,6 +3,7 @@
 //
 
 #include <istream>
+#include <iostream>
 #include <fstream>
 
 #include "ClassFileReader.h"
@@ -186,6 +187,8 @@ std::unique_ptr<JavaTypes::JavaClass> ClassFileReader::loadClassFromStream(
   } catch (ReadError &) {
     throw FormatError("Unable to fully read constant pull");
   }
+
+  CP->print(std::cout);
 
   return nullptr;
 }

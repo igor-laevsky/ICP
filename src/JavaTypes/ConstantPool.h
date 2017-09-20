@@ -11,6 +11,7 @@
 #include <string>
 #include <memory>
 #include <cassert>
+#include <ostream>
 
 namespace JavaTypes {
 
@@ -22,6 +23,8 @@ namespace ConstantPoolRecords {
 class Record {
 public:
   virtual bool isValid() const = 0;
+
+  virtual void print(std::ostream &) const = 0;
 };
 
 }
@@ -88,6 +91,14 @@ public:
     }
 
     return true;
+  }
+
+  // Print contents of this constant pool
+  void print(std::ostream &Out) const {
+    for (IndexType Idx = 1; Idx <= numRecords(); ++Idx) {
+      Out << "#" << Idx << " = ";
+      get(Idx).print(Out);
+    }
   }
 
   // No copying

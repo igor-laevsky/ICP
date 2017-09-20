@@ -14,7 +14,7 @@ namespace ConstantPoolRecords {
 
 class Utf8 final: public Record {
 public:
-  // TODO: This should support unicode
+  // TODO: This should actually support unicode
   explicit Utf8(const std::string &NewValue):
       Value(NewValue) {
     ;
@@ -26,6 +26,10 @@ public:
 
   bool isValid() const override {
     return true;
+  }
+
+  void print(std::ostream &Out) const override {
+    Out << "Utf8\t" << getValue() << "\n";
   }
 
 private:
@@ -57,6 +61,10 @@ public:
       DescriptorRef != nullptr && dynamic_cast<Utf8*>(DescriptorRef.get());
   }
 
+  void print(std::ostream &Out) const override {
+    Out << "NameAndType\t" << getName() << " " << getDescriptor() << "\n";
+  }
+
 private:
   const ConstantPool::CellReference NameRef, DescriptorRef;
 };
@@ -77,6 +85,10 @@ public:
     return Name != nullptr && dynamic_cast<Utf8*>(Name.get());
   }
 
+  void print(std::ostream &Out) const override {
+    Out << "ClassInfo\t" << getName() << "\n";
+  }
+
 private:
   const ConstantPool::CellReference Name;
 };
@@ -89,11 +101,26 @@ public:
     ;
   }
 
+  const ClassInfo &getClass() const {
+    assert(isValid());
+    return *static_cast<ClassInfo*>(ClassRef.get());
+  }
+
+  const NameAndType &getNameAndType() const {
+    assert(isValid());
+    return *static_cast<NameAndType*>(NameAndTypeRef.get());
+  }
+
   bool isValid() const override {
     // This should also check that class is a normal class and that
     // name and type points to a method, not a field.
     return ClassRef != nullptr && dynamic_cast<ClassInfo*>(ClassRef.get()) &&
-           NameAndTypeRef != nullptr && dynamic_cast<NameAndType*>(NameAndTypeRef.get());
+      NameAndTypeRef != nullptr && dynamic_cast<NameAndType*>(NameAndTypeRef.get());
+  }
+
+  void print(std::ostream &Out) const override {
+    Out << "MethodRef\t" << getClass().getName() << " " <<
+      getNameAndType().getName() << " " << getNameAndType().getDescriptor() << "\n";
   }
 
 private:
