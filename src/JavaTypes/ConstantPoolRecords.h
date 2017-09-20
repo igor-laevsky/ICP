@@ -12,10 +12,10 @@
 namespace JavaTypes {
 namespace ConstantPoolRecords {
 
-class StringRecord final: public Record {
+class Utf8 final: public Record {
 public:
   // TODO: This should support unicode
-  explicit StringRecord(const std::string &&NewValue):
+  explicit Utf8(const std::string &NewValue):
       Value(NewValue) {
     ;
   }
@@ -32,22 +32,33 @@ private:
   const std::string Value;
 };
 
-class MethodRef final: public Record {
+class NameAndType final: public Record {
 public:
-  MethodRef(ConstantPool::CellReference NewClassRef,
-            ConstantPool::CellReference NewNameAndTypeRef):
-      ClassRef(NewClassRef), NameAndTypeRef(NewNameAndTypeRef) {
+  NameAndType(ConstantPool::CellReference NewNameRef,
+              ConstantPool::CellReference NewDescriptorRef):
+      NameRef(NewNameRef), DescriptorRef(NewDescriptorRef) {
     ;
   }
 
+  const std::string &getName() const {
+    assert(isValid());
+    return static_cast<Utf8*>(NameRef.get())->getValue();
+  }
+
+  const std::string &getDescriptor() const {
+    assert(isValid());
+    return static_cast<Utf8*>(DescriptorRef.get())->getValue();
+  }
+
   bool isValid() const override {
-    // TODO: Fix this
-    return true;
+    // This should also check that name and descriptor are presented in
+    // a correct form. However I decided to leave this check for now.
+    return NameRef != nullptr && dynamic_cast<Utf8*>(NameRef.get()) &&
+      DescriptorRef != nullptr && dynamic_cast<Utf8*>(DescriptorRef.get());
   }
 
 private:
-  const ConstantPool::CellReference ClassRef;
-  const ConstantPool::CellReference NameAndTypeRef;
+  const ConstantPool::CellReference NameRef, DescriptorRef;
 };
 
 class ClassInfo final: public Record {
@@ -59,15 +70,34 @@ public:
 
   const std::string &getName() const {
     assert(isValid());
-    return static_cast<StringRecord*>(Name.get())->getValue();
+    return static_cast<Utf8*>(Name.get())->getValue();
   }
 
   bool isValid() const override {
-    return Name != nullptr && dynamic_cast<StringRecord*>(Name.get());
+    return Name != nullptr && dynamic_cast<Utf8*>(Name.get());
   }
 
 private:
   const ConstantPool::CellReference Name;
+};
+
+class MethodRef final: public Record {
+public:
+  MethodRef(ConstantPool::CellReference NewClassRef,
+            ConstantPool::CellReference NewNameAndTypeRef):
+      ClassRef(NewClassRef), NameAndTypeRef(NewNameAndTypeRef) {
+    ;
+  }
+
+  bool isValid() const override {
+    // This should also check that class is a normal class and that
+    // name and type points to a method, not a field.
+    return ClassRef != nullptr && dynamic_cast<ClassInfo*>(ClassRef.get()) &&
+           NameAndTypeRef != nullptr && dynamic_cast<NameAndType*>(NameAndTypeRef.get());
+  }
+
+private:
+  const ConstantPool::CellReference ClassRef, NameAndTypeRef;
 };
 
 }

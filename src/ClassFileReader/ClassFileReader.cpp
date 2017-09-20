@@ -82,6 +82,46 @@ parseConstantPool(std::istream& Input, ConstantPool::SizeType ConstantPoolSize) 
         break;
       }
 
+      case ConstantPoolTags::CONSTANT_Utf8: {
+        uint16_t length = BigEndianReading::readHalf(Input);
+        std::string name;
+
+        for (uint16_t byte_idx = 0; byte_idx < length; ++byte_idx) {
+          uint8_t byte = BigEndianReading::readByte(Input);
+
+          // Specification requirements
+          if (byte == 0 || (byte >= 0xf0 && byte <= 0xff))
+            throw FormatError("Unexpected string byte at " + std::to_string(i));
+
+          // For now support only regular ASCII codes
+          if (byte > 0x7f)
+            throw FormatError("Unicode is not fully supported ar " +
+                                  std::to_string(i));
+
+          name += static_cast<char>(byte);
+        }
+
+        Builder.set(i, std::make_unique<ConstantPoolRecords::Utf8>(name));
+        break;
+      }
+
+      case ConstantPoolTags::CONSTANT_NameAndType: {
+        uint16_t name_index = BigEndianReading::readHalf(Input);
+        CheckIndex(name_index, i);
+
+        uint16_t descriptor_index = BigEndianReading::readHalf(Input);
+        CheckIndex(descriptor_index, i);
+
+        ConstantPool::CellReference
+            NameRef = Builder.getCellReference(name_index),
+            DescriptorRef = Builder.getCellReference(descriptor_index);
+        Builder.set(i,
+                    std::make_unique<ConstantPoolRecords::NameAndType>(
+                        NameRef, DescriptorRef));
+
+        break;
+      }
+
       default:
         throw FormatError("Unsupported constant pull tag " +
                               std::to_string(tag));
