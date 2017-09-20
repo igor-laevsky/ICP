@@ -29,4 +29,38 @@ TEST_CASE("Basic constant pool construction", "[ConstantPool]") {
 
   REQUIRE(StrRec->getValue() == "test");
   REQUIRE(CI->getName() == "test");
+
+  std::string Error;
+  bool IsValid = CP->verify(Error);
+  REQUIRE(IsValid);
+}
+
+TEST_CASE("Constant pool with wrong record type", "[ConstantPool]") {
+  ConstantPoolBuilder Builder(2);
+  REQUIRE(Builder.isValid());
+
+  Builder.set(0, std::make_unique<ConstantPoolRecords::ClassInfo>(
+      Builder.getCellReference(1)));
+  REQUIRE(Builder.isValid());
+
+  Builder.set(1, std::make_unique<ConstantPoolRecords::ClassInfo>(
+      Builder.getCellReference(0)));
+  REQUIRE(Builder.isValid());
+
+  std::unique_ptr<ConstantPool> CP = Builder.createConstantPool();
+  REQUIRE_FALSE(Builder.isValid());
+
+  const auto *CI = CP->getAsOrNull<ClassInfo>(0);
+  REQUIRE(CI != nullptr);
+  REQUIRE_FALSE(CI->isValid());
+  const auto *StrRec = CP->getAsOrNull<StringRecord>(1);
+  REQUIRE(StrRec == nullptr);
+  const auto *Rec2 = CP->getAsOrNull<ClassInfo>(1);
+  REQUIRE(Rec2 != nullptr);
+  REQUIRE_FALSE(Rec2->isValid());
+
+  std::string Error;
+  bool IsValid = CP->verify(Error);
+  REQUIRE_FALSE(IsValid);
+  REQUIRE(Error == "Invalid record at index 0");
 }

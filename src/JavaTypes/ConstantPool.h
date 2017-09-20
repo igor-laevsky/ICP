@@ -41,6 +41,7 @@ public:
   // \returns Record at the index 'Idx' or fails an assertion if record doesn't
   //          exist.
   const ConstantPoolRecords::Record &get(IndexType Idx) const {
+    Idx = ConstantPool::toZeroBasedIndex(Idx);
     assert(isValidIndex(Idx));
     assert(getRecordTable()[Idx] != nullptr);
     return *getRecordTable()[Idx];
@@ -72,7 +73,20 @@ public:
     return static_cast<SizeType>(getRecordTable().size());
   }
 
+  // Check that this constant pool is valid.
+  // \returns true if constant pool is valid, false otherwise.
   bool verify(std::string &ErrorMessage) const {
+    for (IndexType i = 0; i < numRecords(); ++i) {
+      if (getRecordTable()[i] == nullptr) {
+        ErrorMessage = "Unallocated record at index " + std::to_string(i + 1);
+        return false;
+      }
+      if (!getRecordTable()[i]->isValid()) {
+        ErrorMessage = "Invalid record at index " + std::to_string(i + 1);
+        return false;
+      }
+    }
+
     return true;
   }
 
@@ -92,6 +106,12 @@ private:
 
   const RecordTable &getRecordTable() const {
     return Records;
+  }
+
+  // Indexes used in the class file are 1 based, but internally we use
+  // zero based indexes. All interface functions expect 1 based indexes.
+  static IndexType toZeroBasedIndex(IndexType Idx) {
+    return Idx - (IndexType)1;
   }
 
 private:
@@ -116,12 +136,14 @@ public:
 
   CellReference getCellReference(IndexType Idx) const {
     assert(isValid());
+    Idx = ConstantPool::toZeroBasedIndex(Idx);
     assert(isValidIndex(Idx));
     return getRecordTable()[Idx];
   }
 
   void set(IndexType Idx, CellType &&NewRecord) {
     assert(isValid());
+    Idx = ConstantPool::toZeroBasedIndex(Idx);
     assert(isValidIndex(Idx));
     getRecordTable()[Idx] = std::move(NewRecord);
   }

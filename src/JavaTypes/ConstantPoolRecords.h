@@ -32,6 +32,24 @@ private:
   const std::string Value;
 };
 
+class MethodRef final: public Record {
+public:
+  MethodRef(ConstantPool::CellReference NewClassRef,
+            ConstantPool::CellReference NewNameAndTypeRef):
+      ClassRef(NewClassRef), NameAndTypeRef(NewNameAndTypeRef) {
+    ;
+  }
+
+  bool isValid() const override {
+    // TODO: Fix this
+    return true;
+  }
+
+private:
+  const ConstantPool::CellReference ClassRef;
+  const ConstantPool::CellReference NameAndTypeRef;
+};
+
 class ClassInfo final: public Record {
 public:
   explicit ClassInfo(ConstantPool::CellReference NewName):

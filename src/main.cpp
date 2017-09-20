@@ -8,7 +8,7 @@ int main() {
   std::unique_ptr<JavaTypes::JavaClass> NewClass;
 
   try {
-    NewClass = ClassFileReader::loadClassFromFile("./tests/Simple.class");
+    NewClass = ClassFileReader::loadClassFromFile("./assets/Simple.class");
   } catch (ClassFileReader::FileNotFound &e) {
     std::cout << "Couldn't open class file." << "\n";
   } catch (ClassFileReader::FormatError  &e) {
