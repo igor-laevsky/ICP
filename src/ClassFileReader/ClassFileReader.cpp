@@ -37,8 +37,8 @@ enum class ConstantPoolTags {
 
 }
 
-// Helper function for the class file reader. Parses 'Size' constant pool
-// records from the input stream.
+// Helper function for the class file reader. Parses 'ConstantPoolSize' records
+// from the input stream.
 // \returns Unique pointer to the valid constant pool.
 // \throws FormatError or ReadError is case of any input problems.
 static std::unique_ptr<ConstantPool>
@@ -96,7 +96,7 @@ parseConstantPool(std::istream& Input, ConstantPool::SizeType ConstantPoolSize) 
 
           // For now support only regular ASCII codes
           if (byte > 0x7f)
-            throw FormatError("Unicode is not fully supported ar " +
+            throw FormatError("Unicode is not fully supported at " +
                                   std::to_string(i));
 
           name += static_cast<char>(byte);
@@ -149,6 +149,7 @@ std::unique_ptr<JavaTypes::JavaClass> ClassFileReader::loadClassFromFile(
 
 std::unique_ptr<JavaTypes::JavaClass> ClassFileReader::loadClassFromStream(
     std::istream &Input) {
+  JavaClass::ClassParameters ClassParams;
 
   // Read basic constants
   //
@@ -171,24 +172,55 @@ std::unique_ptr<JavaTypes::JavaClass> ClassFileReader::loadClassFromStream(
 
   // Parse constant pool
   //
-  uint16_t constant_pool_count = 0;
   try {
+    uint16_t constant_pool_count = 0;
     constant_pool_count = BigEndianReading::readHalf(Input);
     // I guess extra one is added to account for the weird representation of
     // the long numbers.
     constant_pool_count -= 1;
-  } catch (ReadError &) {
-    throw FormatError("Unable to read constant pool count");
-  }
 
-  std::unique_ptr<ConstantPool> CP;
-  try {
-    CP = parseConstantPool(Input, constant_pool_count);
+    ClassParams.CP = parseConstantPool(Input, constant_pool_count);
   } catch (ReadError &) {
     throw FormatError("Unable to fully read constant pull");
   }
+  assert(ClassParams.CP != nullptr);
 
-  CP->print(std::cout);
+  // Access flags
+  //
+  try {
+    uint16_t access_flags = BigEndianReading::readHalf(Input);
+    ClassParams.Flags = static_cast<JavaClass::AccessFlags>(access_flags);
+  } catch (ReadError &) {
+    throw FormatError("Unable to read access flags");
+  }
 
-  return nullptr;
+  // This class and super class
+  //
+  try {
+    auto GetClassInfoFromIndex =
+        [&](ConstantPool::IndexType Idx, const std::string &FieldName) {
+          if (!ClassParams.CP->isValidIndex(Idx))
+            throw FormatError("Invalid constant pool index for the " + FieldName);
+          const auto *Res = ClassParams.CP->
+              getAsOrNull<ConstantPoolRecords::ClassInfo>(Idx);
+          if (Res == nullptr)
+            throw FormatError("Expected ClassInfo at index " + FieldName);
+          return Res;
+        };
+
+    uint16_t this_class = BigEndianReading::readHalf(Input);
+    ClassParams.ClassName = GetClassInfoFromIndex(this_class, "this_class");
+    assert(ClassParams.ClassName != nullptr);
+
+    uint16_t super_class = BigEndianReading::readHalf(Input);
+    if (super_class != 0) {
+      const auto *SuperCI = GetClassInfoFromIndex(super_class, "super_class");
+      assert(SuperCI != nullptr);
+      ClassParams.SuperClass = SuperCI;
+    }
+  } catch (ReadError &) {
+    throw FormatError("Unable to read this or super class indexes");
+  }
+
+  return std::make_unique<JavaClass>(std::move(ClassParams));
 }

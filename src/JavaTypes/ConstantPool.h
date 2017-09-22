@@ -22,6 +22,12 @@ namespace ConstantPoolRecords {
 // Base abstract class for all constant pool records
 class Record {
 public:
+  Record() = default;
+
+  // No copying
+  Record(const Record &) = delete;
+  Record &operator=(const Record &) = delete;
+
   virtual bool isValid() const = 0;
 
   virtual void print(std::ostream &) const = 0;
@@ -44,8 +50,8 @@ public:
   // \returns Record at the index 'Idx' or fails an assertion if record doesn't
   //          exist.
   const ConstantPoolRecords::Record &get(IndexType Idx) const {
-    Idx = ConstantPool::toZeroBasedIndex(Idx);
     assert(isValidIndex(Idx));
+    Idx = ConstantPool::toZeroBasedIndex(Idx);
     assert(getRecordTable()[Idx] != nullptr);
     return *getRecordTable()[Idx];
   }
@@ -93,12 +99,27 @@ public:
     return true;
   }
 
+  // Convenience overload of the 'verify' function. Makes it easier to use in
+  // asserts.
+  // \returns true if constant pool is in a valid state, false otherwise.
+  bool verify() const {
+    std::string Temp;
+    return verify(Temp);
+  }
+
   // Print contents of this constant pool
   void print(std::ostream &Out) const {
     for (IndexType Idx = 1; Idx <= numRecords(); ++Idx) {
       Out << "#" << Idx << " = ";
       get(Idx).print(Out);
     }
+  }
+
+  // Checks if index is valid index into this constant pool. Expects 1 based
+  // index.
+  bool isValidIndex(IndexType Idx) const {
+    Idx = toZeroBasedIndex(Idx);
+    return Idx >= 0 && Idx < numRecords();
   }
 
   // No copying
@@ -109,10 +130,6 @@ private:
   // Only possible to construct through the ConstantPoolBuilder.
   explicit ConstantPool(SizeType NumRecords): Records(NumRecords) {
     ;
-  }
-
-  bool isValidIndex(IndexType Idx) const {
-    return Idx >= 0 && Idx < numRecords();
   }
 
   const RecordTable &getRecordTable() const {
@@ -147,15 +164,15 @@ public:
 
   CellReference getCellReference(IndexType Idx) const {
     assert(isValid());
-    Idx = ConstantPool::toZeroBasedIndex(Idx);
     assert(isValidIndex(Idx));
+    Idx = ConstantPool::toZeroBasedIndex(Idx);
     return getRecordTable()[Idx];
   }
 
   void set(IndexType Idx, CellType &&NewRecord) {
     assert(isValid());
-    Idx = ConstantPool::toZeroBasedIndex(Idx);
     assert(isValidIndex(Idx));
+    Idx = ConstantPool::toZeroBasedIndex(Idx);
     getRecordTable()[Idx] = std::move(NewRecord);
   }
 

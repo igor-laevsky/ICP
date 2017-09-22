@@ -20,15 +20,14 @@ class FormatError: public std::runtime_error {
 
 // Parses class from file or throws an exception.
 // \returns Unique pointer for the parsed class file
-// \throws FileNotFound In case of file open error
-// \throws FormatError In case of any parsing problems
+// \throws FileNotFound In case of file open error.
+// \throws FormatError In case of any parsing problems.
 std::unique_ptr<JavaTypes::JavaClass> loadClassFromFile(
     const std::string &FileName);
 
 // Same as loadClassFromFile, but gathers information from the input stream.
-// \returns Unique pointer for the parsed class file
-// \throws FileNotFound In case of file open error
-// \throws FormatError In case of any parsing problems
+// \returns Unique pointer for the parsed class file.
+// \throws FormatError In case of any parsing problems.
 std::unique_ptr<JavaTypes::JavaClass> loadClassFromStream(std::istream &Input);
 
 }

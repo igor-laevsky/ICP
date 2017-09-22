@@ -5,22 +5,25 @@
 #ifndef IJVM_CONSTANTPOOLRECORDS_H
 #define IJVM_CONSTANTPOOLRECORDS_H
 
+#include "ConstantPool.h"
+
 #include <string>
 
-#include "ConstantPool.h"
+#include "Utils/Utf8String.h"
+
+using namespace Utils;
 
 namespace JavaTypes {
 namespace ConstantPoolRecords {
 
 class Utf8 final: public Record {
 public:
-  // TODO: This should actually support unicode
-  explicit Utf8(const std::string &NewValue):
-      Value(NewValue) {
+  explicit Utf8(Utf8String NewValue):
+      Value(std::move(NewValue)) {
     ;
   }
 
-  const std::string &getValue() const {
+  const Utf8String &getValue() const {
     return Value;
   }
 
@@ -33,7 +36,7 @@ public:
   }
 
 private:
-  const std::string Value;
+  const Utf8String Value;
 };
 
 class NameAndType final: public Record {
@@ -76,7 +79,12 @@ public:
     ;
   }
 
-  const std::string &getName() const {
+  const Utf8 &getUtf8() const {
+    assert(isValid());
+    return *static_cast<Utf8*>(Name.get());
+  }
+
+  const Utf8String &getName() const {
     assert(isValid());
     return static_cast<Utf8*>(Name.get())->getValue();
   }
