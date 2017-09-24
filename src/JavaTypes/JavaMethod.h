@@ -2,8 +2,8 @@
 // This class represents java method.
 //
 
-#ifndef IJVM_JAVAMETHOD_H
-#define IJVM_JAVAMETHOD_H
+#ifndef ICP_JAVAMETHOD_H
+#define ICP_JAVAMETHOD_H
 
 #include <string>
 
@@ -121,4 +121,4 @@ constexpr JavaMethod::AccessFlags operator|(
 
 }
 
-#endif //IJVM_JAVAMETHOD_H
+#endif //ICP_JAVAMETHOD_H

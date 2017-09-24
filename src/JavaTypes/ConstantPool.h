@@ -4,8 +4,8 @@
 // ConstantPoolBuilder class.
 //
 
-#ifndef IJVM_CONSTANTPOOL_H
-#define IJVM_CONSTANTPOOL_H
+#ifndef ICP_CONSTANTPOOL_H
+#define ICP_CONSTANTPOOL_H
 
 #include <vector>
 #include <string>
@@ -201,4 +201,4 @@ private:
 
 }
 
-#endif //IJVM_CONSTANTPOOL_H
+#endif //ICP_CONSTANTPOOL_H

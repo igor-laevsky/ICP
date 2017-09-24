@@ -2,8 +2,8 @@
 // Main interface for the class file loading
 //
 
-#ifndef IJVM_CLASSFILEREADER_H
-#define IJVM_CLASSFILEREADER_H
+#ifndef ICP_CLASSFILEREADER_H
+#define ICP_CLASSFILEREADER_H
 
 #include <memory>
 #include <string>
@@ -33,4 +33,4 @@ std::unique_ptr<JavaTypes::JavaClass> loadClassFromStream(std::istream &Input);
 
 }
 
-#endif //IJVM_CLASSFILEREADER_H
+#endif //ICP_CLASSFILEREADER_H

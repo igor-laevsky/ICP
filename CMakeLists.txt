@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(IJVM)
+project(ICP)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -27,11 +27,11 @@ set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
         tests/JavaTypes/ConstantPoolTests.cpp)
 
-add_executable(IJVM
+add_executable(ICP
         src/main.cpp
         ${SOURCE_FILES})
 
-add_executable(IJVM_unit_tests
+add_executable(ICP_unit_tests
         tests/tests_main.cpp
         ${SOURCE_FILES}
         ${TEST_FILES})

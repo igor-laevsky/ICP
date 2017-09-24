@@ -2,8 +2,8 @@
 // Utility functions for working with binary files.
 //
 
-#ifndef IJVM_BINARYFILES_H
-#define IJVM_BINARYFILES_H
+#ifndef ICP_BINARYFILES_H
+#define ICP_BINARYFILES_H
 
 #include <cstdint>
 #include <ios>
@@ -30,4 +30,4 @@ uint64_t readDoubleWord(std::istream &Input);
 
 }
 
-#endif //IJVM_BINARYFILES_H
+#endif //ICP_BINARYFILES_H

@@ -2,8 +2,8 @@
 // Contains definitions of the various constant pool records.
 //
 
-#ifndef IJVM_CONSTANTPOOLRECORDS_H
-#define IJVM_CONSTANTPOOLRECORDS_H
+#ifndef ICP_CONSTANTPOOLRECORDS_H
+#define ICP_CONSTANTPOOLRECORDS_H
 
 #include "ConstantPool.h"
 
@@ -137,4 +137,4 @@ private:
 }
 }
 
-#endif //IJVM_CONSTANTPOOLRECORDS_H
+#endif //ICP_CONSTANTPOOLRECORDS_H

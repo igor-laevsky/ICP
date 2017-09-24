@@ -5,8 +5,8 @@
 // parsed class file.
 //
 
-#ifndef IJVM_JAVACLASS_H
-#define IJVM_JAVACLASS_H
+#ifndef ICP_JAVACLASS_H
+#define ICP_JAVACLASS_H
 
 #include <optional>
 
@@ -121,4 +121,4 @@ constexpr JavaClass::AccessFlags operator|(
 
 }
 
-#endif //IJVM_JAVACLASS_H
+#endif //ICP_JAVACLASS_H

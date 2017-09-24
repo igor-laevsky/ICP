@@ -3,8 +3,8 @@
 // file.
 //
 
-#ifndef IJVM_UTF8STRING_H
-#define IJVM_UTF8STRING_H
+#ifndef ICP_UTF8STRING_H
+#define ICP_UTF8STRING_H
 
 #include <string>
 
@@ -13,4 +13,4 @@ namespace Utils {
   using Utf8String = std::string;
 }
 
-#endif //IJVM_UTF8STRING_H
+#endif //ICP_UTF8STRING_H
