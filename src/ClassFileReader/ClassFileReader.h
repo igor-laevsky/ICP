@@ -13,7 +13,7 @@
 
 namespace ClassFileReader {
 
-// Exception thrown by class file parser.
+// Exceptions thrown by the class file parser.
 class FileNotFound: public std::exception {};
 class FormatError: public std::runtime_error {
   using std::runtime_error::runtime_error;

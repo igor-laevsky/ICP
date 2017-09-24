@@ -1,5 +1,5 @@
 //
-// Created by Igor on 15.09.2017.
+// Implementation of the JavaClass
 //
 
 #include "JavaClass.h"
