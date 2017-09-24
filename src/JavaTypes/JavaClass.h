@@ -12,6 +12,7 @@
 
 #include "ConstantPool.h"
 #include "ConstantPoolRecords.h"
+#include "JavaMethod.h"
 
 namespace JavaTypes {
 
@@ -34,23 +35,38 @@ public:
   struct ClassParameters {
     const ConstantPoolRecords::ClassInfo *ClassName = nullptr;
     const ConstantPoolRecords::ClassInfo *SuperClass = nullptr;
+
     AccessFlags Flags = AccessFlags::ACC_NONE;
+
     std::unique_ptr<ConstantPool> CP = nullptr;
+
+    std::vector<std::unique_ptr<JavaMethod>> Methods;
   };
 
 public:
   // Rvalue parameter is to emphasize the fact that we will transfer
-  // ownership of the internal unique_ptr (ConstantPool), which makes
+  // ownership of the unique_ptr's (i.e ConstantPool), which makes
   // ClassParameters structure invalid after this constructor was executed.
   explicit JavaClass(ClassParameters &&Params):
-      ClassName(*Params.ClassName),
+      ClassName(Params.ClassName),
       SuperClass(Params.SuperClass),
       Flags(Params.Flags),
-      CP(std::move(Params.CP))
+      CP(std::move(Params.CP)),
+      Methods(std::move(Params.Methods))
   {
+    assert(Params.ClassName != nullptr);
+
     // It is responsibility of the user to provide valid constant pool.
     assert(CP != nullptr && CP->verify());
+
+    // Set up correct owner for the class methods
+    for (auto &Method: getMethods())
+      Method->setOwner(*this);
   }
+
+  // No copies
+  JavaClass(const JavaClass&) = delete;
+  JavaClass &operator=(const JavaClass &) = delete;
 
   AccessFlags getAccessFlags() const {
     return Flags;
@@ -61,7 +77,12 @@ public:
   }
 
   const Utf8String &getClassName() const {
-    return ClassName.getName();
+    assert(ClassName != nullptr);
+    return ClassName->getName();
+  }
+
+  const std::vector<std::unique_ptr<JavaMethod>> &getMethods() const {
+    return Methods;
   }
 
   // \returns nullptr if class doesn't have super class, pointer to the
@@ -80,13 +101,15 @@ public:
   void print(std::ostream &Out) const;
 
 private:
-  const ConstantPoolRecords::ClassInfo &ClassName;
-  // Maybe null if this is an object class
-  const ConstantPoolRecords::ClassInfo *SuperClass;
+  const ConstantPoolRecords::ClassInfo *const ClassName;
+  // Null when no super class is present
+  const ConstantPoolRecords::ClassInfo *const SuperClass;
 
   const AccessFlags Flags;
 
   const std::unique_ptr<ConstantPool> CP;
+
+  const std::vector<std::unique_ptr<JavaMethod>> Methods;
 };
 
 // Allows using AccessFlags as a bitfield.

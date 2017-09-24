@@ -9,6 +9,7 @@
 #include <string>
 
 #include "JavaTypes/JavaClass.h"
+#include "Utils/BinaryFiles.h"
 
 namespace ClassFileReader {
 

@@ -1,8 +1,10 @@
+#include "BinaryFiles.h"
+
 #include <algorithm>
 #include <cassert>
 #include <istream>
 
-#include "BinaryFiles.h"
+using namespace Utils;
 
 // Converts number from big endian to whatever native endian is.
 static uint64_t bigToNativeEndian(const uint8_t Input[], std::size_t Length) {

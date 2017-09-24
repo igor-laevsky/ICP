@@ -14,6 +14,9 @@ class ReadError: std::exception {};
 
 namespace BigEndianReading {
 
+// We rely on this invariant
+static_assert(std::is_same<unsigned char, uint8_t>::value);
+
 // All three functions read designated number of bytes from the big endian
 // input stream and convert them to a native ending format.
 // \returns Value encoded with an ending native to the current platform.

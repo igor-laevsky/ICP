@@ -58,8 +58,7 @@ public:
   }
 
   bool isValid() const override {
-    // This should also check that name and descriptor are presented in
-    // a correct form. However I decided to leave this check for now.
+    // TODO: Check that names are in a correct form.
     return NameRef != nullptr && dynamic_cast<Utf8*>(NameRef.get()) &&
       DescriptorRef != nullptr && dynamic_cast<Utf8*>(DescriptorRef.get());
   }
@@ -90,6 +89,7 @@ public:
   }
 
   bool isValid() const override {
+    // TODO: Check that name is in a correct form.
     return Name != nullptr && dynamic_cast<Utf8*>(Name.get());
   }
 
@@ -120,8 +120,7 @@ public:
   }
 
   bool isValid() const override {
-    // This should also check that class is a normal class and that
-    // name and type points to a method, not a field.
+    // TODO: Check that name is in a correct form.
     return ClassRef != nullptr && dynamic_cast<ClassInfo*>(ClassRef.get()) &&
       NameAndTypeRef != nullptr && dynamic_cast<NameAndType*>(NameAndTypeRef.get());
   }

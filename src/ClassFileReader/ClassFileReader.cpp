@@ -10,6 +10,7 @@
 #include "Utils/BinaryFiles.h"
 #include "JavaTypes/ConstantPool.h"
 #include "JavaTypes/ConstantPoolRecords.h"
+#include "JavaTypes/JavaMethod.h"
 
 using namespace ClassFileReader;
 using namespace Utils;
@@ -35,6 +36,36 @@ enum class ConstantPoolTags {
   CONSTANT_InvokeDynamic = 18
 };
 
+}
+
+// Helper function for the class file reader.
+// Checks that 'Idx' is a valid index to the constant pool, checks
+// that record at that index has type 'RecordType' and returns it. Throws
+// exception otherwise.
+// \returns Constant pool record.
+// \throws ReadError or FormatError accordingly.
+template<class RecordType>
+static const RecordType &readConstantPoolRecord(
+    uint16_t Idx, const ConstantPool &CP, const std::string &FieldName) {
+  if (!CP.isValidIndex(Idx))
+    throw FormatError("Invalid constant pool index for the " + FieldName +
+                      " " + std::to_string(Idx));
+
+  const auto *Res = CP.getAsOrNull<RecordType>(Idx);
+  if (Res == nullptr)
+    throw FormatError("Unexpected record type at " + FieldName +
+                      " index " + std::to_string(Idx));
+
+  return *Res;
+}
+
+// Same as above but reads 2 byte index from the input stream.
+template<class RecordType>
+static const RecordType &readConstantPoolRecord(
+    std::istream &Input, const ConstantPool &CP, const std::string &FieldName) {
+  uint16_t Idx = BigEndianReading::readHalf(Input);
+
+  return readConstantPoolRecord<RecordType>(Idx, CP, FieldName);
 }
 
 // Helper function for the class file reader. Parses 'ConstantPoolSize' records
@@ -137,6 +168,116 @@ parseConstantPool(std::istream& Input, ConstantPool::SizeType ConstantPoolSize) 
   return CP;
 }
 
+// Skips single attribute.
+// \throws FormatError or ReadError in case of any errors.
+static void skipAttribute(std::istream &Input) {
+  BigEndianReading::readHalf(Input); // name_index
+  const uint32_t attribute_length = BigEndianReading::readWord(Input);
+
+  Input.seekg(attribute_length, std::ios_base::cur);
+
+  if (Input.fail())
+    throw FormatError("Unable to skip attribute");
+}
+
+// Skips attributes until attribute with specific name is found.
+// Input position is set right after the name of the target attribute.
+// \returns Number of skipped attributes.
+// \throws FormatError in case if end of file was reached before target attribute.
+// \throws ReadError In case of a reading error.
+static uint16_t skipAttributesUntil(
+    const std::string &TargetAttrName, std::istream &Input,
+    const ConstantPool &CP) {
+
+  uint16_t NumSkipped = 0;
+
+  while (Input) {
+    const auto &Name =
+        readConstantPoolRecord<ConstantPoolRecords::Utf8>(
+            Input, CP, "attribute_name");
+    if (Name.getValue() == TargetAttrName)
+      return NumSkipped;
+
+    const uint32_t attribute_length = BigEndianReading::readWord(Input);
+    Input.seekg(attribute_length, std::ios_base::cur);
+  }
+
+  // Reached the end of the file and no attribute was found
+  throw FormatError("Unable to find attribute " + TargetAttrName);
+}
+
+// Expects current input position to be set up right after 'Code' attribute
+// tag. Saves result in the 'Params' structure.
+// \throws ReadError or FormatError.
+static void parseMethodCode(
+    JavaMethod::MethodConstructorParameters &Params,
+    std::istream &Input) {
+  BigEndianReading::readWord(Input); // attribute_length
+
+  Params.MaxStack = BigEndianReading::readHalf(Input);
+  Params.MaxLocals = BigEndianReading::readHalf(Input);
+
+  const uint32_t code_length = BigEndianReading::readWord(Input);
+  Params.Code.resize(code_length);
+  Input.read(reinterpret_cast<char*>(Params.Code.data()), code_length);
+  if (Input.fail())
+    throw FormatError("Failed to read method code");
+
+  // Skip exception table for now
+  const uint16_t exception_table_length = BigEndianReading::readHalf(Input);
+  const uint16_t exception_table_entry_size = 8;
+  Input.seekg(exception_table_length * exception_table_entry_size,
+              std::ios_base::cur);
+  if (Input.fail())
+    throw FormatError("Failed to read exception table from code attribute");
+
+  // Skip all attributes for now
+  const uint16_t attributes_count = BigEndianReading::readHalf(Input);
+  for (uint16_t i = 0; i < attributes_count; ++i)
+    skipAttribute(Input);
+
+  // TODO: Check that attribute_length is consistent with the actual
+  // amount of data.
+}
+
+// Helper function for the class file parser. Parses single method.
+// \returns Structure with all method parameters. Method is not constructed
+// inside of this function in order to avoid copying. Instead user is expected
+// to call constructor himself.
+// \throws FormatError or ReadError accordingly.
+static std::unique_ptr<JavaMethod> parseMethod(
+    std::istream &Input, const ConstantPool &CP) {
+  JavaMethod::MethodConstructorParameters Params;
+
+  const uint16_t access_flags = BigEndianReading::readHalf(Input);
+  Params.Flags = static_cast<JavaMethod::AccessFlags>(access_flags);
+
+  const auto &Name =
+      readConstantPoolRecord<ConstantPoolRecords::Utf8>(
+          Input, CP, "method_name_index");
+  Params.Name = &Name;
+
+  const auto &Descriptor =
+      readConstantPoolRecord<ConstantPoolRecords::Utf8>(
+          Input, CP, "method_descriptor_index");
+  Params.Descriptor = &Descriptor;
+
+  uint16_t attributes_count = BigEndianReading::readHalf(Input);
+
+  // Search for code
+  attributes_count -= skipAttributesUntil("Code", Input, CP);
+
+  // Parse method code
+  parseMethodCode(Params, Input);
+  attributes_count -= 1;
+
+  // Skip the rest of the attributes
+  for (uint16_t i = 0; i < attributes_count; ++i)
+    skipAttribute(Input);
+
+  return std::make_unique<JavaMethod>(std::move(Params));
+}
+
 std::unique_ptr<JavaTypes::JavaClass> ClassFileReader::loadClassFromFile(
     const std::string &FileName) {
   std::ifstream file(FileName, std::ios_base::in | std::ios_base::binary);
@@ -154,27 +295,26 @@ std::unique_ptr<JavaTypes::JavaClass> ClassFileReader::loadClassFromStream(
   // Read basic constants
   //
   try {
-    uint32_t magic = BigEndianReading::readWord(Input);
+    const uint32_t magic = BigEndianReading::readWord(Input);
     if (magic != 0xCAFEBABE)
       throw FormatError("Magic word in a wrong format");
   } catch (ReadError &) {
-    throw FormatError("Unable to read magic word.");
+    throw FormatError("Unable to read magic word");
   }
 
   try {
-    uint16_t minor_version = BigEndianReading::readHalf(Input);
-    uint16_t major_version = BigEndianReading::readHalf(Input);
+    const uint16_t minor_version = BigEndianReading::readHalf(Input);
+    const uint16_t major_version = BigEndianReading::readHalf(Input);
     if (major_version != 52 || minor_version != 0)
       throw FormatError("Unsupported class file version");
   } catch (ReadError &) {
-    throw FormatError("Unable to read class file version.");
+    throw FormatError("Unable to read class file version");
   }
 
   // Parse constant pool
   //
   try {
-    uint16_t constant_pool_count = 0;
-    constant_pool_count = BigEndianReading::readHalf(Input);
+    uint16_t constant_pool_count = BigEndianReading::readHalf(Input);
     // I guess extra one is added to account for the weird representation of
     // the long numbers.
     constant_pool_count -= 1;
@@ -188,7 +328,7 @@ std::unique_ptr<JavaTypes::JavaClass> ClassFileReader::loadClassFromStream(
   // Access flags
   //
   try {
-    uint16_t access_flags = BigEndianReading::readHalf(Input);
+    const uint16_t access_flags = BigEndianReading::readHalf(Input);
     ClassParams.Flags = static_cast<JavaClass::AccessFlags>(access_flags);
   } catch (ReadError &) {
     throw FormatError("Unable to read access flags");
@@ -197,29 +337,52 @@ std::unique_ptr<JavaTypes::JavaClass> ClassFileReader::loadClassFromStream(
   // This class and super class
   //
   try {
-    auto GetClassInfoFromIndex =
-        [&](ConstantPool::IndexType Idx, const std::string &FieldName) {
-          if (!ClassParams.CP->isValidIndex(Idx))
-            throw FormatError("Invalid constant pool index for the " + FieldName);
-          const auto *Res = ClassParams.CP->
-              getAsOrNull<ConstantPoolRecords::ClassInfo>(Idx);
-          if (Res == nullptr)
-            throw FormatError("Expected ClassInfo at index " + FieldName);
-          return Res;
-        };
+    const auto &ThisClass =
+        readConstantPoolRecord<ConstantPoolRecords::ClassInfo>(
+            Input, *ClassParams.CP, "this_class");
+    ClassParams.ClassName = &ThisClass;
 
-    uint16_t this_class = BigEndianReading::readHalf(Input);
-    ClassParams.ClassName = GetClassInfoFromIndex(this_class, "this_class");
-    assert(ClassParams.ClassName != nullptr);
-
-    uint16_t super_class = BigEndianReading::readHalf(Input);
+    const uint16_t super_class = BigEndianReading::readHalf(Input);
     if (super_class != 0) {
-      const auto *SuperCI = GetClassInfoFromIndex(super_class, "super_class");
-      assert(SuperCI != nullptr);
-      ClassParams.SuperClass = SuperCI;
+      const auto &SuperClass =
+          readConstantPoolRecord<ConstantPoolRecords::ClassInfo>(
+              super_class, *ClassParams.CP, "super_class");
+      ClassParams.SuperClass = &SuperClass;
     }
   } catch (ReadError &) {
     throw FormatError("Unable to read this or super class indexes");
+  }
+
+  // Interfaces
+  //
+  try {
+    const uint16_t interfaces_count = BigEndianReading::readHalf(Input);
+    if (interfaces_count != 0)
+      throw FormatError("Interface inheritance is not supported yet");
+  } catch (ReadError &) {
+    throw FormatError("Can't read interface_count");
+  }
+
+  // Fields
+  //
+  try {
+    const uint16_t fields_count = BigEndianReading::readHalf(Input);
+    if (fields_count != 0)
+      throw FormatError("Fields are not supported yet");
+  } catch (ReadError &) {
+    throw FormatError("Can't read fields_count");
+  }
+
+  // Methods
+  //
+  try {
+    const uint16_t methods_count = BigEndianReading::readHalf(Input);
+
+    ClassParams.Methods.reserve(methods_count);
+    for (uint16_t method_idx = 0; method_idx < methods_count; ++method_idx)
+      ClassParams.Methods.push_back(parseMethod(Input, *ClassParams.CP));
+  } catch (ReadError &) {
+    throw FormatError("Unable to read class methods");
   }
 
   return std::make_unique<JavaClass>(std::move(ClassParams));

@@ -1,5 +1,6 @@
 //
-// Created by Igor on 22.09.2017.
+// This class should be used to support unicode strings from the java class
+// file.
 //
 
 #ifndef IJVM_UTF8STRING_H
