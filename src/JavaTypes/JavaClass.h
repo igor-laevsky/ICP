@@ -85,12 +85,15 @@ public:
     return Methods;
   }
 
-  // \returns nullptr if class doesn't have super class, pointer to the
-  // class name otherwise.
-  const Utf8String *getSuperClassName() const {
-    if (SuperClass == nullptr)
-      return nullptr;
-    return &SuperClass->getName();
+  // Checks if this class has a super class
+  bool hasSuper() const {
+    return SuperClass != nullptr;
+  }
+
+  // Only valid to call when there is super class
+  const Utf8String &getSuperClassName() const {
+    assert(hasSuper());
+    return SuperClass->getName();
   }
 
   // Verifies the class. Includes verification of the constant pool and all

@@ -4,10 +4,7 @@ project(ICP)
 set(CMAKE_CXX_STANDARD 17)
 
 set(CXX_FLAGS "-Wall -Werror")
-set(LINK_FLAGS "-static -static-libgcc -static-libstdc++")
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}${CXX_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}${LINKER_FLAGS}")
 
 include_directories( ./src )
 include_directories( ./vendor )
@@ -21,17 +18,23 @@ set(SOURCE_FILES
         src/Utils/BinaryFiles.cpp
         src/Utils/BinaryFiles.h src/JavaTypes/ConstantPool.cpp
         src/JavaTypes/ConstantPool.h
-        src/JavaTypes/ConstantPoolRecords.h src/Utils/Utf8String.h src/JavaTypes/JavaMethod.cpp src/JavaTypes/JavaMethod.h)
+        src/JavaTypes/ConstantPoolRecords.h
+        src/Utils/Utf8String.h
+        src/JavaTypes/JavaMethod.cpp
+        src/JavaTypes/JavaMethod.h
+        src/JavaTypes/Bytecode.cpp
+        src/JavaTypes/Bytecode.h
+        src/JavaTypes/BytecodeInstructions.h)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
-        tests/JavaTypes/ConstantPoolTests.cpp)
+        tests/JavaTypes/ConstantPoolTests.cpp
+        tests/JavaTypes/InstructionTests.cpp)
 
-add_executable(ICP
-        src/main.cpp
-        ${SOURCE_FILES})
+add_library(ICP_LIB ${SOURCE_FILES})
 
-add_executable(ICP_unit_tests
-        tests/tests_main.cpp
-        ${SOURCE_FILES}
-        ${TEST_FILES})
+add_executable(ICP src/main.cpp ${SOURCE_FILES})
+target_link_libraries(ICP ICP_LIB)
+
+add_executable(ICP_unit_tests tests/tests_main.cpp ${TEST_FILES})
+target_link_libraries(ICP_unit_tests ICP_LIB)

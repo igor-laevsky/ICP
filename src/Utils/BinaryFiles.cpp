@@ -7,7 +7,9 @@
 using namespace Utils;
 
 // Converts number from big endian to whatever native endian is.
-static uint64_t bigToNativeEndian(const uint8_t Input[], std::size_t Length) {
+static uint64_t bigToNativeEndian(
+    const uint8_t Input[], std::size_t Length) {
+
   assert(Length >= 1 && Length <= 8 && "Unexpected length");
 
   uint64_t Res = 0;
@@ -17,8 +19,9 @@ static uint64_t bigToNativeEndian(const uint8_t Input[], std::size_t Length) {
   return Res;
 }
 
-static void readByteArray(uint8_t Output[], std::size_t Length,
-                          std::istream &Input) {
+static void readByteArray(
+    uint8_t Output[], std::size_t Length, std::istream &Input) {
+
   assert(Length >= 1 && Length <= 8 && "Unexpected length");
 
   Input.read(reinterpret_cast<char*>(Output), Length);

@@ -1,0 +1,121 @@
+//
+// Created by Igor on 25.09.2017.
+//
+
+#ifndef ICP_BYTECODE_H
+#define ICP_BYTECODE_H
+
+#include <cstdint>
+#include <ostream>
+#include <memory>
+#include <cassert>
+#include <vector>
+
+namespace JavaTypes::Bytecode {
+
+using BciType = uint32_t;
+using Container = const std::vector<uint8_t>;
+using ContainerIterator = Container::const_iterator;
+
+// Exceptions
+class UnexpectedBytecodeOperation: public std::exception {};
+class BytecodeParsingError: public std::exception {};
+class UnknownBytecode: public std::exception {};
+
+// Each instruction contains referernce to the bytecode container and
+// and provides some additional functionality according to the instruction type.
+class Instruction {
+public:
+  // These constant are used in 'create' function and are expected to be
+  // found in each subclass.
+
+  // Instruction bytecode
+  static constexpr uint8_t OpCode = 0x00;
+
+  // Number of bytes used to store this instruction including one byte for the
+  // opcode.
+  static constexpr uint8_t Length = 0;
+
+public:
+  // No copies
+  Instruction(const Instruction&) = delete;
+  Instruction &operator=(const Instruction &) = delete;
+
+  BciType getBci() {
+    return bci;
+  }
+
+  // Useful dynamic type cast functions
+  template<class RetType>
+  bool isA() {
+    return dynamic_cast<RetType*>(this) != nullptr;
+  }
+
+  template<class RetType>
+  const RetType &getAs() {
+    RetType *Res = dynamic_cast<RetType*>(this);
+    if (Res == nullptr)
+      throw UnexpectedBytecodeOperation();
+    return *Res;
+  }
+
+  template<class RetType>
+  const RetType *getAsOrNull() {
+    return dynamic_cast<RetType*>(this);
+  }
+
+  virtual void print(std::ostream &Out) = 0;
+
+  // Creates instruction and advances the iterator.
+  // \param It Iterator pointing to the beginning of the instruction
+  // \returns New instruction.
+  // \throws BytecodeParsingError if length of the container was less than
+  // instruction length.
+  template<class InstructionType>
+  static std::unique_ptr<Instruction> create(
+      Container &Bytecodes, ContainerIterator &It) {
+
+    // Check that we can parse this instruction
+    if (std::distance(It, Bytecodes.end()) < InstructionType::Length)
+      throw BytecodeParsingError();
+    assert(*It == InstructionType::OpCode);
+
+    // Compute bci
+    BciType bci = static_cast<BciType>(std::distance(Bytecodes.begin(), It));
+
+    // Create instruction
+    auto Res = std::unique_ptr<InstructionType>(new InstructionType(It, bci));
+
+    // Advance iterator
+    It += InstructionType::Length;
+
+    return Res;
+  }
+
+protected:
+  // This is supposed to be called only from 'create' function
+  explicit Instruction(ContainerIterator It, BciType bci):
+      It(It), bci(bci) {
+    ;
+  }
+
+  ContainerIterator getIt() const {
+    return It;
+  }
+
+private:
+  const ContainerIterator It;
+  const BciType bci;
+};
+
+// Creates instruction and advances iterator.
+// \returns New instruction.
+// \throws UndefinedBytecode if opcode was not recognized.
+// \throws BytecodeParsingError if length of the container was less than
+// instruction length.
+std::unique_ptr<Instruction> createInstruction(
+    Container &Bytecodes, ContainerIterator &It);
+
+}
+
+#endif //ICP_BYTECODE_H

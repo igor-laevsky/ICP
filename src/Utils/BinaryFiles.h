@@ -6,7 +6,7 @@
 #define ICP_BINARYFILES_H
 
 #include <cstdint>
-#include <ios>
+#include <istream>
 
 namespace Utils {
 

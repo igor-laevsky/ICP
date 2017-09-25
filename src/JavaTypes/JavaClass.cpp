@@ -23,8 +23,8 @@ bool JavaClass::verify(std::string &ErrorMessage) const {
 
 void JavaClass::print(std::ostream &Out) const {
   Out << "Class name: " << getClassName() << "\n";
-  if (getSuperClassName())
-    Out << "Super class: " << *getSuperClassName() << "\n";
+  if (hasSuper())
+    Out << "Super class: " << getSuperClassName() << "\n";
 
   Out << "Constant pool: \n";
   getConstantPool().print(Out);
