@@ -45,12 +45,14 @@ public:
     return bci;
   }
 
-  // Useful dynamic type cast functions
+  // Return true if this instruction has type 'RetType'
   template<class RetType>
   bool isA() const {
     return dynamic_cast<const RetType*>(this) != nullptr;
   }
 
+  // Cast instruction to the type 'RetType' or throw an exception.
+  // \throws UnexpectedBytecodeOperation If this instruction is of the wrong type.
   template<class RetType>
   const RetType &getAs() const {
     const RetType *Res = dynamic_cast<const RetType*>(this);
@@ -59,6 +61,7 @@ public:
     return *Res;
   }
 
+  // Cast instruction to the type 'RetType' or return null if it is impossible.
   template<class RetType>
   const RetType *getAsOrNull() const {
     return dynamic_cast<const RetType*>(this);
