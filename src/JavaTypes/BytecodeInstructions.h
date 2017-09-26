@@ -10,52 +10,67 @@
 
 namespace JavaTypes::Bytecode::Instructions {
 
+// This is utility class containing common code for the instructions
+// with a single two-byte index.
+class SingleIndex: public Instruction {
+public:
+  static constexpr uint8_t Length = 3;
+
+public:
+  ConstantPool::IndexType getIdx() const {
+    return Idx;
+  }
+
+private:
+  SingleIndex(ContainerIterator It, BciType bci):
+      Instruction(It, bci),
+      Idx((*(It + 1) << 8) | *(It + 2)) {
+    ;
+  }
+
+  // Allow calling constructor from the create function
+  template<class InstructionType>
+  friend std::unique_ptr<Instruction> Instruction::create(
+      Container &Bytecodes, ContainerIterator &It);
+
+private:
+  const ConstantPool::IndexType Idx;
+};
+
 class aload_0 final: public Instruction {
+  // Simply inherit constructors
+  using Instruction::Instruction;
+
 public:
   static constexpr uint8_t Length = 1;
   static constexpr uint8_t OpCode = 0x2a;
 
-public:
   void print(std::ostream &Out) override {
     Out << "aload_0\n";
   }
-
-protected:
-  // Simply inherit the constructor
-  using Instruction::Instruction;
 };
 
-class invokespecial final: public Instruction {
+class invokespecial final: public SingleIndex {
+  using SingleIndex::SingleIndex;
+
 public:
-  static constexpr uint8_t Length = 3;
   static constexpr uint8_t OpCode = 0xb7;
-
-public:
-
-  ConstantPool::IndexType getIdx() {
-    return (*(getIt() + 1) << 8) | *(getIt() + 2);
-  }
 
   void print(std::ostream &Out) override {
     Out << "invokespecial #" << getIdx() << "\n";
   }
-
-protected:
-  using Instruction::Instruction;
 };
 
 class java_return final: public Instruction {
+  using Instruction::Instruction;
+
 public:
   static constexpr uint8_t Length = 1;
   static constexpr uint8_t OpCode = 0xb1;
 
-public:
   void print(std::ostream &Out) override {
     Out << "return\n";
   }
-
-protected:
-  using Instruction::Instruction;
 };
 
 }

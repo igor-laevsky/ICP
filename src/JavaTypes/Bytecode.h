@@ -22,8 +22,8 @@ class UnexpectedBytecodeOperation: public std::exception {};
 class BytecodeParsingError: public std::exception {};
 class UnknownBytecode: public std::exception {};
 
-// Each instruction contains referernce to the bytecode container and
-// provides some additional functionality according with the instruction type.
+// Represents single bytecode instruction. Supposed to be created from the
+// byte array using 'Instruction::create' or 'parseInstruction' functions.
 class Instruction {
 public:
   // These constants are used in 'create' function and are expected to be
@@ -94,17 +94,12 @@ public:
 
 protected:
   // This is supposed to be called only from 'create' function
-  explicit Instruction(ContainerIterator It, BciType bci):
-      It(It), bci(bci) {
-    ;
-  }
-
-  ContainerIterator getIt() const {
-    return It;
+  Instruction(ContainerIterator It, BciType bci):
+      bci(bci) {
+    (void)It; // This parameter is used in the inherited classes
   }
 
 private:
-  const ContainerIterator It;
   const BciType bci;
 };
 
