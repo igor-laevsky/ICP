@@ -47,23 +47,26 @@ public:
 
   // Useful dynamic type cast functions
   template<class RetType>
-  bool isA() {
-    return dynamic_cast<RetType*>(this) != nullptr;
+  bool isA() const {
+    return dynamic_cast<const RetType*>(this) != nullptr;
   }
 
   template<class RetType>
-  const RetType &getAs() {
-    RetType *Res = dynamic_cast<RetType*>(this);
+  const RetType &getAs() const {
+    const RetType *Res = dynamic_cast<const RetType*>(this);
     if (Res == nullptr)
       throw UnexpectedBytecodeOperation();
     return *Res;
   }
 
   template<class RetType>
-  const RetType *getAsOrNull() {
-    return dynamic_cast<RetType*>(this);
+  const RetType *getAsOrNull() const {
+    return dynamic_cast<const RetType*>(this);
   }
 
+  // Print information about this instruction.
+  // This is intended as a debug output and should not be relied on for
+  // correctness.
   virtual void print(std::ostream &Out) = 0;
 
   // Creates instruction and advances the iterator.
@@ -73,24 +76,7 @@ public:
   // instruction length.
   template<class InstructionType>
   static std::unique_ptr<Instruction> create(
-      Container &Bytecodes, ContainerIterator &It) {
-
-    // Check that we can parse this instruction
-    if (std::distance(It, Bytecodes.end()) < InstructionType::Length)
-      throw BytecodeParsingError();
-    assert(*It == InstructionType::OpCode);
-
-    // Compute bci
-    BciType bci = static_cast<BciType>(std::distance(Bytecodes.begin(), It));
-
-    // Create instruction
-    auto Res = std::unique_ptr<InstructionType>(new InstructionType(It, bci));
-
-    // Advance iterator
-    It += InstructionType::Length;
-
-    return Res;
-  }
+      Container &Bytecodes, ContainerIterator &It);
 
 protected:
   // This is supposed to be called only from 'create' function
@@ -110,6 +96,26 @@ private:
 // instruction length.
 std::unique_ptr<Instruction> parseInstruction(
     Container &Bytecodes, ContainerIterator &It);
+
+template<class InstructionType>
+std::unique_ptr<Instruction>
+Instruction::create(Container &Bytecodes, ContainerIterator &It) {
+  // Check that we can parse this instruction
+  if (std::distance(It, Bytecodes.end()) < InstructionType::Length)
+    throw BytecodeParsingError();
+  assert(*It == InstructionType::OpCode);
+
+  // Compute bci
+  BciType bci = static_cast<BciType>(std::distance(Bytecodes.begin(), It));
+
+  // Create instruction
+  auto Res = std::unique_ptr<InstructionType>(new InstructionType(It, bci));
+
+  // Advance iterator
+  It += InstructionType::Length;
+
+  return Res;
+}
 
 }
 

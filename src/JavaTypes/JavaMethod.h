@@ -72,6 +72,7 @@ public:
     assert(Descriptor != nullptr);
     return Descriptor->getValue();
   }
+
   uint16_t getMaxStack() const {
     return MaxStack;
   }

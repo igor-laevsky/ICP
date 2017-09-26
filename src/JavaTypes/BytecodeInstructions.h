@@ -38,7 +38,6 @@ private:
 };
 
 class aload_0 final: public Instruction {
-  // Simply inherit constructors
   using Instruction::Instruction;
 
 public:

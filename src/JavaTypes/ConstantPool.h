@@ -82,45 +82,25 @@ public:
     return static_cast<SizeType>(getRecordTable().size());
   }
 
-  // Check that this constant pool is valid.
-  // \returns true if constant pool is valid, false otherwise.
-  bool verify(std::string &ErrorMessage) const {
-    for (IndexType i = 0; i < numRecords(); ++i) {
-      if (getRecordTable()[i] == nullptr) {
-        ErrorMessage = "Unallocated record at index " + std::to_string(i + 1);
-        return false;
-      }
-      if (!getRecordTable()[i]->isValid()) {
-        ErrorMessage = "Invalid record at index " + std::to_string(i + 1);
-        return false;
-      }
-    }
-
-    return true;
+  // Checks if index is valid index into this constant pool. Expects 1 based
+  // index.
+  bool isValidIndex(IndexType Idx) const {
+    return Idx >= 1 && Idx <= numRecords();
   }
+
+  // Check that this constant pool is valid.
+  // \returns true if constant pool is valid, false otherwise. ErrorMessage
+  // will remain unchanged when constant pool is valid or will contain
+  // diagnostic message if any verification errors were discovered.
+  bool verify(std::string &ErrorMessage) const;
 
   // Convenience overload of the 'verify' function. Makes it easier to use in
   // asserts.
   // \returns true if constant pool is in a valid state, false otherwise.
-  bool verify() const {
-    std::string Temp;
-    return verify(Temp);
-  }
+  bool verify() const;
 
   // Print contents of this constant pool
-  void print(std::ostream &Out) const {
-    for (IndexType Idx = 1; Idx <= numRecords(); ++Idx) {
-      Out << "#" << Idx << " = ";
-      get(Idx).print(Out);
-    }
-  }
-
-  // Checks if index is valid index into this constant pool. Expects 1 based
-  // index.
-  bool isValidIndex(IndexType Idx) const {
-    Idx = toZeroBasedIndex(Idx);
-    return Idx >= 0 && Idx < numRecords();
-  }
+  void print(std::ostream &Out) const;
 
   // No copying
   ConstantPool(const ConstantPool &) = delete;
