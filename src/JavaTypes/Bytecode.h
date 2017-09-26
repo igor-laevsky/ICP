@@ -1,5 +1,5 @@
 //
-// Created by Igor on 25.09.2017.
+// This file defines internal bytecode representation.
 //
 
 #ifndef ICP_BYTECODE_H
@@ -23,10 +23,10 @@ class BytecodeParsingError: public std::exception {};
 class UnknownBytecode: public std::exception {};
 
 // Each instruction contains referernce to the bytecode container and
-// and provides some additional functionality according to the instruction type.
+// provides some additional functionality according with the instruction type.
 class Instruction {
 public:
-  // These constant are used in 'create' function and are expected to be
+  // These constants are used in 'create' function and are expected to be
   // found in each subclass.
 
   // Instruction bytecode
@@ -113,7 +113,7 @@ private:
 // \throws UndefinedBytecode if opcode was not recognized.
 // \throws BytecodeParsingError if length of the container was less than
 // instruction length.
-std::unique_ptr<Instruction> createInstruction(
+std::unique_ptr<Instruction> parseInstruction(
     Container &Bytecodes, ContainerIterator &It);
 
 }

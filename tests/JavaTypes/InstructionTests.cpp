@@ -15,9 +15,9 @@ TEST_CASE("Common instruction interface", "[Bytecode]") {
        0xb7, 0x00, 0x01, // invokespecial #1
        0xb1 };           // return
   auto It = Bytes.begin();
-  std::unique_ptr<Instruction> Aload = createInstruction(Bytes, It);
-  std::unique_ptr<Instruction> Invoke = createInstruction(Bytes, It);
-  std::unique_ptr<Instruction> Ret = createInstruction(Bytes, It);
+  std::unique_ptr<Instruction> Aload = parseInstruction(Bytes, It);
+  std::unique_ptr<Instruction> Invoke = parseInstruction(Bytes, It);
+  std::unique_ptr<Instruction> Ret = parseInstruction(Bytes, It);
   REQUIRE(It == Bytes.end());
 
   SECTION("isA") {
@@ -52,11 +52,11 @@ TEST_CASE("Common instruction interface", "[Bytecode]") {
 TEST_CASE("Undefined bytecode", "[Bytecode]") {
   const std::vector<uint8_t> Bytes = {0x00};
   auto It = Bytes.begin();
-  REQUIRE_THROWS_AS(createInstruction(Bytes, It), UnknownBytecode);
+  REQUIRE_THROWS_AS(parseInstruction(Bytes, It), UnknownBytecode);
 }
 
 TEST_CASE("Empty bytecode", "[Bytecode]") {
   const std::vector<uint8_t> Bytes = {};
   auto It = Bytes.begin();
-  REQUIRE_THROWS_AS(createInstruction(Bytes, It), BytecodeParsingError);
+  REQUIRE_THROWS_AS(parseInstruction(Bytes, It), BytecodeParsingError);
 }

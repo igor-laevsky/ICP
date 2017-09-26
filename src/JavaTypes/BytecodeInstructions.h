@@ -55,7 +55,6 @@ public:
   }
 
 protected:
-  // Simply inherit the constructor
   using Instruction::Instruction;
 };
 
