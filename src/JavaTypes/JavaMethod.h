@@ -117,9 +117,9 @@ private:
   const uint16_t MaxStack;
   const uint16_t MaxLocals;
 
-  // This two arrays contain same information. Second one is used to expose
-  // Instruction to the euser without exposing ownership (unique_ptr).
-  // TODO: It is much better to provide a custom iterator instead of a second array.
+  // These two arrays contain same information. Second one is used to expose
+  // instructions to the user without exposing ownership (unique_ptr).
+  // TODO: It is much better to provide custom iterator instead of a second array.
   CodeOwnerType CodeOwner;
   CodeReferenceType CodeReference;
 };

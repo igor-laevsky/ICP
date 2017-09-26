@@ -12,7 +12,6 @@
 
 using namespace JavaTypes;
 using namespace JavaTypes::Bytecode;
-;
 
 TEST_CASE("Basic method interface", "[JavaMethod]") {
   // Create constant pool records for the method name and descriptor.
@@ -33,7 +32,7 @@ TEST_CASE("Basic method interface", "[JavaMethod]") {
   Params.Code = {
       0x2a,             // aload_0
       0xb7, 0x00, 0x01, // invokespecial #1
-      0xb1};           // return
+      0xb1};            // return
 
   auto Method = std::make_unique<const JavaMethod>(std::move(Params));
 
@@ -48,6 +47,7 @@ TEST_CASE("Basic method interface", "[JavaMethod]") {
   REQUIRE(Aload.isA<Instructions::aload_0>());
   REQUIRE(Invoke.isA<Instructions::invokespecial>());
   REQUIRE(Invoke.getAs<Instructions::invokespecial>().getIdx() == 1);
+  REQUIRE(Ret.isA<Instructions::java_return>());
 
   // Check that code iterator works
   std::vector<std::reference_wrapper<const Instruction>> Instrs;
@@ -70,7 +70,8 @@ TEST_CASE("Unknown bytecode error", "[JavaMethod]") {
       0, 0,
       {0x00}
   };
-  REQUIRE_THROWS_AS(std::make_unique<JavaMethod>(std::move(Params)), UnknownBytecode);
+  REQUIRE_THROWS_AS(
+      std::make_unique<JavaMethod>(std::move(Params)), UnknownBytecode);
 }
 
 TEST_CASE("Bytecode parsing error", "[JavaMethod]") {
@@ -84,5 +85,6 @@ TEST_CASE("Bytecode parsing error", "[JavaMethod]") {
       0, 0,
       {0xb7, 0x00}
   };
-  REQUIRE_THROWS_AS(std::make_unique<JavaMethod>(std::move(Params)), BytecodeParsingError);
+  REQUIRE_THROWS_AS(
+      std::make_unique<JavaMethod>(std::move(Params)), BytecodeParsingError);
 }

@@ -18,8 +18,8 @@ public:
   static constexpr uint8_t Length = 1;
 };
 
-// This is utility class containing common code for the instructions
-// with a single two-byte index.
+// Utility class for three byte instructions. First byte is opcode,
+// second two represent constant pool index.
 class SingleIndex: public Instruction {
 public:
   static constexpr uint8_t Length = 3;
