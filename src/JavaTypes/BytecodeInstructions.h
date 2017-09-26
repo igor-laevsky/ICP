@@ -10,6 +10,14 @@
 
 namespace JavaTypes::Bytecode::Instructions {
 
+// Utility class for instruction consisting of a single byte.
+class NoIndex: public Instruction {
+  using Instruction::Instruction;
+
+public:
+  static constexpr uint8_t Length = 1;
+};
+
 // This is utility class containing common code for the instructions
 // with a single two-byte index.
 class SingleIndex: public Instruction {
@@ -37,14 +45,13 @@ private:
   const ConstantPool::IndexType Idx;
 };
 
-class aload_0 final: public Instruction {
-  using Instruction::Instruction;
+class aload_0 final: public NoIndex {
+  using NoIndex::NoIndex;
 
 public:
-  static constexpr uint8_t Length = 1;
   static constexpr uint8_t OpCode = 0x2a;
 
-  void print(std::ostream &Out) override {
+  void print(std::ostream &Out) const override {
     Out << "aload_0\n";
   }
 };
@@ -55,24 +62,44 @@ class invokespecial final: public SingleIndex {
 public:
   static constexpr uint8_t OpCode = 0xb7;
 
-  void print(std::ostream &Out) override {
+  void print(std::ostream &Out) const override {
     Out << "invokespecial #" << getIdx() << "\n";
   }
 };
 
-class java_return final: public Instruction {
-  using Instruction::Instruction;
+class java_return final: public NoIndex {
+  using NoIndex::NoIndex;
 
 public:
-  static constexpr uint8_t Length = 1;
   static constexpr uint8_t OpCode = 0xb1;
 
-  void print(std::ostream &Out) override {
+  void print(std::ostream &Out) const override {
     Out << "return\n";
   }
 };
 
-}
+class iconst_0 final: public NoIndex {
+  using NoIndex::NoIndex;
 
+public:
+  static constexpr uint8_t OpCode = 0x03;
+
+  void print(std::ostream &Out) const override {
+    Out << "iconst_0\n";
+  }
+};
+
+class ireturn final: public NoIndex {
+  using NoIndex::NoIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0xac;
+
+  void print(std::ostream &Out) const override {
+    Out << "ireturn\n";
+  }
+};
+
+}
 
 #endif //ICP_BYTECODEINSTRUCTIONS_H

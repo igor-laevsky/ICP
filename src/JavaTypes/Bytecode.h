@@ -69,7 +69,7 @@ public:
   // Print information about this instruction.
   // This is intended as a debug output and should not be relied on for
   // correctness.
-  virtual void print(std::ostream &Out) = 0;
+  virtual void print(std::ostream &Out) const = 0;
 
   // Creates instruction and advances the iterator.
   // \param It Iterator pointing to the beginning of the instruction

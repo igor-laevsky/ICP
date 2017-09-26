@@ -40,7 +40,12 @@ bool JavaMethod::verify(std::string &ErrorMessage) const {
 void JavaMethod::print(std::ostream &Out) const {
   Out << getName() << " " << getDescriptor() << "\n";
   Out << "MaxStack: " << getMaxStack() << " MaxLocals: " << getMaxLocals() << "\n";
-  Out << "Code size: " << numInstructions() << "\n";
+  Out << "Code:\n";
+
+  for (const Bytecode::Instruction &Instr: *this) {
+    Out << "  " << Instr.getBci() << ": ";
+    Instr.print(Out);
+  }
 }
 
 const Bytecode::Instruction &

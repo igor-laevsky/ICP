@@ -24,6 +24,8 @@ std::unique_ptr<Instruction> JavaTypes::Bytecode::parseInstruction(
     PARSE_OP(aload_0);
     PARSE_OP(invokespecial);
     PARSE_OP(java_return);
+    PARSE_OP(ireturn);
+    PARSE_OP(iconst_0);
     default:
       throw UnknownBytecode();
   }
