@@ -8,6 +8,25 @@
 
 using namespace JavaTypes;
 
+JavaMethod::JavaMethod(JavaMethod::MethodConstructorParameters &&Params) :
+    Owner(nullptr),
+    Flags(Params.Flags),
+    Name(Params.Name),
+    Descriptor(Params.Descriptor),
+    MaxStack(Params.MaxStack),
+    MaxLocals(Params.MaxLocals)
+{
+  assert(Name != nullptr);
+  assert(Descriptor != nullptr);
+
+  auto CodeIt = Params.Code.cbegin();
+
+  while (CodeIt != Params.Code.end()) {
+    CodeOwner.push_back(Bytecode::parseInstruction(Params.Code, CodeIt));
+    CodeReference.emplace_back(*CodeOwner.back());
+  }
+}
+
 bool JavaMethod::verify(std::string &ErrorMessage) const {
   if (Flags != AccessFlags::ACC_PUBLIC &&
       Flags != (AccessFlags::ACC_PUBLIC | AccessFlags::ACC_STATIC)) {
@@ -21,5 +40,16 @@ bool JavaMethod::verify(std::string &ErrorMessage) const {
 void JavaMethod::print(std::ostream &Out) const {
   Out << getName() << " " << getDescriptor() << "\n";
   Out << "MaxStack: " << getMaxStack() << " MaxLocals: " << getMaxLocals() << "\n";
-  Out << "Code size: " << getCode().size() << "\n";
+  Out << "Code size: " << numInstructions() << "\n";
+}
+
+const Bytecode::Instruction &
+JavaMethod::getInstrAtBci(Bytecode::BciType Bci) const {
+  // This is can be more efficient, but it doesn't matter for now
+  for (const Bytecode::Instruction &Instr: *this) {
+    if (Instr.getBci() == Bci)
+      return Instr;
+  }
+
+  throw WrongBci();
 }

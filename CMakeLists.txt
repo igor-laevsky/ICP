@@ -29,7 +29,7 @@ set(SOURCE_FILES
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
         tests/JavaTypes/ConstantPoolTests.cpp
-        tests/JavaTypes/InstructionTests.cpp)
+        tests/JavaTypes/InstructionTests.cpp tests/JavaTypes/JavaMethodTests.cpp)
 
 add_library(ICP_LIB ${SOURCE_FILES})
 

@@ -41,10 +41,6 @@ public:
   Instruction(const Instruction&) = delete;
   Instruction &operator=(const Instruction &) = delete;
 
-  BciType getBci() {
-    return bci;
-  }
-
   // Return true if this instruction has type 'RetType'
   template<class RetType>
   bool isA() const {
@@ -66,6 +62,9 @@ public:
   const RetType *getAsOrNull() const {
     return dynamic_cast<const RetType*>(this);
   }
+
+  // Each instruction must know it's bytecode index.
+  BciType getBci() const { return bci; }
 
   // Print information about this instruction.
   // This is intended as a debug output and should not be relied on for
@@ -91,6 +90,11 @@ protected:
 private:
   const BciType bci;
 };
+
+// Two instructions are identical if their addresses are identical.
+inline bool operator==(const Instruction &Lhs, const Instruction &Rhs) {
+  return &Lhs == &Rhs;
+}
 
 // Creates instruction and advances iterator.
 // \returns New instruction.

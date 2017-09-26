@@ -9,6 +9,7 @@
 
 #include "ConstantPool.h"
 #include "ConstantPoolRecords.h"
+#include "Bytecode.h"
 
 namespace JavaTypes {
 
@@ -46,19 +47,17 @@ public:
     std::vector<uint8_t> Code;
   };
 
+  using CodeOwnerType =
+    std::vector<std::unique_ptr<const Bytecode::Instruction>>;
+  using CodeReferenceType =
+    std::vector<std::reference_wrapper<const Bytecode::Instruction>>;
+  using CodeIterator = CodeReferenceType::const_iterator;
+
+  // thrown when trying to request instruction at non existant bci
+  class WrongBci: public std::exception {};
+
 public:
-  explicit JavaMethod(MethodConstructorParameters &&Params):
-      Owner(nullptr),
-      Flags(Params.Flags),
-      Name(Params.Name),
-      Descriptor(Params.Descriptor),
-      MaxStack(Params.MaxStack),
-      MaxLocals(Params.MaxLocals),
-      Code(std::move(Params.Code))
-  {
-    assert(Name != nullptr);
-    assert(Descriptor != nullptr);
-  }
+  explicit JavaMethod(MethodConstructorParameters &&Params);
 
   // No copies
   JavaMethod(const JavaMethod&) = delete;
@@ -80,10 +79,6 @@ public:
     return MaxLocals;
   }
 
-  const std::vector<uint8_t> &getCode() const {
-    return Code;
-  }
-
   const JavaClass &getOwner() const {
     // Never request owner before it was assigned
     assert(Owner != nullptr);
@@ -93,6 +88,18 @@ public:
     // Only set owner once
     assert(Owner == nullptr);
     Owner = &NewOwner;
+  }
+
+  // Get instruction at specified bci.
+  // \throws WrongBci if no such instruction is found.
+  const Bytecode::Instruction &getInstrAtBci(Bytecode::BciType Bci) const;
+
+  // Support ranged-for iteration over instructions.
+  CodeIterator begin() const { return CodeReference.begin(); }
+  CodeIterator end() const { return CodeReference.end(); }
+
+  Bytecode::BciType numInstructions() const {
+    return static_cast<Bytecode::BciType>(CodeReference.size());
   }
 
   bool verify(std::string &ErrorMessage) const;
@@ -110,7 +117,11 @@ private:
   const uint16_t MaxStack;
   const uint16_t MaxLocals;
 
-  const std::vector<uint8_t> Code;
+  // This two arrays contain same information. Second one is used to expose
+  // Instruction to the euser without exposing ownership (unique_ptr).
+  // TODO: It is much better to provide a custom iterator instead of a second array.
+  CodeOwnerType CodeOwner;
+  CodeReferenceType CodeReference;
 };
 
 // Allows using AccessFlags as a bitfield.
