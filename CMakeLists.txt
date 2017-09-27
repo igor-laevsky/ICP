@@ -11,15 +11,17 @@ include_directories( ./vendor )
 include_directories( ./tests )
 
 set(SOURCE_FILES
-        src/JavaTypes/JavaClass.cpp
-        src/JavaTypes/JavaClass.h
         src/ClassFileReader/ClassFileReader.cpp
         src/ClassFileReader/ClassFileReader.h
         src/Utils/BinaryFiles.cpp
-        src/Utils/BinaryFiles.h src/JavaTypes/ConstantPool.cpp
+        src/Utils/BinaryFiles.h
+        src/Utils/Iterators.h
+        src/Utils/Utf8String.h
+        src/JavaTypes/JavaClass.cpp
+        src/JavaTypes/JavaClass.h
+        src/JavaTypes/ConstantPool.cpp
         src/JavaTypes/ConstantPool.h
         src/JavaTypes/ConstantPoolRecords.h
-        src/Utils/Utf8String.h
         src/JavaTypes/JavaMethod.cpp
         src/JavaTypes/JavaMethod.h
         src/JavaTypes/Bytecode.cpp
@@ -29,9 +31,11 @@ set(SOURCE_FILES
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
         tests/JavaTypes/ConstantPoolTests.cpp
-        tests/JavaTypes/InstructionTests.cpp tests/JavaTypes/JavaMethodTests.cpp)
+        tests/JavaTypes/InstructionTests.cpp
+        tests/JavaTypes/JavaMethodTests.cpp
+        tests/Utils/IteratorsTests.cpp)
 
-add_library(ICP_LIB ${SOURCE_FILES} src/Utils/Iterators.h)
+add_library(ICP_LIB ${SOURCE_FILES})
 
 add_executable(ICP src/main.cpp ${SOURCE_FILES})
 target_link_libraries(ICP ICP_LIB)
