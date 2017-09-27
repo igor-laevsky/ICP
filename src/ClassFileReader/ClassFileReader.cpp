@@ -11,6 +11,7 @@
 #include "JavaTypes/ConstantPool.h"
 #include "JavaTypes/ConstantPoolRecords.h"
 #include "JavaTypes/JavaMethod.h"
+#include "JavaTypes/Bytecode.h"
 
 using namespace ClassFileReader;
 using namespace Utils;
@@ -68,12 +69,17 @@ static const RecordType &readConstantPoolRecord(
   return readConstantPoolRecord<RecordType>(Idx, CP, FieldName);
 }
 
-// Helper function for the class file reader. Parses 'ConstantPoolSize' records
-// from the input stream.
+// Creates and parses constant pool from the class file.
 // \returns Unique pointer to the valid constant pool.
 // \throws FormatError or ReadError is case of any input problems.
 static std::unique_ptr<ConstantPool>
-parseConstantPool(std::istream& Input, ConstantPool::SizeType ConstantPoolSize) {
+parseConstantPool(std::istream& Input) {
+  const uint16_t constant_pool_count = BigEndianReading::readHalf(Input);
+  // I guess extra one is added to account for the weird representation of
+  // the long numbers.
+  const uint16_t ConstantPoolSize =
+      constant_pool_count - static_cast<uint16_t>(1);
+
   ConstantPoolBuilder Builder(ConstantPoolSize);
 
   auto CheckIndex =
@@ -314,12 +320,7 @@ std::unique_ptr<JavaTypes::JavaClass> ClassFileReader::loadClassFromStream(
   // Parse constant pool
   //
   try {
-    uint16_t constant_pool_count = BigEndianReading::readHalf(Input);
-    // I guess extra one is added to account for the weird representation of
-    // the long numbers.
-    constant_pool_count -= 1;
-
-    ClassParams.CP = parseConstantPool(Input, constant_pool_count);
+    ClassParams.CP = parseConstantPool(Input);
   } catch (ReadError &) {
     throw FormatError("Unable to fully read constant pull");
   }
@@ -383,6 +384,10 @@ std::unique_ptr<JavaTypes::JavaClass> ClassFileReader::loadClassFromStream(
       ClassParams.Methods.push_back(parseMethod(Input, *ClassParams.CP));
   } catch (ReadError &) {
     throw FormatError("Unable to read class methods");
+  } catch (Bytecode::BytecodeParsingError &) {
+    throw FormatError("Unable to parse method's bytecode");
+  } catch (Bytecode::UnknownBytecode &) {
+    throw FormatError("Encountered unknown bytecode");
   }
 
   return std::make_unique<JavaClass>(std::move(ClassParams));

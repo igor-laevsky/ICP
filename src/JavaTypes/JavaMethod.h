@@ -92,12 +92,8 @@ public:
   const Bytecode::Instruction &getInstrAtBci(Bytecode::BciType Bci) const;
 
   // Support ranged-for iteration over instructions.
-  CodeIterator begin() const {
-    return SmartPtrIterator<CodeOwnerType::const_iterator>(Code.begin());
-  }
-  CodeIterator end() const {
-    return SmartPtrIterator<CodeOwnerType::const_iterator>(Code.end());
-  }
+  CodeIterator begin() const { return CodeIterator(Code.begin()); }
+  CodeIterator end() const { return CodeIterator(Code.end()); }
 
   Bytecode::BciType numInstructions() const {
     return static_cast<Bytecode::BciType>(Code.size());
