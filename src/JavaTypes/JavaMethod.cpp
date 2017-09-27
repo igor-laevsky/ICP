@@ -21,10 +21,8 @@ JavaMethod::JavaMethod(JavaMethod::MethodConstructorParameters &&Params) :
 
   auto CodeIt = Params.Code.cbegin();
 
-  while (CodeIt != Params.Code.end()) {
-    CodeOwner.push_back(Bytecode::parseInstruction(Params.Code, CodeIt));
-    CodeReference.emplace_back(*CodeOwner.back());
-  }
+  while (CodeIt != Params.Code.end())
+    Code.push_back(Bytecode::parseInstruction(Params.Code, CodeIt));
 }
 
 bool JavaMethod::verify(std::string &ErrorMessage) const {
@@ -42,7 +40,7 @@ void JavaMethod::print(std::ostream &Out) const {
   Out << "MaxStack: " << getMaxStack() << " MaxLocals: " << getMaxLocals() << "\n";
   Out << "Code:\n";
 
-  for (const Bytecode::Instruction &Instr: *this) {
+  for (const auto &Instr: *this) {
     Out << "  " << Instr.getBci() << ": ";
     Instr.print(Out);
   }
@@ -51,7 +49,7 @@ void JavaMethod::print(std::ostream &Out) const {
 const Bytecode::Instruction &
 JavaMethod::getInstrAtBci(Bytecode::BciType Bci) const {
   // This is can be more efficient, but it doesn't matter for now
-  for (const Bytecode::Instruction &Instr: *this) {
+  for (const auto &Instr: *this) {
     if (Instr.getBci() == Bci)
       return Instr;
   }

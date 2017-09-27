@@ -31,7 +31,7 @@ set (TEST_FILES
         tests/JavaTypes/ConstantPoolTests.cpp
         tests/JavaTypes/InstructionTests.cpp tests/JavaTypes/JavaMethodTests.cpp)
 
-add_library(ICP_LIB ${SOURCE_FILES})
+add_library(ICP_LIB ${SOURCE_FILES} src/Utils/Iterators.h)
 
 add_executable(ICP src/main.cpp ${SOURCE_FILES})
 target_link_libraries(ICP ICP_LIB)

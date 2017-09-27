@@ -8,8 +8,6 @@
 #ifndef ICP_JAVACLASS_H
 #define ICP_JAVACLASS_H
 
-#include <optional>
-
 #include "ConstantPool.h"
 #include "ConstantPoolRecords.h"
 #include "JavaMethod.h"

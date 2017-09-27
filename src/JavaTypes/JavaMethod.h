@@ -5,11 +5,10 @@
 #ifndef ICP_JAVAMETHOD_H
 #define ICP_JAVAMETHOD_H
 
-#include <string>
-
 #include "ConstantPool.h"
 #include "ConstantPoolRecords.h"
 #include "Bytecode.h"
+#include "Utils/Iterators.h"
 
 namespace JavaTypes {
 
@@ -49,9 +48,7 @@ public:
 
   using CodeOwnerType =
     std::vector<std::unique_ptr<const Bytecode::Instruction>>;
-  using CodeReferenceType =
-    std::vector<std::reference_wrapper<const Bytecode::Instruction>>;
-  using CodeIterator = CodeReferenceType::const_iterator;
+  using CodeIterator = Utils::SmartPtrIterator<CodeOwnerType::const_iterator>;
 
   // thrown when trying to request instruction at non existant bci
   class WrongBci: public std::exception {};
@@ -95,11 +92,15 @@ public:
   const Bytecode::Instruction &getInstrAtBci(Bytecode::BciType Bci) const;
 
   // Support ranged-for iteration over instructions.
-  CodeIterator begin() const { return CodeReference.begin(); }
-  CodeIterator end() const { return CodeReference.end(); }
+  CodeIterator begin() const {
+    return SmartPtrIterator<CodeOwnerType::const_iterator>(Code.begin());
+  }
+  CodeIterator end() const {
+    return SmartPtrIterator<CodeOwnerType::const_iterator>(Code.end());
+  }
 
   Bytecode::BciType numInstructions() const {
-    return static_cast<Bytecode::BciType>(CodeReference.size());
+    return static_cast<Bytecode::BciType>(Code.size());
   }
 
   bool verify(std::string &ErrorMessage) const;
@@ -117,11 +118,7 @@ private:
   const uint16_t MaxStack;
   const uint16_t MaxLocals;
 
-  // These two arrays contain same information. Second one is used to expose
-  // instructions to the user without exposing ownership (unique_ptr).
-  // TODO: It is much better to provide custom iterator instead of a second array.
-  CodeOwnerType CodeOwner;
-  CodeReferenceType CodeReference;
+  CodeOwnerType Code;
 };
 
 // Allows using AccessFlags as a bitfield.
