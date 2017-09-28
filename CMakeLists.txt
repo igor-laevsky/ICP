@@ -26,14 +26,16 @@ set(SOURCE_FILES
         src/JavaTypes/JavaMethod.h
         src/JavaTypes/Bytecode.cpp
         src/JavaTypes/Bytecode.h
-        src/JavaTypes/BytecodeInstructions.h)
+        src/JavaTypes/BytecodeInstructions.h
+        src/Verifier/Type.h src/Verifier/Type.cpp)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
         tests/JavaTypes/ConstantPoolTests.cpp
         tests/JavaTypes/InstructionTests.cpp
         tests/JavaTypes/JavaMethodTests.cpp
-        tests/Utils/IteratorsTests.cpp)
+        tests/Utils/IteratorsTests.cpp
+        tests/Verifier/TypeTests.cpp)
 
 add_library(ICP_LIB ${SOURCE_FILES})
 
