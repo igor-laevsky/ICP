@@ -1,5 +1,5 @@
 //
-// Representation of the verification type
+// Representation of the verification type system.
 //
 
 #ifndef ICP_TYPE_H
@@ -13,11 +13,11 @@ namespace Verifier {
 // User is supposed to use static variables defined below to refer to the
 // specific types. Direct construction is forbidden.
 // Types with parameters are constructed via static functions. Function without
-// parameter means type which exactly matches same type with any parameter.
+// parameter returns type which exactly matches same type with any parameter.
 // I.e UninitializedOffset() will match UninitializedOffset(10).
 // It represents uninitializedOffset(_) from the JVM specification.
 // This is intended to be a small immutable value-like class.
-// TODO: Add class, array and null types.
+// TODO: Add parameters for the class and array types
 class Type {
 public:
   static Type Top;
@@ -36,6 +36,10 @@ public:
 
   static Type UninitializedOffset();
   static Type UninitializedOffset(uint32_t Offset);
+
+  static Type Class;
+  static Type Array;
+  static Type Null;
 
 public:
   // This objects are often copied.
@@ -79,7 +83,10 @@ private:
     REFERENCE,
     UNINITIALIZED,
     UNINITIALIZED_THIS,
-    UNINITIALIZED_OFFSET
+    UNINITIALIZED_OFFSET,
+    ARRAY,
+    CLASS,
+    NULL_TAG
   };
   const TagType Tag;
 

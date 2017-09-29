@@ -27,6 +27,10 @@ TEST_CASE("Exact relation", "[Verifier][Types]") {
   REQUIRE(Type::UninitializedOffset() == Type::UninitializedOffset());
   REQUIRE(Type::Uninitialized != Type::UninitializedOffset());
 
+  REQUIRE(Type::Array != Type::Class);
+  REQUIRE(Type::Class == Type::Class);
+  REQUIRE(Type::Null != Type::Class);
+
   // Subtypes do not match exactly
   REQUIRE(t2 != t1);
   REQUIRE(t4 != t1);
@@ -47,6 +51,17 @@ TEST_CASE("Subtype relation", "[Verifier][Types]") {
   REQUIRE(Type::isAssignable(Type::UninitializedThis, Type::Uninitialized));
   REQUIRE(Type::isAssignable(Type::UninitializedOffset(), Type::Uninitialized));
   REQUIRE(Type::isAssignable(Type::UninitializedOffset(5), Type::Uninitialized));
+
+  REQUIRE(Type::isAssignable(Type::Class, Type::Reference));
+  REQUIRE(Type::isAssignable(Type::Class, Type::OneWord));
+
+  REQUIRE(Type::isAssignable(Type::Array, Type::Reference));
+  REQUIRE(!Type::isAssignable(Type::Array, Type::Class));
+
+  REQUIRE(Type::isAssignable(Type::Null, Type::Array));
+  REQUIRE(Type::isAssignable(Type::Null, Type::Class));
+  REQUIRE(Type::isAssignable(Type::Null, Type::Reference));
+  REQUIRE(!Type::isAssignable(Type::Null, Type::Uninitialized));
 
   // Some transitive checks
   REQUIRE(Type::isAssignable(Type::UninitializedOffset(5), Type::Top));

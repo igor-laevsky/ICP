@@ -21,6 +21,7 @@ Type Type::Reference(Type::TagType::REFERENCE);
 Type Type::Uninitialized(Type::TagType::UNINITIALIZED);
 Type Type::UninitializedThis(Type::TagType::UNINITIALIZED_THIS);
 
+
 Type Type::UninitializedOffset() {
   static auto Ret = Type(Type::TagType::UNINITIALIZED_OFFSET);
   return Ret;
@@ -29,6 +30,11 @@ Type Type::UninitializedOffset() {
 Type Type::UninitializedOffset(uint32_t Offset) {
   return Type(Type::TagType::UNINITIALIZED_OFFSET, Offset);
 }
+
+Type Type::Class(Type::TagType::CLASS);
+Type Type::Array(Type::TagType::ARRAY);
+Type Type::Null(Type::TagType::NULL_TAG);
+
 
 bool Type::isAssignable(Type From, Type To) {
   // Can assign to the same type
@@ -60,6 +66,12 @@ bool Type::isAssignable(Type From, Type To) {
 
   if (From == Type::UninitializedThis || From == Type::UninitializedOffset())
     return isAssignable(Type::Uninitialized, To);
+
+  if (From == Type::Class || From == Type::Array)
+    return isAssignable(Type::Reference, To);
+
+  if (From == Type::Null)
+    return isAssignable(Type::Class, To) || isAssignable(Type::Array, To);
 
   assert(false); // All types should be covered
   return false;
