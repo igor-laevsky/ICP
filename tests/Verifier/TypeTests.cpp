@@ -73,3 +73,13 @@ TEST_CASE("Subtype relation", "[Verifier][Types]") {
   REQUIRE(!Type::isAssignable(Type::Top, Type::Reference));
   REQUIRE(!Type::isAssignable(Type::UninitializedOffset(), Type::Float));
 }
+
+TEST_CASE("Type size", "[Verifier][Types]") {
+  REQUIRE(Type::sizeOf(Type::OneWord) == 1);
+  REQUIRE(Type::sizeOf(Type::Int) == 1);
+  REQUIRE(Type::sizeOf(Type::Class) == 1);
+  REQUIRE(Type::sizeOf(Type::Null) == 1);
+  REQUIRE(Type::sizeOf(Type::TwoWord) == 2);
+  REQUIRE(Type::sizeOf(Type::Double) == 2);
+  REQUIRE(Type::sizeOf(Type::Long) == 2);
+}

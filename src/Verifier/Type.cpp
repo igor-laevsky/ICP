@@ -76,3 +76,12 @@ bool Type::isAssignable(Type From, Type To) {
   assert(false); // All types should be covered
   return false;
 }
+
+std::size_t Type::sizeOf(Type T) {
+  if (isAssignable(T, Type::OneWord))
+    return 1;
+  else if (isAssignable(T, Type::TwoWord))
+    return 2;
+  assert(false); // should cover all types
+  return 0;
+}

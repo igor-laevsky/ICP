@@ -62,6 +62,9 @@ public:
     return !(*this == Rhs);
   }
 
+  //  Returns 1 for OneWord types and 2 for TwoWord types.
+  static std::size_t sizeOf(Type T);
+
   // This function mirrors same function from the JVm specification.
   // Essentially it represents subtyping relation on the verifier types.
   // See jvms 4.10.1.2 for clear visualization of the type system.
