@@ -25,36 +25,36 @@ TEST_CASE("Two word extension", "[Verifier][StackFrame]") {
   REQUIRE(t1.locals() == ExpandedTypes);
 }
 
-//TEST_CASE("Pop matching list", "[Verifier][StackFrame]") {
-//  StackFrame t1({}, {});
-//
-//  // Can't pop if stack is empty
-//  REQUIRE(!t1.popMatchingList({Type::Int}));
-//  // However can pop empty list from empty stack
-//  REQUIRE(t1.popMatchingList({}));
-//
-//  StackFrame t2({}, {Type::Int, Type::Long, Type::Class, Type::Double});
-//  // Double pops two stack slots
-//  REQUIRE(t2.numStack() == 6);
-//  REQUIRE(t2.popMatchingList({Type::Double}));
-//
-//  // Can't pop wrong type
-//  REQUIRE(t2.numStack() == 4);
-//  REQUIRE(!t2.popMatchingList({Type::Int}));
-//  REQUIRE(!t2.popMatchingList({Type::TwoWord}));
-//  REQUIRE(!t2.popMatchingList({Type::Long}));
-//
-//  // This is atomic operation - pop only happens if it can happen completely.
-//  // In this example it fails because of the TwoWord type at the end.
-//  REQUIRE(t2.numStack() == 4);
-//  REQUIRE(!t2.popMatchingList({Type::Reference, Type::TwoWord, Type::TwoWord}));
-//
-//  // Can pop subtypes
-//  REQUIRE(t2.numStack() == 4);
-//  REQUIRE(t2.popMatchingList({Type::Reference, Type::Long, Type::OneWord}));
-//
-//  REQUIRE(t2.numStack() == 0);
-//}
+TEST_CASE("Pop matching list", "[Verifier][StackFrame]") {
+  StackFrame t1({}, {});
+
+  // Can't pop if stack is empty
+  REQUIRE(!t1.popMatchingList({Type::Int}));
+  // However can pop empty list from empty stack
+  REQUIRE(t1.popMatchingList({}));
+
+  StackFrame t2({}, {Type::Int, Type::Long, Type::Class, Type::Double});
+  // Double pops two stack slots
+  REQUIRE(t2.numStack() == 6);
+  REQUIRE(t2.popMatchingList({Type::Double}));
+
+  // Can't pop wrong type
+  REQUIRE(t2.numStack() == 4);
+  REQUIRE(!t2.popMatchingList({Type::Int}));
+  REQUIRE(!t2.popMatchingList({Type::TwoWord}));
+  REQUIRE(!t2.popMatchingList({Type::Long}));
+
+  // This is atomic operation - pop only happens if it can happen completely.
+  // In this example it fails because of the TwoWord type at the end.
+  REQUIRE(t2.numStack() == 4);
+  REQUIRE(!t2.popMatchingList({Type::Reference, Type::TwoWord, Type::TwoWord}));
+
+  // Can pop subtypes
+  REQUIRE(t2.numStack() == 4);
+  REQUIRE(t2.popMatchingList({Type::Reference, Type::Long, Type::OneWord}));
+
+  REQUIRE(t2.numStack() == 0);
+}
 //
 //TEST_CASE("Push", "[Verifier][StackFrame]") {
 //  StackFrame t({}, {});
