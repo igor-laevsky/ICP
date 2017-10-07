@@ -20,7 +20,7 @@ std::vector<Type> StackFrame::expandTypes(const std::vector<Type> &Src) {
   Ret.reserve(Src.size());
   for (const auto &T: Src) {
     Ret.push_back(T);
-    if (Type::isAssignable(T, Type::TwoWord))
+    if (Type::sizeOf(T) == 2)
       Ret.push_back(Type::Top);
   }
 
@@ -28,6 +28,8 @@ std::vector<Type> StackFrame::expandTypes(const std::vector<Type> &Src) {
 }
 
 bool StackFrame::popMatchingList(const std::vector<Type> &Types) {
+  assert(verifyTypeEncoding());
+
   if (stack().empty())
     return Types.empty();
 
@@ -63,5 +65,19 @@ bool StackFrame::popMatchingList(const std::vector<Type> &Types) {
     pop();
   }
 
+  assert(verifyTypeEncoding());
   return true;
+}
+
+bool StackFrame::verifyTypeEncoding() {
+  auto CheckVector = [&] (const auto &Vec) {
+    for (std::size_t i = 0; i < Vec.size(); ++i) {
+      if (Type::sizeOf(Vec[i]) == 2)
+        return i <= Vec.size() - 2 && Vec[i + 1] == Type::Top;
+    }
+
+    return true;
+  };
+
+  return CheckVector(locals()) && CheckVector(stack());
 }
