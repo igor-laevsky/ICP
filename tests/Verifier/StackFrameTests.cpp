@@ -71,29 +71,29 @@ TEST_CASE("Push", "[Verifier][StackFrame]") {
       {Type::UninitializedOffset(), Type::UninitializedOffset(10),
        Type::Double, Type::Class, Type::Int}));
 }
-//
-//TEST_CASE("Type transition", "[Verifier][StackFrame]") {
-//  StackFrame t1({}, {Type::Double, Type::Int, Type::Class});
-//  REQUIRE(t1.numStack() == 4);
-//
-//  // Unable to perform transition
-//  REQUIRE(!t1.doTypeTransition({Type::Int, Type::Int}, Type::Int));
-//  REQUIRE(t1.numStack() == 4);
-//
-//  // This is atomic operation
-//  REQUIRE(!t1.doTypeTransition({Type::Class, Type::Int, Type::Long}, Type::Double));
-//  REQUIRE(t1.numStack() == 4);
-//
-//  REQUIRE(t1.doTypeTransition({Type::Class, Type::Int}, Type::Double));
-//  REQUIRE(t1.numStack() == 4);
-//
-//  REQUIRE(t1.doTypeTransition({Type::Double, Type::Double}, Type::Int));
-//  REQUIRE(t1.numStack() == 1);
-//
-//  REQUIRE(t1.popMatchingList({Type::Int}));
-//  REQUIRE(t1.numStack() == 0);
-//}
-//
+
+TEST_CASE("Type transition", "[Verifier][StackFrame]") {
+  StackFrame t1({}, {Type::Double, Type::Int, Type::Class});
+  REQUIRE(t1.numStack() == 4);
+
+  // Unable to perform transition
+  REQUIRE(!t1.doTypeTransition({Type::Int, Type::Int}, Type::Int));
+  REQUIRE(t1.numStack() == 4);
+
+  // This is atomic operation
+  REQUIRE(!t1.doTypeTransition({Type::Class, Type::Int, Type::Long}, Type::Double));
+  REQUIRE(t1.numStack() == 4);
+
+  REQUIRE(t1.doTypeTransition({Type::Class, Type::Int}, Type::Double));
+  REQUIRE(t1.numStack() == 4);
+
+  REQUIRE(t1.doTypeTransition({Type::Double, Type::Double}, Type::Int));
+  REQUIRE(t1.numStack() == 1);
+
+  REQUIRE(t1.popMatchingList({Type::Int}));
+  REQUIRE(t1.numStack() == 0);
+}
+
 //TEST_CASE("Uninitialized this". "[Verifier][StackFrame]") {
 //  StackFrame t1({Type::Int, Type::UninitializedThis}, {});
 //  REQUIRE(t3.flagThisUninit());

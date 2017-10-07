@@ -90,3 +90,19 @@ void StackFrame::pushList(const std::vector<Type> &Types) {
 
   assert(verifyTypeEncoding());
 }
+
+bool StackFrame::doTypeTransition(
+    const std::vector<Type> &ToPop, Type ToPush) {
+
+  // Pop operands
+  if (!popMatchingList(ToPop))
+    return false;
+
+  // Push the result
+  push(ToPush);
+  if (Type::sizeOf(ToPush) == 2)
+    push(Type::Top);
+
+  assert(verifyTypeEncoding());
+  return true;
+}
