@@ -94,14 +94,14 @@ TEST_CASE("Type transition", "[Verifier][StackFrame]") {
   REQUIRE(t1.numStack() == 0);
 }
 
-//TEST_CASE("Uninitialized this". "[Verifier][StackFrame]") {
-//  StackFrame t1({Type::Int, Type::UninitializedThis}, {});
-//  REQUIRE(t3.flagThisUninit());
-//
-//  StackFrame t2({Type::Int, Type::Uninitialized}, {});
-//  REQUIRE(!t3.flagThisUninit());
-//}
-//
+TEST_CASE("Uninitialized this", "[Verifier][StackFrame]") {
+  StackFrame t1({Type::Int, Type::UninitializedThis}, {});
+  REQUIRE(t1.flagThisUninit());
+
+  StackFrame t2({Type::Int, Type::Uninitialized}, {});
+  REQUIRE(!t2.flagThisUninit());
+}
+
 //TEST_CASE("Parse descriptor", "[Verifier][StackFrame]") {
 //  std::vector<Type> RawTypes;
 //  Type RetT = Type::Top;

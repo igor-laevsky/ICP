@@ -8,7 +8,7 @@ using namespace Verifier;
 
 void StackFrame::computeFlags() {
   // Look for uninitializedThis in locals
-  flagThisUninit =
+  Flags =
       std::find(
           Locals.begin(), Locals.end(),
           Type::UninitializedThis) != Locals.end();

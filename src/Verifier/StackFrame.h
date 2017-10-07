@@ -35,6 +35,8 @@ public:
 
   const auto &locals() const { return Locals; }
 
+  bool flagThisUninit() const { return Flags; };
+
   // It's possible to pop list of types if each corresponding stack slot is
   // assignable to the given type.
   // Function has no effect if not all types can be popped.
@@ -88,7 +90,7 @@ private:
 private:
   std::vector<Type> Locals;
   std::vector<Type> Stack;
-  bool flagThisUninit; // true if any of the locals is uninitializedThis
+  bool Flags; // true if any of the locals is uninitializedThis
 };
 
 }
