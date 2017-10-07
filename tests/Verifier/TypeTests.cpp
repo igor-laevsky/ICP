@@ -75,6 +75,7 @@ TEST_CASE("Subtype relation", "[Verifier][Types]") {
 }
 
 TEST_CASE("Type size", "[Verifier][Types]") {
+  REQUIRE(Type::sizeOf(Type::Top) == 1);
   REQUIRE(Type::sizeOf(Type::OneWord) == 1);
   REQUIRE(Type::sizeOf(Type::Int) == 1);
   REQUIRE(Type::sizeOf(Type::Class) == 1);

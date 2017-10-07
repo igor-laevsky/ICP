@@ -77,7 +77,9 @@ bool Type::isAssignable(Type From, Type To) {
 }
 
 std::size_t Type::sizeOf(Type T) {
-  if (isAssignable(T, Type::OneWord))
+  if (T == Type::Top)
+    return 1;
+  else if (isAssignable(T, Type::OneWord))
     return 1;
   else if (isAssignable(T, Type::TwoWord))
     return 2;
