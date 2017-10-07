@@ -43,6 +43,9 @@ public:
   // \returns true if all types were poped, false otherwise.
   bool popMatchingList(const std::vector<Type> &Types);
 
+  // Expand and push types onto the frame stack.
+  void pushList(const std::vector<Type> &Types);
+
 private:
   // Computes uninitializedThis flag
   void computeFlags();

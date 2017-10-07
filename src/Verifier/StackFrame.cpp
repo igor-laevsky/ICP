@@ -81,3 +81,12 @@ bool StackFrame::verifyTypeEncoding() {
 
   return CheckVector(locals()) && CheckVector(stack());
 }
+
+void StackFrame::pushList(const std::vector<Type> &Types) {
+  const auto ExpandedTypes = expandTypes(Types);
+
+  for (const auto &T: ExpandedTypes)
+    push(T);
+
+  assert(verifyTypeEncoding());
+}

@@ -55,22 +55,22 @@ TEST_CASE("Pop matching list", "[Verifier][StackFrame]") {
 
   REQUIRE(t2.numStack() == 0);
 }
-//
-//TEST_CASE("Push", "[Verifier][StackFrame]") {
-//  StackFrame t({}, {});
-//
-//  t.pushList({Type::Int});
-//  REQUIRE(t.numStack() == 1);
-//
-//  t.pushList(
-//      {Type::Class, Type::Double,
-//       Type::UninitializedOffset(10), Type::UninitializedOffset(5)};
-//  REQUIRE(t.numStack() == 6); // two slots for double
-//
-//  REQUIRE(t.popMatchingList(
-//      {Type::UninitializedOffset(), Type::UninitializedOffset(10),
-//       Type::Double, Type::Class, Type::Int}));
-//}
+
+TEST_CASE("Push", "[Verifier][StackFrame]") {
+  StackFrame t({}, {});
+
+  t.pushList({Type::Int});
+  REQUIRE(t.numStack() == 1);
+
+  t.pushList(
+      {Type::Class, Type::Double,
+       Type::UninitializedOffset(10), Type::UninitializedOffset(5)});
+  REQUIRE(t.numStack() == 6); // two slots for double
+
+  REQUIRE(t.popMatchingList(
+      {Type::UninitializedOffset(), Type::UninitializedOffset(10),
+       Type::Double, Type::Class, Type::Int}));
+}
 //
 //TEST_CASE("Type transition", "[Verifier][StackFrame]") {
 //  StackFrame t1({}, {Type::Double, Type::Int, Type::Class});
