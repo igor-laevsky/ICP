@@ -27,7 +27,10 @@ set(SOURCE_FILES
         src/JavaTypes/Bytecode.cpp
         src/JavaTypes/Bytecode.h
         src/JavaTypes/BytecodeInstructions.h
-        src/Verifier/Type.h src/Verifier/Type.cpp)
+        src/Verifier/Type.h
+        src/Verifier/Type.cpp
+        src/Verifier/StackFrame.cpp
+        src/Verifier/StackFrame.h)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
@@ -35,11 +38,11 @@ set (TEST_FILES
         tests/JavaTypes/InstructionTests.cpp
         tests/JavaTypes/JavaMethodTests.cpp
         tests/Utils/IteratorsTests.cpp
-        tests/Verifier/TypeTests.cpp)
+        tests/Verifier/TypeTests.cpp tests/Verifier/StackFrameTests.cpp)
 
 add_library(ICP_LIB ${SOURCE_FILES})
 
-add_executable(ICP src/main.cpp ${SOURCE_FILES})
+add_executable(ICP src/main.cpp)
 target_link_libraries(ICP ICP_LIB)
 
 add_executable(ICP_unit_tests tests/tests_main.cpp ${TEST_FILES})

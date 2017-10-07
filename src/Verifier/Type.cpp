@@ -21,7 +21,6 @@ Type Type::Reference(Type::TagType::REFERENCE);
 Type Type::Uninitialized(Type::TagType::UNINITIALIZED);
 Type Type::UninitializedThis(Type::TagType::UNINITIALIZED_THIS);
 
-
 Type Type::UninitializedOffset() {
   static auto Ret = Type(Type::TagType::UNINITIALIZED_OFFSET);
   return Ret;
