@@ -20,6 +20,10 @@ namespace Verifier {
 // TODO: Add parameters for the class and array types
 class Type {
 public:
+  // This is a null object. It doesn't reflect any real world type and should
+  // be used to indicate that type is unknown.
+  static Type Empty;
+
   static Type Top;
 
   static Type OneWord;
@@ -103,7 +107,8 @@ private:
     UNINITIALIZED_OFFSET,
     ARRAY,
     CLASS,
-    NULL_TAG
+    NULL_TAG,
+    EMPTY
   };
   const TagType Tag;
 
