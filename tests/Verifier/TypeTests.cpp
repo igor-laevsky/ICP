@@ -90,3 +90,12 @@ TEST_CASE("Type size", "[Verifier][Types]") {
   REQUIRE(Type::sizeOf(Type::Double) == 2);
   REQUIRE(Type::sizeOf(Type::Long) == 2);
 }
+
+TEST_CASE("Convert to verifier type", "[Verifier][Types]") {
+  REQUIRE(Type::toVerificationType(Type::Int) == Type::Int);
+  REQUIRE(Type::toVerificationType(Type::Float) == Type::Float);
+  REQUIRE(Type::toVerificationType(Type::Byte) == Type::Int);
+  REQUIRE(Type::toVerificationType(Type::Char) == Type::Int);
+  REQUIRE(Type::toVerificationType(Type::Boolean) == Type::Int);
+  REQUIRE(Type::toVerificationType(Type::Short) == Type::Int);
+}
