@@ -22,7 +22,7 @@ class Type {
 public:
   // This is a null object. It doesn't reflect any real world type and should
   // be used to indicate that type is unknown.
-  static Type Empty;
+  static Type Void;
 
   static Type Top;
 
@@ -108,7 +108,7 @@ private:
     ARRAY,
     CLASS,
     NULL_TAG,
-    EMPTY
+    VOID
   };
   const TagType Tag;
 

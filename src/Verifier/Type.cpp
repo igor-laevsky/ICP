@@ -8,7 +8,7 @@
 
 using namespace Verifier;
 
-Type Type::Empty(Type::TagType::EMPTY);
+Type Type::Void(Type::TagType::VOID);
 
 Type Type::Top(Type::TagType::TOP);
 Type Type::OneWord(Type::TagType::ONE_WORD);
@@ -99,7 +99,7 @@ std::size_t Type::sizeOf(Type T) {
 }
 
 Type Type::toVerificationType(Type From) {
-  assert(From != Type::Empty);
+  assert(From != Type::Void);
 
   if (From == Type::Char || From == Type::Short ||
       From == Type::Byte || From == Type::Boolean)
