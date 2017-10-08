@@ -13,6 +13,11 @@ Type Type::OneWord(Type::TagType::ONE_WORD);
 Type Type::TwoWord(Type::TagType::TWO_WORD);
 
 Type Type::Int(Type::TagType::INT);
+Type Type::Byte(Type::TagType::BYTE);
+Type Type::Char(Type::TagType::CHAR);
+Type Type::Short(Type::TagType::SHORT);
+Type Type::Boolean(Type::TagType::BOOLEAN);
+
 Type Type::Float(Type::TagType::FLOAT);
 Type Type::Long(Type::TagType::LONG);
 Type Type::Double(Type::TagType::DOUBLE);
@@ -69,6 +74,10 @@ bool Type::isAssignable(Type From, Type To) {
   if (From == Type::Class || From == Type::Array)
     return isAssignable(Type::Reference, To);
 
+  if (From == Type::Char || From == Type::Short ||
+      From == Type::Byte || From == Type::Boolean)
+    return isAssignable(Type::Int, To);
+
   if (From == Type::Null)
     return isAssignable(Type::Class, To) || isAssignable(Type::Array, To);
 
@@ -85,4 +94,12 @@ std::size_t Type::sizeOf(Type T) {
     return 2;
   assert(false); // should cover all types
   return 0;
+}
+
+Type Type::toVerificationType(Type From) {
+  if (From == Type::Char || From == Type::Short ||
+      From == Type::Byte || From == Type::Boolean)
+    return Type::Int;
+
+  return From;
 }

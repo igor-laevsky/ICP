@@ -26,6 +26,12 @@ public:
   static Type TwoWord;
 
   static Type Int;
+  static Type Byte;
+  static Type Char;
+  static Type Short;
+  static Type Boolean;
+
+
   static Type Float;
   static Type Long;
   static Type Double;
@@ -70,6 +76,10 @@ public:
   // See jvms 4.10.1.2 for clear visualization of the type system.
   static bool isAssignable(Type From, Type To);
 
+  // Convert type to verification type.
+  // This means converting  byte, char, short, and boolean into integer type.
+  static Type toVerificationType(Type From);
+
 private:
   // Once array, class and null type are implemented this will be replaced
   // with std::variant.
@@ -80,6 +90,10 @@ private:
     ONE_WORD,
     TWO_WORD,
     INT,
+    BYTE,
+    CHAR,
+    SHORT,
+    BOOLEAN,
     FLOAT,
     LONG,
     DOUBLE,

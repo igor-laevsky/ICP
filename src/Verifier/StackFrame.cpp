@@ -28,8 +28,6 @@ std::vector<Type> StackFrame::expandTypes(const std::vector<Type> &Src) {
 }
 
 bool StackFrame::popMatchingList(const std::vector<Type> &Types) {
-  assert(verifyTypeEncoding());
-
   if (stack().empty())
     return Types.empty();
 

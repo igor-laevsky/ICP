@@ -52,7 +52,7 @@ public:
   // This is primitive for modeling instruction behaviour which takes some
   // operands from stack and pushes the result back.
   // If some types are incompatible whole function is a no-op.
-  // \returns true if type transition was succesfull, false otherwise
+  // \returns true if type transition was succesfull, false otherwise.
   bool doTypeTransition(
       const std::vector<Type> &ToPop, Type ToPush);
 

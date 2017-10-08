@@ -63,6 +63,11 @@ TEST_CASE("Subtype relation", "[Verifier][Types]") {
   REQUIRE(Type::isAssignable(Type::Null, Type::Reference));
   REQUIRE(!Type::isAssignable(Type::Null, Type::Uninitialized));
 
+  REQUIRE(Type::isAssignable(Type::Short, Type::OneWord));
+  REQUIRE(Type::isAssignable(Type::Boolean, Type::Int));
+  REQUIRE(!Type::isAssignable(Type::Char, Type::TwoWord));
+  REQUIRE(!Type::isAssignable(Type::Byte, Type::Reference));
+
   // Some transitive checks
   REQUIRE(Type::isAssignable(Type::UninitializedOffset(5), Type::Top));
   REQUIRE(Type::isAssignable(Type::UninitializedThis, Type::Reference));
@@ -80,6 +85,7 @@ TEST_CASE("Type size", "[Verifier][Types]") {
   REQUIRE(Type::sizeOf(Type::Int) == 1);
   REQUIRE(Type::sizeOf(Type::Class) == 1);
   REQUIRE(Type::sizeOf(Type::Null) == 1);
+  REQUIRE(Type::sizeOf(Type::Byte) == 1);
   REQUIRE(Type::sizeOf(Type::TwoWord) == 2);
   REQUIRE(Type::sizeOf(Type::Double) == 2);
   REQUIRE(Type::sizeOf(Type::Long) == 2);
