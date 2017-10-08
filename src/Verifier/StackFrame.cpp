@@ -104,3 +104,94 @@ bool StackFrame::doTypeTransition(
   assert(verifyTypeEncoding());
   return true;
 }
+
+Type StackFrame::parseFieldDescriptor(
+    const std::string &Desc, std::size_t *LastPos) {
+
+  if (Desc.empty())
+    throw ParsingError("Field descriptor is empty");
+
+  if (LastPos != nullptr)
+    *LastPos = 1;
+
+  switch (Desc[0]) {
+    case 'B': return Type::Byte;
+    case 'C': return Type::Char;
+    case 'D': return Type::Double;
+    case 'F': return Type::Float;
+    case 'I': return Type::Int;
+    case 'J': return Type::Long;
+    case 'S': return Type::Short;
+    case 'Z': return Type::Boolean;
+
+    case 'L': {
+      auto End = Desc.find(';');
+      if (End == std::string::npos)
+        throw ParsingError("Reference type in a wrong format");
+
+      if (LastPos != nullptr)
+        *LastPos = End + 1;
+      return Type::Class;
+    }
+
+    case '[': {
+      try {
+        (void)parseFieldDescriptor(Desc.substr(1), LastPos);
+        if (LastPos != nullptr)
+          *LastPos += 1;
+      } catch (std::exception &) {
+        // This will also catch cases when substr(1) had throw and exception
+        throw ParsingError("Array type in a wrong format");
+      }
+      return Type::Array;
+    }
+
+    default:
+      throw ParsingError("Unrecognized field descriptor");
+  }
+}
+
+std::pair<Type, std::vector<Type>>
+StackFrame::parseMethodDescriptor(const std::string &Desc) {
+  if (Desc.empty())
+    throw ParsingError("Empty descriptor");
+
+  if (Desc[0] != '(')
+    throw ParsingError("Expected to find l-brace");
+
+  auto RBracePos = Desc.find(')');
+  if (RBracePos == std::string::npos)
+    throw ParsingError("Expected to find r-brace");
+  if (RBracePos == Desc.size() - 1)
+    throw ParsingError("Expected to find return type descriptor");
+
+  std::string ArgsDesc = Desc.substr(1, RBracePos - 1);
+  std::string RetDesc = Desc.substr(RBracePos + 1);
+  assert(!RetDesc.empty());
+
+  // Parse argument types
+  std::vector<Type> ArgTypes;
+  std::size_t ArgsPos = 0;
+  while (ArgsPos < ArgsDesc.length()) {
+    std::size_t ArgEnd;
+    auto NewType = parseFieldDescriptor(ArgsDesc.substr(ArgsPos), &ArgEnd);
+
+    ArgTypes.push_back(NewType);
+    ArgsPos += ArgEnd;
+  }
+
+  // Parse return type
+  auto RetType = [&] () {
+    if (RetDesc == "V") {
+      return Type::Void;
+    } else {
+      std::size_t RetEnd;
+      auto Type = parseFieldDescriptor(RetDesc, &RetEnd);
+      if (RetEnd != RetDesc.length())
+        throw ParsingError("Can't parse tail of the descriptor");
+      return Type;
+    }
+  }();
+
+  return std::pair(RetType, ArgTypes);
+}

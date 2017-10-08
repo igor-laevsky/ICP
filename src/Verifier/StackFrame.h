@@ -21,6 +21,13 @@ namespace Verifier {
 // regular form (i.e two-word types are stored as a single element)
 class StackFrame {
 public:
+  // Used to indicate parsing error in parseFieldDescriptor and
+  // parseMethodDescriptor.
+  class ParsingError: public std::runtime_error {
+    using std::runtime_error::runtime_error;
+  };
+
+public:
   StackFrame(const std::vector<Type> &Locals, const std::vector<Type> &Stack)
   {
     this->Locals = expandTypes(Locals);
@@ -40,9 +47,9 @@ public:
   // It's possible to pop list of types if each corresponding stack slot is
   // assignable to the given type.
   // Function has no effect if not all types can be popped.
-  // First type in the list popped first. No special encoding of two-word types
-  // is expected (i.e they are stored as a single element).
-  // \returns true if all types were poped, false otherwise.
+  // First type in the list is popped first. No special encoding of two-word
+  // types is expected (i.e they are stored as a single element).
+  // \returns true if all types were popped, false otherwise.
   bool popMatchingList(const std::vector<Type> &Types);
 
   // Push types onto the frame stack.
@@ -52,9 +59,31 @@ public:
   // This is primitive for modeling instruction behaviour which takes some
   // operands from stack and pushes the result back.
   // If some types are incompatible whole function is a no-op.
-  // \returns true if type transition was succesfull, false otherwise.
+  // \returns true if type transition was successfull, false otherwise.
   bool doTypeTransition(
       const std::vector<Type> &ToPop, Type ToPush);
+
+  // Parses field descriptor. Note that it returns pure non-verifier type, i.e
+  // short, byte, char and boolean are represented as themselves, not as integers.
+  // For the format info see:
+  // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.2
+  // \param LastPos If not null will contain index of the first not parsed
+  // character.
+  // \returns Parsed type.
+  // \throws ParsingError In case of any errors.
+  static Type parseFieldDescriptor(
+      const std::string &Desc, std::size_t *LastPos = nullptr);
+
+  // Parses method descriptor. Note that it returns pure non-verifier type, i.e
+  // short, byte, char and boolean are represented as themselves, not as integers.
+  // For the format info see:
+  // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3
+  // \returns Pair where first element is the return type and
+  // second element is vector of the argument types. For void functions return
+  // type is Type::Top.
+  // \throws ParsingError In case of any errors.
+  static std::pair<Type, std::vector<Type>>
+  parseMethodDescriptor(const std::string &Desc);
 
 private:
   // Computes uninitializedThis flag

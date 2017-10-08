@@ -4,6 +4,8 @@
 
 #include "catch.hpp"
 
+#include <optional>
+
 #include "Verifier/StackFrame.h"
 #include "Verifier/Type.h"
 
@@ -102,35 +104,105 @@ TEST_CASE("Uninitialized this", "[Verifier][StackFrame]") {
   REQUIRE(!t2.flagThisUninit());
 }
 
-//TEST_CASE("Parse descriptor", "[Verifier][StackFrame]") {
-//  std::vector<Type> RawTypes;
-//  Type RetT = Type::Top;
-//
-//  std::tie(RawTypes, RetT) = StackFrame::parseDescriptor("([Ljava/lang/String;)I");
-//  StackFrame t(RawTypes, {});
-//
-//  REQUIRE(t.numLocals() == 1);
-//  REQUIRE(t.numStack() == 0);
-//  REQUIRE(t.locals()[0] == Type::Class);
-//  REQUIRE(ReT == Type::Int);
-//
-//  std::tie(RawTypes, RetT) = StackFrame::parseDescriptor("(IDLjava/lang/Thread;)Ljava/lang/Object;");
-//  StackFrame t1(RawTypes, {});
-//
-//  // parseDescriptor returns raw types. I.e double represented as a single
-//  // entry.
-//  REQUIRE(RawTypes.size() == 3);
-//  std::vector<Type> ExpectedTypes = {Type::Int, Type::Double, Type::Class};
-//  REQUIRE(RawTypes == ExpectedTypes);
-//
-//  // Check that stack frame had expanded two-word types accordingly
-//  REQUIRE(t1.numLocals() == 4);
-//  REQUIRE(t1.numStack() == 0);
-//  ExpectedTypes = {Type::Int, Type::Double, Type::Top, Type::Class};
-//  REQUIRE(t1.locals() == ExpectedTypes);
-//  REQUIRE(ReT == Type::Class);
-//
-//  REQUIRE_THROWS_AS(
-//      StackFrame::parseDescriptor("wrong descriptor"),
-//      StackFrame::DescriptorParsingError);
-//}
+TEST_CASE("Parse field descriptor", "[Verifier][StackFrame]") {
+  REQUIRE(StackFrame::parseFieldDescriptor("B") == Type::Byte);
+  REQUIRE(StackFrame::parseFieldDescriptor("C") == Type::Char);
+  REQUIRE(StackFrame::parseFieldDescriptor("D") == Type::Double);
+  REQUIRE(StackFrame::parseFieldDescriptor("F") == Type::Float);
+  REQUIRE(StackFrame::parseFieldDescriptor("I") == Type::Int);
+  REQUIRE(StackFrame::parseFieldDescriptor("J") == Type::Long);
+  REQUIRE(StackFrame::parseFieldDescriptor("S") == Type::Short);
+  REQUIRE(StackFrame::parseFieldDescriptor("Z") == Type::Boolean);
+
+  REQUIRE(StackFrame::parseFieldDescriptor("Lclass;") == Type::Class);
+  REQUIRE(StackFrame::parseFieldDescriptor("[Lclass;") == Type::Array);
+
+  std::size_t Pos = 0;
+  REQUIRE(StackFrame::parseFieldDescriptor("[Lclass;asdfasdf", &Pos) == Type::Array);
+  REQUIRE(Pos == 8);
+
+  REQUIRE_THROWS_AS(StackFrame::parseFieldDescriptor("Lclass"),
+                    StackFrame::ParsingError);
+  REQUIRE_THROWS_AS(StackFrame::parseFieldDescriptor("["),
+                    StackFrame::ParsingError);
+  REQUIRE_THROWS_AS(StackFrame::parseFieldDescriptor("[wrong"),
+                    StackFrame::ParsingError);
+  REQUIRE_THROWS_AS(StackFrame::parseFieldDescriptor("[Lwrong"),
+                    StackFrame::ParsingError);
+  REQUIRE_THROWS_AS(StackFrame::parseFieldDescriptor(""),
+                    StackFrame::ParsingError);
+  REQUIRE_THROWS_AS(StackFrame::parseFieldDescriptor("U"),
+                    StackFrame::ParsingError);
+}
+
+TEST_CASE("Parse method descriptor", "[Verifier][StackFrame]") {
+  std::vector<Type> RawTypes;
+
+  {
+    auto [RetT, RawTypes] =
+        StackFrame::parseMethodDescriptor("([Ljava/lang/String;)I");
+    const StackFrame t(RawTypes, {});
+
+    REQUIRE(t.numLocals() == 1);
+    REQUIRE(t.numStack() == 0);
+    REQUIRE(t.locals()[0] == Type::Array);
+    REQUIRE(RetT == Type::Int);
+  }
+
+  {
+    auto [RetT, RawTypes] =
+        StackFrame::parseMethodDescriptor(
+            "(IDLjava/lang/Thread;)Ljava/lang/Object;");
+    const StackFrame t1(RawTypes, {});
+
+    // parseDescriptor returns raw types. I.e double represented as a single
+    // entry.
+    REQUIRE(RawTypes.size() == 3);
+    std::vector<Type> ExpectedTypes = {Type::Int, Type::Double, Type::Class};
+    REQUIRE(RawTypes == ExpectedTypes);
+
+    // Check that stack frame had expanded two-word types accordingly
+    REQUIRE(t1.numLocals() == 4);
+    REQUIRE(t1.numStack() == 0);
+    std::vector<Type> ExpandedTypes =
+        {Type::Int, Type::Double, Type::Top, Type::Class};
+    REQUIRE(t1.locals() == ExpandedTypes);
+    REQUIRE(RetT == Type::Class);
+  }
+
+  {
+    auto [RetT, RawTypes] =
+        StackFrame::parseMethodDescriptor(
+            "()V");
+    REQUIRE(RawTypes.empty());
+    REQUIRE(RetT == Type::Void);
+  }
+
+  REQUIRE_THROWS_AS(
+      StackFrame::parseMethodDescriptor("wrong descriptor"),
+      StackFrame::ParsingError);
+  REQUIRE_THROWS_AS(
+      StackFrame::parseMethodDescriptor(""),
+      StackFrame::ParsingError);
+  REQUIRE_THROWS_AS(
+      StackFrame::parseMethodDescriptor("(Lclass"),
+      StackFrame::ParsingError);
+  REQUIRE_THROWS_AS(
+      StackFrame::parseMethodDescriptor("(I;"),
+      StackFrame::ParsingError);
+  REQUIRE_THROWS_AS(
+      StackFrame::parseMethodDescriptor("(I"),
+      StackFrame::ParsingError);
+  REQUIRE_THROWS_AS(
+      StackFrame::parseMethodDescriptor("(I)"),
+      StackFrame::ParsingError);
+  REQUIRE_THROWS_AS(
+      StackFrame::parseMethodDescriptor("(I)Vbla-bla"),
+      StackFrame::ParsingError);
+  REQUIRE_THROWS_AS(
+      StackFrame::parseMethodDescriptor("(I)Dbla-bla"),
+      StackFrame::ParsingError);
+  REQUIRE_THROWS_AS(
+      StackFrame::parseMethodDescriptor("(U)V"),
+      StackFrame::ParsingError);
+}
