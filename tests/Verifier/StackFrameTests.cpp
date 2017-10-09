@@ -136,10 +136,11 @@ TEST_CASE("Parse field descriptor", "[Verifier][StackFrame]") {
 }
 
 TEST_CASE("Parse method descriptor", "[Verifier][StackFrame]") {
+  Type RetT = Type::Void;
   std::vector<Type> RawTypes;
 
   {
-    auto [RetT, RawTypes] =
+    std::tie(RetT, RawTypes) =
         StackFrame::parseMethodDescriptor("([Ljava/lang/String;)I");
     const StackFrame t(RawTypes, {});
 
@@ -150,7 +151,7 @@ TEST_CASE("Parse method descriptor", "[Verifier][StackFrame]") {
   }
 
   {
-    auto [RetT, RawTypes] =
+    std::tie(RetT, RawTypes) =
         StackFrame::parseMethodDescriptor(
             "(IDLjava/lang/Thread;)Ljava/lang/Object;");
     const StackFrame t1(RawTypes, {});
@@ -171,7 +172,7 @@ TEST_CASE("Parse method descriptor", "[Verifier][StackFrame]") {
   }
 
   {
-    auto [RetT, RawTypes] =
+    std::tie(RetT, RawTypes) =
         StackFrame::parseMethodDescriptor(
             "()V");
     REQUIRE(RawTypes.empty());

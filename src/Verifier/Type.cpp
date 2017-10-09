@@ -8,25 +8,25 @@
 
 using namespace Verifier;
 
-Type Type::Void(Type::TagType::VOID);
+const Type Type::Void(Type::TagType::VOID);
 
-Type Type::Top(Type::TagType::TOP);
-Type Type::OneWord(Type::TagType::ONE_WORD);
-Type Type::TwoWord(Type::TagType::TWO_WORD);
+const Type Type::Top(Type::TagType::TOP);
+const Type Type::OneWord(Type::TagType::ONE_WORD);
+const Type Type::TwoWord(Type::TagType::TWO_WORD);
 
-Type Type::Int(Type::TagType::INT);
-Type Type::Byte(Type::TagType::BYTE);
-Type Type::Char(Type::TagType::CHAR);
-Type Type::Short(Type::TagType::SHORT);
-Type Type::Boolean(Type::TagType::BOOLEAN);
+const Type Type::Int(Type::TagType::INT);
+const Type Type::Byte(Type::TagType::BYTE);
+const Type Type::Char(Type::TagType::CHAR);
+const Type Type::Short(Type::TagType::SHORT);
+const Type Type::Boolean(Type::TagType::BOOLEAN);
 
-Type Type::Float(Type::TagType::FLOAT);
-Type Type::Long(Type::TagType::LONG);
-Type Type::Double(Type::TagType::DOUBLE);
+const Type Type::Float(Type::TagType::FLOAT);
+const Type Type::Long(Type::TagType::LONG);
+const Type Type::Double(Type::TagType::DOUBLE);
 
-Type Type::Reference(Type::TagType::REFERENCE);
-Type Type::Uninitialized(Type::TagType::UNINITIALIZED);
-Type Type::UninitializedThis(Type::TagType::UNINITIALIZED_THIS);
+const Type Type::Reference(Type::TagType::REFERENCE);
+const Type Type::Uninitialized(Type::TagType::UNINITIALIZED);
+const Type Type::UninitializedThis(Type::TagType::UNINITIALIZED_THIS);
 
 Type Type::UninitializedOffset() {
   static auto Ret = Type(Type::TagType::UNINITIALIZED_OFFSET);
@@ -37,9 +37,9 @@ Type Type::UninitializedOffset(uint32_t Offset) {
   return Type(Type::TagType::UNINITIALIZED_OFFSET, Offset);
 }
 
-Type Type::Class(Type::TagType::CLASS);
-Type Type::Array(Type::TagType::ARRAY);
-Type Type::Null(Type::TagType::NULL_TAG);
+const Type Type::Class(Type::TagType::CLASS);
+const Type Type::Array(Type::TagType::ARRAY);
+const Type Type::Null(Type::TagType::NULL_TAG);
 
 
 bool Type::isAssignable(Type From, Type To) {

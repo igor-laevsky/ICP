@@ -181,17 +181,13 @@ StackFrame::parseMethodDescriptor(const std::string &Desc) {
   }
 
   // Parse return type
-  auto RetType = [&] () {
-    if (RetDesc == "V") {
-      return Type::Void;
-    } else {
-      std::size_t RetEnd;
-      auto Type = parseFieldDescriptor(RetDesc, &RetEnd);
-      if (RetEnd != RetDesc.length())
-        throw ParsingError("Can't parse tail of the descriptor");
-      return Type;
-    }
-  }();
+  auto RetType = Type::Void;
+  if (RetDesc != "V") {
+    std::size_t RetEnd;
+    RetType = parseFieldDescriptor(RetDesc, &RetEnd);
+    if (RetEnd != RetDesc.length())
+      throw ParsingError("Can't parse tail of the descriptor");
+  }
 
   return std::pair(RetType, ArgTypes);
 }

@@ -22,41 +22,36 @@ class Type {
 public:
   // This is a null object. It doesn't reflect any real world type and should
   // be used to indicate that type is unknown.
-  static Type Void;
+  static const Type Void;
 
-  static Type Top;
+  static const Type Top;
 
-  static Type OneWord;
-  static Type TwoWord;
+  static const Type OneWord;
+  static const Type TwoWord;
 
-  static Type Int;
-  static Type Byte;
-  static Type Char;
-  static Type Short;
-  static Type Boolean;
+  static const Type Int;
+  static const Type Byte;
+  static const Type Char;
+  static const Type Short;
+  static const Type Boolean;
 
 
-  static Type Float;
-  static Type Long;
-  static Type Double;
+  static const Type Float;
+  static const Type Long;
+  static const Type Double;
 
-  static Type Reference;
-  static Type Uninitialized;
-  static Type UninitializedThis;
+  static const Type Reference;
+  static const Type Uninitialized;
+  static const Type UninitializedThis;
 
   static Type UninitializedOffset();
   static Type UninitializedOffset(uint32_t Offset);
 
-  static Type Class;
-  static Type Array;
-  static Type Null;
+  static const Type Class;
+  static const Type Array;
+  static const Type Null;
 
 public:
-  // This objects are often copied.
-  Type(const Type &) = default;
-  // However assignment is not allowed since they are immutable.
-  Type &operator=(const Type &) = delete;
-
   bool operator==(const Type &Rhs) const {
     if (Tag != Rhs.Tag)
       return false;
@@ -110,9 +105,9 @@ private:
     NULL_TAG,
     VOID
   };
-  const TagType Tag;
+  TagType Tag;
 
-  const std::optional<DataType> Data;
+  std::optional<DataType> Data;
 
 private:
   explicit Type(TagType Tag):
