@@ -128,7 +128,7 @@ parseConstantPool(std::istream& Input) {
           uint8_t byte = BigEndianReading::readByte(Input);
 
           // Specification requirements
-          if (byte == 0 || (byte >= 0xf0 && byte <= 0xff))
+          if (byte == 0 || byte >= 0xf0)
             throw FormatError("Unexpected string byte at " + std::to_string(i));
 
           // For now support only regular ASCII codes

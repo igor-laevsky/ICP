@@ -3,7 +3,7 @@ project(ICP)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(CXX_FLAGS "-Wall -Werror")
+set(CXX_FLAGS "-Wall -Werror -Wextra -pedantic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}${CXX_FLAGS}")
 
 include_directories( ./src )
@@ -30,7 +30,7 @@ set(SOURCE_FILES
         src/Verifier/Type.h
         src/Verifier/Type.cpp
         src/Verifier/StackFrame.cpp
-        src/Verifier/StackFrame.h)
+        src/Verifier/StackFrame.h src/Verifier/Environment.cpp src/Verifier/Environment.h)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
