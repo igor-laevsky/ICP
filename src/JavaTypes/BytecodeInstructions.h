@@ -11,8 +11,9 @@
 namespace JavaTypes::Bytecode {
 
 // Utility class for instruction consisting of a single byte.
-class NoIndex: public Instruction {
-  using Instruction::Instruction;
+template<class ConcreteType>
+class NoIndex: public VisitableInstruction<ConcreteType> {
+  using VisitableInstruction<ConcreteType>::VisitableInstruction;
 
 public:
   static constexpr uint8_t Length = 1;
@@ -20,7 +21,8 @@ public:
 
 // Utility class for three byte instructions. First byte is opcode,
 // second two represent constant pool index.
-class SingleIndex: public Instruction {
+template<class ConcreteType>
+class SingleIndex: public VisitableInstruction<ConcreteType> {
 public:
   static constexpr uint8_t Length = 3;
 
@@ -31,7 +33,7 @@ public:
 
 private:
   SingleIndex(ContainerIterator It, BciType bci):
-      Instruction(It, bci),
+      VisitableInstruction<ConcreteType>(It, bci),
       Idx((*(It + 1) << 8) | *(It + 2)) {
     ;
   }
@@ -45,7 +47,7 @@ private:
   const ConstantPool::IndexType Idx;
 };
 
-class aload_0 final: public NoIndex {
+class aload_0 final: public NoIndex<aload_0> {
   using NoIndex::NoIndex;
 
 public:
@@ -56,7 +58,7 @@ public:
   }
 };
 
-class invokespecial final: public SingleIndex {
+class invokespecial final: public SingleIndex<invokespecial> {
   using SingleIndex::SingleIndex;
 
 public:
@@ -67,7 +69,7 @@ public:
   }
 };
 
-class java_return final: public NoIndex {
+class java_return final: public NoIndex<java_return> {
   using NoIndex::NoIndex;
 
 public:
@@ -78,7 +80,7 @@ public:
   }
 };
 
-class iconst_0 final: public NoIndex {
+class iconst_0 final: public NoIndex<iconst_0> {
   using NoIndex::NoIndex;
 
 public:
@@ -89,8 +91,8 @@ public:
   }
 };
 
-class ireturn final: public NoIndex {
-  using NoIndex::NoIndex;
+class ireturn final: public NoIndex<ireturn> {
+  using NoIndex<ireturn>::NoIndex;
 
 public:
   static constexpr uint8_t OpCode = 0xac;

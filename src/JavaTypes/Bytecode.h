@@ -11,6 +11,8 @@
 #include <cassert>
 #include <vector>
 
+#include "InstructionVisitor.h"
+
 namespace JavaTypes::Bytecode {
 
 using BciType = uint32_t;
@@ -40,6 +42,9 @@ public:
   // No copies
   Instruction(const Instruction&) = delete;
   Instruction &operator=(const Instruction &) = delete;
+
+  // Support visitor pattern
+  virtual void accept(InstructionVisitor &V) const = 0;
 
   // Return true if this instruction has type 'RetType'
   template<class RetType>
@@ -101,6 +106,18 @@ private:
 inline bool operator==(const Instruction &Lhs, const Instruction &Rhs) {
   return &Lhs == &Rhs;
 }
+
+// This class is used as a base in CRTP to simplify visitor implementation
+template<class ConcreteType>
+class VisitableInstruction: public Instruction {
+  using Instruction::Instruction;
+
+public:
+  // Support instruction visitor
+  void accept(InstructionVisitor &V) const override {
+    V.visit(static_cast<const ConcreteType&>(*this));
+  }
+};
 
 // Creates instruction and advances iterator.
 // \returns New instruction.
