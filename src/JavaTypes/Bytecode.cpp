@@ -9,7 +9,7 @@ using namespace JavaTypes::Bytecode;
 using namespace JavaTypes::Bytecode::Instructions;
 
 std::unique_ptr<Instruction> JavaTypes::Bytecode::parseInstruction(
-  Container &Bytecodes, ContainerIterator &It) {
+  const Container &Bytecodes, ContainerIterator &It) {
 
   // There should be at least one byte so that we can read OpCode
   // Rest of the checks will happen inside 'create' function.

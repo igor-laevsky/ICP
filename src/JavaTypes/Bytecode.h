@@ -14,7 +14,7 @@
 namespace JavaTypes::Bytecode {
 
 using BciType = uint32_t;
-using Container = const std::vector<uint8_t>;
+using Container = std::vector<uint8_t>;
 using ContainerIterator = Container::const_iterator;
 
 // Exceptions
@@ -78,7 +78,13 @@ public:
   // instruction length.
   template<class InstructionType>
   static std::unique_ptr<Instruction> create(
-      Container &Bytecodes, ContainerIterator &It);
+      const Container &Bytecodes, ContainerIterator &It);
+
+  // Convenience wrapper for the 'create' function.
+  // Simply creates instruction of the 'InstructionType' and assigns it's
+  // arguments when applicable.
+  template<class InstructionType>
+  static std::unique_ptr<Instruction> create(uint16_t Arg1 = 0);
 
 protected:
   // This is supposed to be called only from 'create' function
@@ -102,11 +108,11 @@ inline bool operator==(const Instruction &Lhs, const Instruction &Rhs) {
 // \throws BytecodeParsingError if length of the container was less than
 // instruction length.
 std::unique_ptr<Instruction> parseInstruction(
-    Container &Bytecodes, ContainerIterator &It);
+    const Container &Bytecodes, ContainerIterator &It);
 
 template<class InstructionType>
 std::unique_ptr<Instruction>
-Instruction::create(Container &Bytecodes, ContainerIterator &It) {
+Instruction::create(const Container &Bytecodes, ContainerIterator &It) {
   // Check that we can parse this instruction
   if (std::distance(It, Bytecodes.end()) < InstructionType::Length)
     throw BytecodeParsingError();
@@ -122,6 +128,26 @@ Instruction::create(Container &Bytecodes, ContainerIterator &It) {
   It += InstructionType::Length;
 
   return Res;
+}
+
+template<class InstructionType>
+std::unique_ptr<Instruction> Instruction::create(uint16_t Arg1/* = 0*/) {
+  Container Bytecode;
+
+  if constexpr (InstructionType::Length == 1) {
+    Bytecode = {InstructionType::OpCode};
+  }
+  else if constexpr (InstructionType::Length == 3) {
+    Bytecode = {InstructionType::OpCode,
+                static_cast<uint8_t>(Arg1 & 0xFF00),
+                static_cast<uint8_t>(Arg1 & 0x00FF)};
+  }
+  else {
+    assert(false); // Unhandled instruction length
+  }
+
+  auto It = Bytecode.cbegin();
+  return Instruction::create<InstructionType>(Bytecode, It);
 }
 
 }

@@ -39,7 +39,7 @@ private:
   // Allow calling constructor from the create function
   template<class InstructionType>
   friend std::unique_ptr<Instruction> Instruction::create(
-      Container &Bytecodes, ContainerIterator &It);
+      const Container &Bytecodes, ContainerIterator &It);
 
 private:
   const ConstantPool::IndexType Idx;

@@ -34,7 +34,6 @@ TEST_CASE("Common instruction interface", "[Bytecode]") {
     REQUIRE_THROWS_AS(
         Aload->getAs<Instructions::invokespecial>(),
         UnexpectedBytecodeOperation);
-
   }
 
   SECTION("getAsOtNull") {
@@ -47,6 +46,15 @@ TEST_CASE("Common instruction interface", "[Bytecode]") {
     REQUIRE(Invoke->getBci() == 1);
     REQUIRE(Ret->getBci() == 4);
   }
+}
+
+TEST_CASE("Plain create", "[Bytecode]") {
+  auto Instr = Instruction::create<Instructions::aload_0>();
+  REQUIRE(Instr->isA<Instructions::aload_0>());
+
+  auto Instr2 = Instruction::create<Instructions::invokespecial>(5);
+  REQUIRE(Instr2->isA<Instructions::invokespecial>());
+  REQUIRE(Instr2->getAs<Instructions::invokespecial>().getIdx() == 5);
 }
 
 TEST_CASE("Undefined bytecode", "[Bytecode]") {
