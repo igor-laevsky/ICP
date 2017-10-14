@@ -8,7 +8,7 @@
 #include "Bytecode.h"
 #include "ConstantPool.h"
 
-namespace JavaTypes::Bytecode::Instructions {
+namespace JavaTypes::Bytecode {
 
 // Utility class for instruction consisting of a single byte.
 class NoIndex: public Instruction {

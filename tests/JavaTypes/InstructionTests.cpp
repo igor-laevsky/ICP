@@ -21,24 +21,24 @@ TEST_CASE("Common instruction interface", "[Bytecode]") {
   REQUIRE(It == Bytes.end());
 
   SECTION("isA") {
-    REQUIRE(Aload->isA<Instructions::aload_0>());
-    REQUIRE(Invoke->isA<Instructions::invokespecial>());
-    REQUIRE(Ret->isA<Instructions::java_return>());
+    REQUIRE(Aload->isA<aload_0>());
+    REQUIRE(Invoke->isA<invokespecial>());
+    REQUIRE(Ret->isA<java_return>());
 
-    REQUIRE_FALSE(Aload->isA<Instructions::invokespecial>());
-    REQUIRE_FALSE(Aload->isA<Instructions::java_return>());
+    REQUIRE_FALSE(Aload->isA<invokespecial>());
+    REQUIRE_FALSE(Aload->isA<java_return>());
   }
 
   SECTION("getAs") {
-    REQUIRE_NOTHROW(Aload->getAs<Instructions::aload_0>());
+    REQUIRE_NOTHROW(Aload->getAs<aload_0>());
     REQUIRE_THROWS_AS(
-        Aload->getAs<Instructions::invokespecial>(),
+        Aload->getAs<invokespecial>(),
         UnexpectedBytecodeOperation);
   }
 
   SECTION("getAsOtNull") {
-    REQUIRE(Aload->getAsOrNull<Instructions::aload_0>() != nullptr);
-    REQUIRE(Aload->getAsOrNull<Instructions::invokespecial>() == nullptr);
+    REQUIRE(Aload->getAsOrNull<aload_0>() != nullptr);
+    REQUIRE(Aload->getAsOrNull<invokespecial>() == nullptr);
   }
 
   SECTION("bci") {
@@ -49,12 +49,12 @@ TEST_CASE("Common instruction interface", "[Bytecode]") {
 }
 
 TEST_CASE("Plain create", "[Bytecode]") {
-  auto Instr = Instruction::create<Instructions::aload_0>();
-  REQUIRE(Instr->isA<Instructions::aload_0>());
+  auto Instr = Instruction::create<aload_0>();
+  REQUIRE(Instr->isA<aload_0>());
 
-  auto Instr2 = Instruction::create<Instructions::invokespecial>(5);
-  REQUIRE(Instr2->isA<Instructions::invokespecial>());
-  REQUIRE(Instr2->getAs<Instructions::invokespecial>().getIdx() == 5);
+  auto Instr2 = Instruction::create<invokespecial>(5);
+  REQUIRE(Instr2->isA<invokespecial>());
+  REQUIRE(Instr2->getAs<invokespecial>().getIdx() == 5);
 }
 
 TEST_CASE("Undefined bytecode", "[Bytecode]") {

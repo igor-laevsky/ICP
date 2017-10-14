@@ -6,7 +6,6 @@
 #include "BytecodeInstructions.h"
 
 using namespace JavaTypes::Bytecode;
-using namespace JavaTypes::Bytecode::Instructions;
 
 std::unique_ptr<Instruction> JavaTypes::Bytecode::parseInstruction(
   const Container &Bytecodes, ContainerIterator &It) {

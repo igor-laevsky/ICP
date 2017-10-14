@@ -44,10 +44,10 @@ TEST_CASE("Basic method interface", "[JavaMethod]") {
   REQUIRE_THROWS_AS(Method->getInstrAtBci(2), JavaMethod::WrongBci);
 
   // Check that instructions are parsed correctly
-  REQUIRE(Aload.isA<Instructions::aload_0>());
-  REQUIRE(Invoke.isA<Instructions::invokespecial>());
-  REQUIRE(Invoke.getAs<Instructions::invokespecial>().getIdx() == 1);
-  REQUIRE(Ret.isA<Instructions::java_return>());
+  REQUIRE(Aload.isA<aload_0>());
+  REQUIRE(Invoke.isA<invokespecial>());
+  REQUIRE(Invoke.getAs<invokespecial>().getIdx() == 1);
+  REQUIRE(Ret.isA<java_return>());
 
   // Check that code iterator works
   std::vector<std::reference_wrapper<const Instruction>> Instrs;
