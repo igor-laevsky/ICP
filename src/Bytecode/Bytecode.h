@@ -121,14 +121,6 @@ public:
   }
 };
 
-// Creates instruction and advances iterator.
-// \returns New instruction.
-// \throws UndefinedBytecode if opcode was not recognized.
-// \throws BytecodeParsingError if length of the container was less than
-// instruction length.
-std::unique_ptr<Instruction> parseInstruction(
-    const Container &Bytecodes, ContainerIterator &It);
-
 template<class InstructionType>
 std::unique_ptr<Instruction>
 Instruction::create(const Container &Bytecodes, ContainerIterator &It) {
@@ -168,6 +160,21 @@ std::unique_ptr<Instruction> Instruction::create(IdxType Arg1/* = 0*/) {
   auto It = Bytecode.cbegin();
   return Instruction::create<InstructionType>(Bytecode, It);
 }
+
+// Parses all instructions from the specified container.
+// \throws UndefinedBytecode if opcode was not recognized.
+// \throws BytecodeParsingError if length of the container was less than
+// instruction length.
+std::vector<std::unique_ptr<Instruction>> parseInstructions(
+    const Container &Bytecodes);
+
+// Creates instruction and advances the iterator.
+// \returns New instruction.
+// \throws UndefinedBytecode if opcode was not recognized.
+// \throws BytecodeParsingError if length of the container was less than
+// instruction length.
+std::unique_ptr<Instruction> parseInstruction(
+    const Container &Bytecodes, ContainerIterator &It);
 
 }
 

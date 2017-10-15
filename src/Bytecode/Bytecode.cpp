@@ -31,3 +31,16 @@ std::unique_ptr<Instruction> Bytecode::parseInstruction(
 
 #undef PARSE_OP
 }
+
+std::vector<std::unique_ptr<Instruction>> Bytecode::parseInstructions(
+    const Container &Bytecodes) {
+
+  std::vector<std::unique_ptr<Instruction>> Ret;
+
+  auto It = Bytecodes.begin();
+  while (It != Bytecodes.end()) {
+    Ret.push_back(parseInstruction(Bytecodes, It));
+  }
+
+  return Ret;
+}

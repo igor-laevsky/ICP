@@ -52,12 +52,7 @@ TEST_CASE("Basic", "[Bytecode][Visitor]") {
        0xb7, 0x00, 0x01, // invokespecial #1
        0xb1 };           // return
 
-  std::vector<std::unique_ptr<Instruction>> Insts;
-
-  auto It = Bytes.begin();
-  while (It != Bytes.end()) {
-    Insts.push_back(parseInstruction(Bytes, It));
-  }
+  auto Insts = parseInstructions(Bytes);
 
   TestVisitor V;
   for (const auto &I: Insts) {
