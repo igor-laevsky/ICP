@@ -13,9 +13,11 @@
 
 #include "InstructionVisitor.h"
 
-namespace JavaTypes::Bytecode {
+namespace Bytecode {
 
 using BciType = uint32_t;
+using IdxType = uint16_t;
+
 using Container = std::vector<uint8_t>;
 using ContainerIterator = Container::const_iterator;
 
@@ -89,7 +91,7 @@ public:
   // Simply creates instruction of the 'InstructionType' and assigns it's
   // arguments when applicable.
   template<class InstructionType>
-  static std::unique_ptr<Instruction> create(uint16_t Arg1 = 0);
+  static std::unique_ptr<Instruction> create(IdxType Arg1 = 0);
 
 protected:
   // This is supposed to be called only from 'create' function
@@ -148,7 +150,7 @@ Instruction::create(const Container &Bytecodes, ContainerIterator &It) {
 }
 
 template<class InstructionType>
-std::unique_ptr<Instruction> Instruction::create(uint16_t Arg1/* = 0*/) {
+std::unique_ptr<Instruction> Instruction::create(IdxType Arg1/* = 0*/) {
   Container Bytecode;
 
   if constexpr (InstructionType::Length == 1) {

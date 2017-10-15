@@ -11,7 +11,7 @@
 #include "JavaTypes/ConstantPool.h"
 #include "JavaTypes/ConstantPoolRecords.h"
 #include "JavaTypes/JavaMethod.h"
-#include "JavaTypes/Bytecode.h"
+#include "Bytecode/Bytecode.h"
 
 using namespace ClassFileReader;
 using namespace Utils;

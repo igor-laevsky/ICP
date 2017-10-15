@@ -24,17 +24,18 @@ set(SOURCE_FILES
         src/JavaTypes/ConstantPoolRecords.h
         src/JavaTypes/JavaMethod.cpp
         src/JavaTypes/JavaMethod.h
-        src/JavaTypes/Bytecode.cpp
-        src/JavaTypes/Bytecode.h
-        src/JavaTypes/BytecodeInstructions.h
+        src/Bytecode/Bytecode.cpp
+        src/Bytecode/Bytecode.h
+        src/Bytecode/BytecodeInstructions.h
         src/Verifier/Type.h
         src/Verifier/Type.cpp
         src/Verifier/StackFrame.cpp
         src/Verifier/StackFrame.h
         src/Verifier/Environment.cpp
         src/Verifier/Environment.h
-        src/JavaTypes/InstructionVisitor.cpp
-        src/JavaTypes/InstructionVisitor.h src/JavaTypes/BytecodeInstructionsFwd.h)
+        src/Bytecode/InstructionVisitor.cpp
+        src/Bytecode/InstructionVisitor.h
+        src/Bytecode/BytecodeInstructionsFwd.h)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
@@ -42,7 +43,9 @@ set (TEST_FILES
         tests/JavaTypes/InstructionTests.cpp
         tests/JavaTypes/JavaMethodTests.cpp
         tests/Utils/IteratorsTests.cpp
-        tests/Verifier/TypeTests.cpp tests/Verifier/StackFrameTests.cpp tests/JavaTypes/InstructionVisitorTests.cpp)
+        tests/Verifier/TypeTests.cpp
+        tests/Verifier/StackFrameTests.cpp
+        tests/JavaTypes/InstructionVisitorTests.cpp)
 
 add_library(ICP_LIB ${SOURCE_FILES})
 

@@ -7,7 +7,7 @@
 
 #include "ConstantPool.h"
 #include "ConstantPoolRecords.h"
-#include "Bytecode.h"
+#include "Bytecode/Bytecode.h"
 #include "Utils/Iterators.h"
 
 namespace JavaTypes {

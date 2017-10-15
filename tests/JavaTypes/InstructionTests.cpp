@@ -4,10 +4,10 @@
 
 #include "catch.hpp"
 
-#include "JavaTypes/Bytecode.h"
-#include "JavaTypes/BytecodeInstructions.h"
+#include "Bytecode/Bytecode.h"
+#include "Bytecode/BytecodeInstructions.h"
 
-using namespace JavaTypes::Bytecode;
+using namespace Bytecode;
 
 TEST_CASE("Common instruction interface", "[Bytecode]") {
   const std::vector<uint8_t> Bytes =

@@ -5,7 +5,8 @@
 #ifndef ICP_BYTECODEINSTRUCTIONSFWD_H
 #define ICP_BYTECODEINSTRUCTIONSFWD_H
 
-namespace JavaTypes::Bytecode {
+namespace Bytecode {
+
 template<class T> class NoIndex;
 template<class T> class SingleIndex;
 
@@ -14,6 +15,7 @@ class invokespecial;
 class java_return;
 class iconst_0;
 class ireturn;
+
 }
 
 #endif //ICP_BYTECODEINSTRUCTIONSFWD_H

@@ -6,9 +6,8 @@
 #define ICP_BYTECODEINSTRUCTIONS_H
 
 #include "Bytecode.h"
-#include "ConstantPool.h"
 
-namespace JavaTypes::Bytecode {
+namespace Bytecode {
 
 // Utility class for instruction consisting of a single byte.
 template<class ConcreteType>
@@ -27,7 +26,7 @@ public:
   static constexpr uint8_t Length = 3;
 
 public:
-  ConstantPool::IndexType getIdx() const {
+  auto getIdx() const {
     return Idx;
   }
 
@@ -44,7 +43,7 @@ private:
       const Container &Bytecodes, ContainerIterator &It);
 
 private:
-  const ConstantPool::IndexType Idx;
+  const IdxType Idx;
 };
 
 class aload_0 final: public NoIndex<aload_0> {

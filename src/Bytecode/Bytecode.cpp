@@ -5,9 +5,9 @@
 #include "Bytecode.h"
 #include "BytecodeInstructions.h"
 
-using namespace JavaTypes::Bytecode;
+using namespace Bytecode;
 
-std::unique_ptr<Instruction> JavaTypes::Bytecode::parseInstruction(
+std::unique_ptr<Instruction> Bytecode::parseInstruction(
   const Container &Bytecodes, ContainerIterator &It) {
 
   // There should be at least one byte so that we can read OpCode

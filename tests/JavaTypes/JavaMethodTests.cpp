@@ -7,11 +7,11 @@
 #include "JavaTypes/JavaMethod.h"
 #include "JavaTypes/ConstantPool.h"
 #include "JavaTypes/ConstantPoolRecords.h"
-#include "JavaTypes/Bytecode.h"
-#include "JavaTypes/BytecodeInstructions.h"
+#include "Bytecode/Bytecode.h"
+#include "Bytecode/BytecodeInstructions.h"
 
 using namespace JavaTypes;
-using namespace JavaTypes::Bytecode;
+using namespace Bytecode;
 
 TEST_CASE("Basic method interface", "[JavaMethod]") {
   // Create constant pool records for the method name and descriptor.

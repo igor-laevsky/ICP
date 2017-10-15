@@ -4,33 +4,33 @@
 
 #include "catch.hpp"
 
-#include "JavaTypes/Bytecode.h"
-#include "JavaTypes/BytecodeInstructions.h"
-#include "JavaTypes/InstructionVisitor.h"
+#include "Bytecode/Bytecode.h"
+#include "Bytecode/BytecodeInstructions.h"
+#include "Bytecode/InstructionVisitor.h"
 
-using namespace JavaTypes::Bytecode;
+using namespace Bytecode;
 
 namespace {
 
 class TestVisitor: public InstructionVisitor {
 public:
-  void visit(const JavaTypes::Bytecode::aload_0 &) override {
+  void visit(const aload_0 &) override {
     seenAload = true;
   }
 
-  void visit(const JavaTypes::Bytecode::invokespecial &) override {
+  void visit(const invokespecial &) override {
     seenInvoke = true;
   }
 
-  void visit(const JavaTypes::Bytecode::java_return &) override {
+  void visit(const java_return &) override {
     seenRet = true;
   }
 
-  void visit(const JavaTypes::Bytecode::iconst_0 &) override {
+  void visit(const iconst_0 &) override {
     assert(false);
   }
 
-  void visit(const JavaTypes::Bytecode::ireturn &) override {
+  void visit(const ireturn &) override {
     assert(false);
   }
 
