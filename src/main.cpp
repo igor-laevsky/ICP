@@ -3,6 +3,7 @@
 
 #include "JavaTypes/JavaClass.h"
 #include "ClassFileReader/ClassFileReader.h"
+#include "Verifier/Verifier.h"
 
 int main() {
   std::unique_ptr<JavaTypes::JavaClass> NewClass;
@@ -18,10 +19,7 @@ int main() {
   }
 
   std::string ErrorMessage;
-  if (!NewClass->verify(ErrorMessage)) {
-    std::cout << "Failed class verification: " + ErrorMessage;
-    return 1;
-  }
+  Verifier::verify(*NewClass);
 
   NewClass->print(std::cout);
 

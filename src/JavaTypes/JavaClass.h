@@ -45,24 +45,7 @@ public:
   // Rvalue parameter is to emphasize the fact that we will transfer
   // ownership of the unique_ptr's (i.e ConstantPool), which makes
   // ClassParameters structure invalid after this constructor was executed.
-  explicit JavaClass(ClassParameters &&Params):
-      ClassName(Params.ClassName),
-      SuperClass(Params.SuperClass),
-      Flags(Params.Flags),
-      CP(std::move(Params.CP)),
-      Methods(std::move(Params.Methods))
-  {
-    assert(Params.ClassName != nullptr);
-
-    // It is responsibility of the user to provide valid constant pool.
-    assert(CP != nullptr && CP->verify());
-
-    // Set up correct owner for the class methods
-    for (auto &Method: getMethods()) {
-      assert(Method != nullptr);
-      Method->setOwner(*this);
-    }
-  }
+  explicit JavaClass(ClassParameters &&Params);
 
   // No copies
   JavaClass(const JavaClass&) = delete;
@@ -95,11 +78,6 @@ public:
     assert(hasSuper());
     return SuperClass->getName();
   }
-
-  // Verifies the class. Includes verification of the constant pool and all
-  // class methods.
-  // \returns true in case is class is valid, false otherwise.
-  bool verify(std::string &ErrorMessage) const;
 
   void print(std::ostream &Out) const;
 

@@ -33,8 +33,14 @@ public:
     ;
   }
 
-  reference operator*() const { return *It->get(); }
-  pointer operator->() const { return It->get(); }
+  reference operator*() const {
+    assert(It->get() != nullptr);
+    return *It->get();
+  }
+  pointer operator->() const {
+    assert(It->get() != nullptr);
+    return It->get();
+  }
 
   SmartPtrIterator& operator++() {
     It++;

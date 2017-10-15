@@ -8,19 +8,27 @@
 
 using namespace JavaTypes;
 
-bool JavaClass::verify(std::string &ErrorMessage) const {
-  // User is supposed to provide valid constant pool, hence this is assert
-  // rather than a normal check.
-  assert(CP != nullptr && CP->verify(ErrorMessage));
+JavaClass::JavaClass(JavaClass::ClassParameters &&Params):
+  ClassName(Params.ClassName),
+  SuperClass(Params.SuperClass),
+  Flags(Params.Flags),
+  CP(std::move(Params.CP)),
+  Methods(std::move(Params.Methods))
+{
+  assert(Params.ClassName != nullptr);
 
-  if (getAccessFlags() != (AccessFlags::ACC_PUBLIC | AccessFlags::ACC_SUPER)) {
-    ErrorMessage = "Unsupported class access flags";
-    return false;
+  // It is responsibility of the user to provide valid constant pool.
+  assert(CP != nullptr && CP->verify());
+
+  // Set up correct owner for the class methods
+  for (auto &Method: getMethods()) {
+    assert(Method != nullptr);
+    Method->setOwner(*this);
   }
 
-  // TODO: Verify that all methods not null and have correct owner
-
-  return true;
+  // Other access flags are not yet supported
+  assert(
+      getAccessFlags() == (AccessFlags::ACC_PUBLIC | AccessFlags::ACC_SUPER));
 }
 
 void JavaClass::print(std::ostream &Out) const {

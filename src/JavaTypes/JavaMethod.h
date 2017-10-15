@@ -69,12 +69,9 @@ public:
     return Descriptor->getValue();
   }
 
-  uint16_t getMaxStack() const {
-    return MaxStack;
-  }
-  uint16_t getMaxLocals() const {
-    return MaxLocals;
-  }
+  uint16_t getMaxStack() const { return MaxStack; }
+  uint16_t getMaxLocals() const { return MaxLocals; }
+  AccessFlags getAccessFlags() const { return Flags; }
 
   const JavaClass &getOwner() const {
     // Never request owner before it was assigned
@@ -98,8 +95,6 @@ public:
   Bytecode::BciType numInstructions() const {
     return static_cast<Bytecode::BciType>(Code.size());
   }
-
-  bool verify(std::string &ErrorMessage) const;
 
   void print(std::ostream &Out) const;
 

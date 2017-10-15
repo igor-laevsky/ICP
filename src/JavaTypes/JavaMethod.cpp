@@ -21,18 +21,15 @@ JavaMethod::JavaMethod(JavaMethod::MethodConstructorParameters &&Params) :
 
   auto CodeIt = Params.Code.cbegin();
 
-  while (CodeIt != Params.Code.end())
+  while (CodeIt != Params.Code.end()) {
     Code.push_back(Bytecode::parseInstruction(Params.Code, CodeIt));
-}
-
-bool JavaMethod::verify(std::string &ErrorMessage) const {
-  if (Flags != AccessFlags::ACC_PUBLIC &&
-      Flags != (AccessFlags::ACC_PUBLIC | AccessFlags::ACC_STATIC)) {
-    ErrorMessage = "Unsupported access flags";
-    return false;
+    assert(Code.back() != nullptr);
   }
 
-  return true;
+  // Other flags are not supported currently
+  assert(
+      getAccessFlags() == AccessFlags::ACC_PUBLIC ||
+      getAccessFlags() == (AccessFlags::ACC_PUBLIC | AccessFlags::ACC_STATIC));
 }
 
 void JavaMethod::print(std::ostream &Out) const {
