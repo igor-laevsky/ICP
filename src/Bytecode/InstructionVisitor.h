@@ -4,7 +4,7 @@
 
 #include <cassert>
 
-#include "BytecodeInstructionsFwd.h"
+#include "InstructionsFwd.h"
 
 namespace Bytecode {
 

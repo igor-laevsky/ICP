@@ -26,7 +26,7 @@ set(SOURCE_FILES
         src/JavaTypes/JavaMethod.h
         src/Bytecode/Bytecode.cpp
         src/Bytecode/Bytecode.h
-        src/Bytecode/BytecodeInstructions.h
+        src/Bytecode/Instructions.h
         src/Verifier/Type.h
         src/Verifier/Type.cpp
         src/Verifier/StackFrame.cpp
@@ -35,7 +35,7 @@ set(SOURCE_FILES
         src/Verifier/Environment.h
         src/Bytecode/InstructionVisitor.cpp
         src/Bytecode/InstructionVisitor.h
-        src/Bytecode/BytecodeInstructionsFwd.h)
+        src/Bytecode/InstructionsFwd.h)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp

@@ -8,7 +8,7 @@
 #include "JavaTypes/ConstantPool.h"
 #include "JavaTypes/ConstantPoolRecords.h"
 #include "Bytecode/Bytecode.h"
-#include "Bytecode/BytecodeInstructions.h"
+#include "Bytecode/Instructions.h"
 
 using namespace JavaTypes;
 using namespace Bytecode;

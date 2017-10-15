@@ -5,7 +5,7 @@
 #include "catch.hpp"
 
 #include "Bytecode/Bytecode.h"
-#include "Bytecode/BytecodeInstructions.h"
+#include "Bytecode/Instructions.h"
 #include "Bytecode/InstructionVisitor.h"
 
 using namespace Bytecode;

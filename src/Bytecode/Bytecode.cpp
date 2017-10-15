@@ -3,7 +3,7 @@
 //
 
 #include "Bytecode.h"
-#include "BytecodeInstructions.h"
+#include "Instructions.h"
 
 using namespace Bytecode;
 
