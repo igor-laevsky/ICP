@@ -31,8 +31,6 @@ set(SOURCE_FILES
         src/Verifier/Type.cpp
         src/Verifier/StackFrame.cpp
         src/Verifier/StackFrame.h
-        src/Verifier/Environment.cpp
-        src/Verifier/Environment.h
         src/Bytecode/InstructionVisitor.cpp
         src/Bytecode/InstructionVisitor.h
         src/Bytecode/InstructionsFwd.h
