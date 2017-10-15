@@ -58,8 +58,10 @@ public:
     assert(CP != nullptr && CP->verify());
 
     // Set up correct owner for the class methods
-    for (auto &Method: getMethods())
+    for (auto &Method: getMethods()) {
+      assert(Method != nullptr);
       Method->setOwner(*this);
+    }
   }
 
   // No copies

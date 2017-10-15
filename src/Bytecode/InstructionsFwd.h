@@ -7,6 +7,8 @@
 
 namespace Bytecode {
 
+class Instruction;
+
 template<class T> class NoIndex;
 template<class T> class SingleIndex;
 

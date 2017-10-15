@@ -46,7 +46,7 @@ private:
 
 }
 
-TEST_CASE("Basic", "[Bytecode][Visitor]") {
+TEST_CASE("Basic bytecode visitor", "[Bytecode][Visitor]") {
   const std::vector<uint8_t> Bytes =
       {0x2a,             // aload_0
        0xb7, 0x00, 0x01, // invokespecial #1

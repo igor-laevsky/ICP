@@ -4,6 +4,8 @@
 
 #include "catch.hpp"
 
+#include "Utils/TestUtils.h"
+
 #include "JavaTypes/JavaMethod.h"
 #include "JavaTypes/ConstantPool.h"
 #include "JavaTypes/ConstantPoolRecords.h"
@@ -14,27 +16,7 @@ using namespace JavaTypes;
 using namespace Bytecode;
 
 TEST_CASE("Basic method interface", "[JavaMethod]") {
-  // Create constant pool records for the method name and descriptor.
-  // We don't need ConstantPool for such simple records.
-  auto Name = std::make_unique<ConstantPoolRecords::Utf8>("method_name");
-  auto Descriptor = std::make_unique<ConstantPoolRecords::Utf8>(
-      "method_descriptor");
-
-  JavaMethod::MethodConstructorParameters Params;
-
-  Params.Flags = JavaMethod::AccessFlags::ACC_PUBLIC;
-
-  Params.Name = Name.get();
-  Params.Descriptor = Descriptor.get();
-
-  Params.MaxLocals = 0;
-  Params.MaxStack = 0;
-  Params.Code = {
-      0x2a,             // aload_0
-      0xb7, 0x00, 0x01, // invokespecial #1
-      0xb1};            // return
-
-  auto Method = std::make_unique<const JavaMethod>(std::move(Params));
+  auto Method = TestUtils::createTrivialMethod();
 
   // Check BCI access
   const auto &Aload = Method->getInstrAtBci(0);

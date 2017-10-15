@@ -18,6 +18,8 @@ bool JavaClass::verify(std::string &ErrorMessage) const {
     return false;
   }
 
+  // TODO: Verify that all methods not null and have correct owner
+
   return true;
 }
 
