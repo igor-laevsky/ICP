@@ -212,6 +212,16 @@ static uint16_t skipAttributesUntil(
   throw FormatError("Unable to find attribute " + TargetAttrName);
 }
 
+// Parses stack map table and saves it into the 'Params' structure.
+// \throws ReadError or FormatError.
+//static void parseStackMapTable(
+//    JavaMethod::MethodConstructorParameters &Params,
+//    std::istream &Input) {
+//
+//
+//
+//}
+
 // Expects current input position to be set up right after 'Code' attribute
 // tag. Saves result in the 'Params' structure.
 // \throws ReadError or FormatError.

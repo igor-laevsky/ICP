@@ -47,7 +47,8 @@ TestUtils::createTrivialBytecode() {
 }
 
 std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
-    const std::vector<uint8_t> &Bytecode) {
+    const std::vector<uint8_t> &Bytecode,
+    const JavaMethod::StackMapTableType &StackMapTable) {
 
   const auto &Name =
       getEternalConstantPool().getAs<ConstantPoolRecords::Utf8>(1);
@@ -64,8 +65,18 @@ std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
   Params.MaxLocals = 0;
   Params.MaxStack = 0;
   Params.Code = Bytecode;
+  // Make a copy since we don't want to move object out of the input parameter
+  Params.StackMapTable = JavaMethod::StackMapTableType(StackMapTable);
 
   return std::make_unique<JavaMethod>(std::move(Params));
+}
+
+std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
+    const std::vector<uint8_t> &Bytecode) {
+  JavaMethod::StackMapTableType T = {
+      {0, Verifier::StackFrame({}, {})}
+  };
+  return createMethod(Bytecode, T);
 }
 
 std::unique_ptr<JavaMethod> TestUtils::createTrivialMethod() {

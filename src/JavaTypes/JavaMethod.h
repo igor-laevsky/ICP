@@ -9,6 +9,7 @@
 #include "ConstantPoolRecords.h"
 #include "Bytecode/Bytecode.h"
 #include "Utils/Iterators.h"
+#include "Verifier/StackFrame.h"
 
 namespace JavaTypes {
 
@@ -16,6 +17,13 @@ class JavaClass;
 
 class JavaMethod final {
 public:
+  using CodeOwnerType =
+    std::vector<std::unique_ptr<const Bytecode::Instruction>>;
+  using CodeIterator = Utils::SmartPtrIterator<CodeOwnerType::const_iterator>;
+
+  using StackMapTableType =
+    std::vector<std::pair<uint64_t, Verifier::StackFrame>>;
+
   enum class AccessFlags: uint16_t {
     ACC_NONE = 0x0000,
     ACC_PUBLIC = 0x0001,
@@ -43,12 +51,10 @@ public:
     uint16_t MaxStack = 0;
     uint16_t MaxLocals = 0;
 
-    std::vector<uint8_t> Code;
-  };
+    std::vector<uint8_t> Code; // This is plain unparsed bytecode
 
-  using CodeOwnerType =
-    std::vector<std::unique_ptr<const Bytecode::Instruction>>;
-  using CodeIterator = Utils::SmartPtrIterator<CodeOwnerType::const_iterator>;
+    StackMapTableType StackMapTable;
+  };
 
   // thrown when trying to request instruction at non existant bci
   class WrongBci: public std::exception {};
@@ -84,6 +90,8 @@ public:
     Owner = &NewOwner;
   }
 
+  const auto &getStackMapTable() const { return StackMapTable; }
+
   // Get instruction at specified bci.
   // \throws WrongBci if no such instruction is found.
   const Bytecode::Instruction &getInstrAtBci(Bytecode::BciType Bci) const;
@@ -110,6 +118,8 @@ private:
   const uint16_t MaxLocals;
 
   CodeOwnerType Code;
+
+  StackMapTableType StackMapTable;
 };
 
 // Allows using AccessFlags as a bitfield.

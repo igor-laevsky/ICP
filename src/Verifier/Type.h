@@ -35,7 +35,6 @@ public:
   static const Type Short;
   static const Type Boolean;
 
-
   static const Type Float;
   static const Type Long;
   static const Type Double;

@@ -14,7 +14,8 @@ JavaMethod::JavaMethod(JavaMethod::MethodConstructorParameters &&Params) :
     Name(Params.Name),
     Descriptor(Params.Descriptor),
     MaxStack(Params.MaxStack),
-    MaxLocals(Params.MaxLocals)
+    MaxLocals(Params.MaxLocals),
+    StackMapTable(std::move(Params.StackMapTable))
 {
   assert(Name != nullptr);
   assert(Descriptor != nullptr);

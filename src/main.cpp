@@ -17,6 +17,7 @@ int main() {
     std::cout << "Wrong class file format: "  << e.what() << "\n";
     return 1;
   }
+  assert(NewClass != nullptr);
 
   std::string ErrorMessage;
   Verifier::verify(*NewClass);

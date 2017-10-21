@@ -42,31 +42,12 @@ TEST_CASE("Basic method interface", "[JavaMethod]") {
 }
 
 TEST_CASE("Unknown bytecode error", "[JavaMethod]") {
-  auto Name = std::make_unique<ConstantPoolRecords::Utf8>("method_name");
-  auto Descriptor = std::make_unique<ConstantPoolRecords::Utf8>(
-      "method_descriptor");
-
-  JavaMethod::MethodConstructorParameters Params = {
-      JavaMethod::AccessFlags::ACC_PUBLIC,
-      Name.get(), Descriptor.get(),
-      0, 0,
-      {0x00}
-  };
   REQUIRE_THROWS_AS(
-      std::make_unique<JavaMethod>(std::move(Params)), UnknownBytecode);
+      TestUtils::createMethod({0x00}), UnknownBytecode);
 }
 
 TEST_CASE("Bytecode parsing error", "[JavaMethod]") {
-  auto Name = std::make_unique<ConstantPoolRecords::Utf8>("method_name");
-  auto Descriptor = std::make_unique<ConstantPoolRecords::Utf8>(
-      "method_descriptor");
-
-  JavaMethod::MethodConstructorParameters Params = {
-      JavaMethod::AccessFlags::ACC_PUBLIC,
-      Name.get(), Descriptor.get(),
-      0, 0,
-      {0xb7, 0x00}
-  };
   REQUIRE_THROWS_AS(
-      std::make_unique<JavaMethod>(std::move(Params)), BytecodeParsingError);
+      TestUtils::createMethod({0xb7, 0x00}), BytecodeParsingError);
+
 }
