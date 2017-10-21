@@ -25,7 +25,7 @@ static std::unique_ptr<ConstantPool> createConstantPool() {
   ConstantPoolBuilder Builder(4);
 
   Builder.set(1, std::make_unique<ConstantPoolRecords::Utf8>("trivial_method"));
-  Builder.set(2, std::make_unique<ConstantPoolRecords::Utf8>("()V"));
+  Builder.set(2, std::make_unique<ConstantPoolRecords::Utf8>("()I"));
   Builder.set(3, std::make_unique<ConstantPoolRecords::Utf8>("trivial_class"));
   Builder.set(4, std::make_unique<ConstantPoolRecords::ClassInfo>(
       Builder.getCellReference(3)));
@@ -48,7 +48,7 @@ TestUtils::createTrivialBytecode() {
 
 std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
     const std::vector<uint8_t> &Bytecode,
-    const JavaMethod::StackMapTableType &StackMapTable) {
+    JavaMethod::StackMapTableType &&StackMapTable) {
 
   const auto &Name =
       getEternalConstantPool().getAs<ConstantPoolRecords::Utf8>(1);
@@ -62,11 +62,10 @@ std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
   Params.Name = &Name;
   Params.Descriptor = &Descriptor;
 
-  Params.MaxLocals = 0;
-  Params.MaxStack = 0;
+  Params.MaxLocals = 10;
+  Params.MaxStack = 10;
   Params.Code = Bytecode;
-  // Make a copy since we don't want to move object out of the input parameter
-  Params.StackMapTable = JavaMethod::StackMapTableType(StackMapTable);
+  Params.StackMapTable = std::move(StackMapTable);
 
   return std::make_unique<JavaMethod>(std::move(Params));
 }
@@ -76,20 +75,17 @@ std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
   JavaMethod::StackMapTableType T = {
       {0, Verifier::StackFrame({}, {})}
   };
-  return createMethod(Bytecode, T);
+  return createMethod(Bytecode, std::move(T));
 }
 
 std::unique_ptr<JavaMethod> TestUtils::createTrivialMethod() {
   return createMethod(trivialBytecodePlain());
 }
 
-std::unique_ptr<JavaClass> TestUtils::createTrivialClass() {
-  // These two are using two different constant pools. Should be fine for
-  // testing purposes.
-  auto CP = createConstantPool();
+std::unique_ptr<JavaTypes::JavaClass> TestUtils::createClass(
+    std::vector<std::unique_ptr<JavaTypes::JavaMethod>> &&Methods) {
 
-  std::vector<std::unique_ptr<JavaMethod>> Methods;
-  Methods.push_back(createTrivialMethod());
+  auto CP = createConstantPool();
 
   JavaClass::ClassParameters Params;
 
@@ -101,4 +97,12 @@ std::unique_ptr<JavaClass> TestUtils::createTrivialClass() {
   Params.Methods = std::move(Methods);
 
   return std::make_unique<JavaClass>(std::move(Params));
+
+}
+
+std::unique_ptr<JavaClass> TestUtils::createTrivialClass() {
+  std::vector<std::unique_ptr<JavaTypes::JavaMethod>> Methods;
+
+  Methods.push_back(createTrivialMethod());
+  return createClass(std::move(Methods));
 }

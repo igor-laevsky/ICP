@@ -9,6 +9,11 @@
 #include "Verifier/Verifier.h"
 
 TEST_CASE("Basic verification", "[Verifier]") {
-  auto TrivialClass = TestUtils::createTrivialClass();
+  std::vector<std::unique_ptr<JavaTypes::JavaMethod>> Methods;
+  Methods.push_back(TestUtils::createMethod({0x3, 0xac}));
+
+
+  auto TrivialClass = TestUtils::createClass(std::move(Methods));
+
   REQUIRE_NOTHROW(Verifier::verify(*TrivialClass));
 }

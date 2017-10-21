@@ -28,6 +28,12 @@ public:
     ACC_ENUM = 0x4000
   };
 
+  // Allow using AccessFlags as a bitfield.
+  friend constexpr AccessFlags operator|(AccessFlags Lhs, AccessFlags Rhs) {
+    return static_cast<AccessFlags>(
+        static_cast<uint16_t>(Lhs) | static_cast<uint16_t>(Rhs));
+  }
+
   // This structure is intended to simplify passing constructor arguments.
   // It doesn't have any additional semantic meaning.
   struct ClassParameters {
@@ -92,13 +98,6 @@ private:
 
   const std::vector<std::unique_ptr<JavaMethod>> Methods;
 };
-
-// Allows using AccessFlags as a bitfield.
-constexpr JavaClass::AccessFlags operator|(
-    JavaClass::AccessFlags Lhs, JavaClass::AccessFlags Rhs) {
-  return static_cast<JavaClass::AccessFlags>(
-      static_cast<uint16_t>(Lhs) | static_cast<uint16_t>(Rhs));
-}
 
 }
 

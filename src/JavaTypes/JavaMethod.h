@@ -22,7 +22,7 @@ public:
   using CodeIterator = Utils::SmartPtrIterator<CodeOwnerType::const_iterator>;
 
   using StackMapTableType =
-    std::vector<std::pair<uint64_t, Verifier::StackFrame>>;
+    std::vector<std::pair<Bytecode::BciType, Verifier::StackFrame>>;
 
   enum class AccessFlags: uint16_t {
     ACC_NONE = 0x0000,
@@ -39,6 +39,17 @@ public:
     ACC_STRICT = 0x0800,
     ACC_SYNTHETIC = 0x1000
   };
+
+  // Allows using AccessFlags as a bitfield.
+  friend constexpr AccessFlags operator|(AccessFlags Lhs, AccessFlags Rhs) {
+    return static_cast<AccessFlags>(
+        static_cast<uint16_t>(Lhs) | static_cast<uint16_t>(Rhs));
+  }
+  friend constexpr bool operator&(AccessFlags Lhs, AccessFlags Rhs) {
+    return static_cast<bool>(
+        static_cast<uint16_t>(Lhs) & static_cast<uint16_t>(Rhs));
+  }
+
 
   // This is only to simplify constructor parameter list. No additional
   // semantic meaning is implied.
@@ -121,13 +132,6 @@ private:
 
   StackMapTableType StackMapTable;
 };
-
-// Allows using AccessFlags as a bitfield.
-constexpr JavaMethod::AccessFlags operator|(
-    JavaMethod::AccessFlags Lhs, JavaMethod::AccessFlags Rhs) {
-  return static_cast<JavaMethod::AccessFlags>(
-      static_cast<uint16_t>(Lhs) | static_cast<uint16_t>(Rhs));
-}
 
 }
 

@@ -41,6 +41,10 @@ public:
   auto numStack() const { return Stack.size(); }
 
   const auto &locals() const { return Locals; }
+  Type getLocal(uint32_t Idx) const {
+    assert(Idx < locals().size());
+    return locals()[Idx];
+  }
 
   bool flagThisUninit() const { return Flags; };
 

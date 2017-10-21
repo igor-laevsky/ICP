@@ -21,9 +21,12 @@ std::unique_ptr<JavaTypes::JavaMethod> createMethod(
 
 std::unique_ptr<JavaTypes::JavaMethod> createMethod(
     const std::vector<uint8_t> &Bytecode,
-    const JavaTypes::JavaMethod::StackMapTableType &StackMapTable);
+    JavaTypes::JavaMethod::StackMapTableType &&StackMapTable);
 
 std::unique_ptr<JavaTypes::JavaMethod> createTrivialMethod();
+
+std::unique_ptr<JavaTypes::JavaClass> createClass(
+    std::vector<std::unique_ptr<JavaTypes::JavaMethod>> &&Methods);
 
 std::unique_ptr<JavaTypes::JavaClass> createTrivialClass();
 

@@ -20,7 +20,7 @@ int main() {
   assert(NewClass != nullptr);
 
   std::string ErrorMessage;
-  Verifier::verify(*NewClass);
+  //Verifier::verify(*NewClass);
 
   NewClass->print(std::cout);
 
