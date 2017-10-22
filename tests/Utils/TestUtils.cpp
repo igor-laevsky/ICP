@@ -22,13 +22,17 @@ static std::vector<uint8_t> trivialBytecodePlain() {
 }
 
 static std::unique_ptr<ConstantPool> createConstantPool() {
-  ConstantPoolBuilder Builder(4);
+  ConstantPoolBuilder Builder(6);
 
   Builder.set(1, std::make_unique<ConstantPoolRecords::Utf8>("trivial_method"));
   Builder.set(2, std::make_unique<ConstantPoolRecords::Utf8>("()I"));
   Builder.set(3, std::make_unique<ConstantPoolRecords::Utf8>("trivial_class"));
   Builder.set(4, std::make_unique<ConstantPoolRecords::ClassInfo>(
       Builder.getCellReference(3)));
+
+
+  Builder.set(5, std::make_unique<ConstantPoolRecords::Utf8>("()V"));
+  Builder.set(6, std::make_unique<ConstantPoolRecords::Utf8>("()J"));
 
   auto CP = Builder.createConstantPool();
   assert(CP->verify());
