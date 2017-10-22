@@ -206,6 +206,8 @@ static uint16_t skipAttributesUntil(
 
     const uint32_t attribute_length = BigEndianReading::readWord(Input);
     Input.seekg(attribute_length, std::ios_base::cur);
+
+    ++NumSkipped;
   }
 
   // Reached the end of the file and no attribute was found

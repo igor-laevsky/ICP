@@ -11,6 +11,7 @@
 #include "Bytecode/Bytecode.h"
 #include "JavaTypes/JavaClass.h"
 #include "JavaTypes/JavaMethod.h"
+#include "JavaTypes/ConstantPool.h"
 
 namespace TestUtils {
 
@@ -20,6 +21,9 @@ std::unique_ptr<JavaTypes::JavaMethod> createMethod(
     const std::vector<uint8_t> &Bytecode);
 
 std::unique_ptr<JavaTypes::JavaMethod> createMethod(
+    uint16_t MaxStack, uint16_t MaxLocals,
+    JavaTypes::ConstantPool::IndexType NameIdx,
+    JavaTypes::ConstantPool::IndexType DescriptorIdx,
     const std::vector<uint8_t> &Bytecode,
     JavaTypes::JavaMethod::StackMapTableType &&StackMapTable);
 

@@ -47,13 +47,16 @@ TestUtils::createTrivialBytecode() {
 }
 
 std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
+    uint16_t MaxStack, uint16_t MaxLocals,
+    ConstantPool::IndexType NameIdx,
+    ConstantPool::IndexType DescriptorIdx,
     const std::vector<uint8_t> &Bytecode,
     JavaMethod::StackMapTableType &&StackMapTable) {
 
   const auto &Name =
-      getEternalConstantPool().getAs<ConstantPoolRecords::Utf8>(1);
+      getEternalConstantPool().getAs<ConstantPoolRecords::Utf8>(NameIdx);
   const auto &Descriptor =
-      getEternalConstantPool().getAs<ConstantPoolRecords::Utf8>(2);
+      getEternalConstantPool().getAs<ConstantPoolRecords::Utf8>(DescriptorIdx);
 
   JavaMethod::MethodConstructorParameters Params;
 
@@ -62,8 +65,8 @@ std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
   Params.Name = &Name;
   Params.Descriptor = &Descriptor;
 
-  Params.MaxLocals = 10;
-  Params.MaxStack = 10;
+  Params.MaxLocals = MaxLocals;
+  Params.MaxStack = MaxStack;
   Params.Code = Bytecode;
   Params.StackMapTable = std::move(StackMapTable);
 
@@ -75,7 +78,9 @@ std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
   JavaMethod::StackMapTableType T = {
       {0, Verifier::StackFrame({}, {})}
   };
-  return createMethod(Bytecode, std::move(T));
+  return createMethod(
+      10, 10, 1, 2,
+      Bytecode, std::move(T));
 }
 
 std::unique_ptr<JavaMethod> TestUtils::createTrivialMethod() {

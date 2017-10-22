@@ -10,8 +10,11 @@
 
 TEST_CASE("Basic verification", "[Verifier]") {
   std::vector<std::unique_ptr<JavaTypes::JavaMethod>> Methods;
-  Methods.push_back(TestUtils::createMethod({0x3, 0xac}));
-
+  Methods.push_back(TestUtils::createMethod(
+      {
+          0x3, // aload_0
+          0xac // ireturn
+      }));
 
   auto TrivialClass = TestUtils::createClass(std::move(Methods));
 
