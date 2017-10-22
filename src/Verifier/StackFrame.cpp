@@ -191,3 +191,16 @@ StackFrame::parseMethodDescriptor(const std::string &Desc) {
 
   return std::pair(RetType, ArgTypes);
 }
+
+void StackFrame::setLocal(uint32_t Idx, Type T) {
+  assert(Idx < locals().size());
+  locals()[Idx] = T;
+
+  if (Type::sizeOf(T) == 2) {
+    assert(Idx + 1 < locals().size());
+    locals()[Idx + 1] = Type::Top;
+  }
+
+  computeFlags();
+  assert(verifyTypeEncoding());
+}

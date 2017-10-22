@@ -40,13 +40,16 @@ public:
 
   auto numStack() const { return Stack.size(); }
 
+  // Locals accessors
   const auto &locals() const { return Locals; }
   Type getLocal(uint32_t Idx) const {
     assert(Idx < locals().size());
     return locals()[Idx];
   }
+  void setLocal(uint32_t Idx, Type T);
 
-  bool flagThisUninit() const { return Flags; };
+  // Returns true if locals have uninitialized this flag
+  bool flagThisUninit() const { return Flags; }
 
   // It's possible to pop list of types if each corresponding stack slot is
   // assignable to the given type.

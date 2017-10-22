@@ -207,3 +207,19 @@ TEST_CASE("Parse method descriptor", "[Verifier][StackFrame]") {
       StackFrame::parseMethodDescriptor("(U)V"),
       StackFrame::ParsingError);
 }
+
+TEST_CASE("Set local", "[Verifier][StackFrame]") {
+  StackFrame t({Type::Int, Type::Reference}, {});
+
+  REQUIRE(!t.flagThisUninit());
+
+  t.setLocal(0, Type::UninitializedThis);
+  REQUIRE(t.flagThisUninit());
+
+  t.setLocal(1, Type::UninitializedThis);
+  REQUIRE(t.flagThisUninit());
+
+  t.setLocal(0, Type::Double);
+  REQUIRE(!t.flagThisUninit());
+  REQUIRE(t.getLocal(1) == Type::Top);
+}
