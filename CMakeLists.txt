@@ -36,7 +36,7 @@ set(SOURCE_FILES
         src/Bytecode/InstructionsFwd.h
         src/Verifier/Verifier.cpp
         src/Verifier/Verifier.h
-        src/JavaTypes/JavaTypesFwd.h src/Verifier/VerifierFwd.h)
+        src/JavaTypes/JavaTypesFwd.h src/Verifier/VerifierFwd.h src/Interpreter/Interpreter.h src/Interpreter/Interpreter.cpp)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
