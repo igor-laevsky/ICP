@@ -7,10 +7,13 @@
 
 #include <any>
 #include <vector>
+#include <cstdint>
 
 #include "JavaTypes/JavaTypesFwd.h"
 
-namespace Interpreter {
+namespace SlowInterpreter {
+
+using JavaInt = uint32_t;
 
 // Expects verified method and returns it's result if it's specified.
 std::any Interpret(

@@ -19,7 +19,7 @@ namespace Verifier {
 // Internally two word types are encoded as pairs of (Actual type, Types::Top)
 // This is strictly internal format and all input data is expected to be in a
 // regular form (i.e two-word types are stored as a single element)
-class StackFrame {
+class StackFrame final {
 public:
   // Used to indicate parsing error in parseFieldDescriptor and
   // parseMethodDescriptor.

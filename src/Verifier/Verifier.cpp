@@ -21,7 +21,7 @@ namespace {
 // This visitor is intended to be called on all instructions of the method
 // in order of their appearance. Caller is responsible to supply
 // correct stack frames when necessary.
-class MethodVerifier: public InstructionVisitor {
+class MethodVerifier final: public InstructionVisitor {
 public:
   explicit MethodVerifier(const JavaMethod &Method):
       Method(Method),

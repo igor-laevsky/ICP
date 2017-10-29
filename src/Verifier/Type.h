@@ -15,7 +15,7 @@ namespace Verifier {
 // user is supposed to use static variables from the 'Types' struct.
 // This is intended to be a small immutable value-like class
 // (i.e pass by value is fine).
-class Type {
+class Type final {
 public:
   constexpr bool operator==(const Type &Rhs) const noexcept {
     if (Tag != Rhs.Tag)
@@ -104,7 +104,7 @@ private:
 //      constructor private. However we need to somehow construct this objects
 //      out-of-line. Hence we used 'struct' which is a friend of 'Type' class.
 // TODO: Add parameters for the class and array types
-struct Types {
+struct Types final {
   // This is a null object. It doesn't reflect any real world type and should
   // be used to indicate that type is unknown.
   static constexpr Type Void{Type::TagType::VOID};

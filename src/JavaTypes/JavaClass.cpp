@@ -43,3 +43,12 @@ void JavaClass::print(std::ostream &Out) const {
   for (const auto &Method: getMethods())
     Method->print(Out);
 }
+
+const JavaMethod *JavaClass::getMethod(const std::string &Name) const {
+  for (const auto &Method: getMethods()) {
+    if (Method->getName() == Name)
+      return Method.get();
+  }
+
+  return nullptr;
+}

@@ -74,6 +74,9 @@ public:
     return Methods;
   }
 
+  // Finds method by name and return null if none found
+  const JavaMethod *getMethod(const std::string &Name) const;
+
   // Checks if this class has a super class
   bool hasSuper() const {
     return SuperClass != nullptr;
