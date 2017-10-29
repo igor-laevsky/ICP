@@ -9,27 +9,27 @@
 using namespace Verifier;
 
 TEST_CASE("Exact relation", "[Verifier][Types]") {
-  Type t1 = Type::Top;
-  Type t2 = Type::Uninitialized;
-  Type t3 = Type::UninitializedOffset(10);
-  Type t4 = Type::Reference;
+  Type t1 = Types::Top;
+  Type t2 = Types::Uninitialized;
+  Type t3 = Types::UninitializedOffset(10);
+  Type t4 = Types::Reference;
 
-  REQUIRE(t1 == Type::Top);
-  REQUIRE(t2 == Type::Uninitialized);
+  REQUIRE(t1 == Types::Top);
+  REQUIRE(t2 == Types::Uninitialized);
 
-  REQUIRE(t3 == Type::UninitializedOffset(10));
-  REQUIRE(t3 != Type::UninitializedOffset(5));
-  REQUIRE(Type::UninitializedOffset(5) == Type::UninitializedOffset(5));
+  REQUIRE(t3 == Types::UninitializedOffset(10));
+  REQUIRE(t3 != Types::UninitializedOffset(5));
+  REQUIRE(Types::UninitializedOffset(5) == Types::UninitializedOffset(5));
 
   // Empty brackets match all offsets
-  REQUIRE(t3 == Type::UninitializedOffset());
-  REQUIRE(Type::UninitializedOffset(5) == Type::UninitializedOffset());
-  REQUIRE(Type::UninitializedOffset() == Type::UninitializedOffset());
-  REQUIRE(Type::Uninitialized != Type::UninitializedOffset());
+  REQUIRE(t3 == Types::UninitializedOffset());
+  REQUIRE(Types::UninitializedOffset(5) == Types::UninitializedOffset());
+  REQUIRE(Types::UninitializedOffset() == Types::UninitializedOffset());
+  REQUIRE(Types::Uninitialized != Types::UninitializedOffset());
 
-  REQUIRE(Type::Array != Type::Class);
-  REQUIRE(Type::Class == Type::Class);
-  REQUIRE(Type::Null != Type::Class);
+  REQUIRE(Types::Array != Types::Class);
+  REQUIRE(Types::Class == Types::Class);
+  REQUIRE(Types::Null != Types::Class);
 
   // Subtypes do not match exactly
   REQUIRE(t2 != t1);
@@ -37,65 +37,65 @@ TEST_CASE("Exact relation", "[Verifier][Types]") {
 }
 
 TEST_CASE("Subtype relation", "[Verifier][Types]") {
-  REQUIRE(Type::isAssignable(Type::OneWord, Type::Top));
-  REQUIRE(Type::isAssignable(Type::TwoWord, Type::Top));
+  REQUIRE(Types::isAssignable(Types::OneWord, Types::Top));
+  REQUIRE(Types::isAssignable(Types::TwoWord, Types::Top));
 
-  REQUIRE(Type::isAssignable(Type::Int, Type::OneWord));
-  REQUIRE(Type::isAssignable(Type::Float, Type::OneWord));
-  REQUIRE(Type::isAssignable(Type::Long, Type::TwoWord));
-  REQUIRE(Type::isAssignable(Type::Double, Type::TwoWord));
+  REQUIRE(Types::isAssignable(Types::Int, Types::OneWord));
+  REQUIRE(Types::isAssignable(Types::Float, Types::OneWord));
+  REQUIRE(Types::isAssignable(Types::Long, Types::TwoWord));
+  REQUIRE(Types::isAssignable(Types::Double, Types::TwoWord));
 
-  REQUIRE(Type::isAssignable(Type::Reference, Type::OneWord));
+  REQUIRE(Types::isAssignable(Types::Reference, Types::OneWord));
 
-  REQUIRE(Type::isAssignable(Type::Uninitialized, Type::Reference));
-  REQUIRE(Type::isAssignable(Type::UninitializedThis, Type::Uninitialized));
-  REQUIRE(Type::isAssignable(Type::UninitializedOffset(), Type::Uninitialized));
-  REQUIRE(Type::isAssignable(Type::UninitializedOffset(5), Type::Uninitialized));
+  REQUIRE(Types::isAssignable(Types::Uninitialized, Types::Reference));
+  REQUIRE(Types::isAssignable(Types::UninitializedThis, Types::Uninitialized));
+  REQUIRE(Types::isAssignable(Types::UninitializedOffset(), Types::Uninitialized));
+  REQUIRE(Types::isAssignable(Types::UninitializedOffset(5), Types::Uninitialized));
 
-  REQUIRE(Type::isAssignable(Type::Class, Type::Reference));
-  REQUIRE(Type::isAssignable(Type::Class, Type::OneWord));
+  REQUIRE(Types::isAssignable(Types::Class, Types::Reference));
+  REQUIRE(Types::isAssignable(Types::Class, Types::OneWord));
 
-  REQUIRE(Type::isAssignable(Type::Array, Type::Reference));
-  REQUIRE(!Type::isAssignable(Type::Array, Type::Class));
+  REQUIRE(Types::isAssignable(Types::Array, Types::Reference));
+  REQUIRE(!Types::isAssignable(Types::Array, Types::Class));
 
-  REQUIRE(Type::isAssignable(Type::Null, Type::Array));
-  REQUIRE(Type::isAssignable(Type::Null, Type::Class));
-  REQUIRE(Type::isAssignable(Type::Null, Type::Reference));
-  REQUIRE(!Type::isAssignable(Type::Null, Type::Uninitialized));
+  REQUIRE(Types::isAssignable(Types::Null, Types::Array));
+  REQUIRE(Types::isAssignable(Types::Null, Types::Class));
+  REQUIRE(Types::isAssignable(Types::Null, Types::Reference));
+  REQUIRE(!Types::isAssignable(Types::Null, Types::Uninitialized));
 
-  REQUIRE(Type::isAssignable(Type::Short, Type::OneWord));
-  REQUIRE(Type::isAssignable(Type::Boolean, Type::Int));
-  REQUIRE(!Type::isAssignable(Type::Char, Type::TwoWord));
-  REQUIRE(!Type::isAssignable(Type::Byte, Type::Reference));
+  REQUIRE(Types::isAssignable(Types::Short, Types::OneWord));
+  REQUIRE(Types::isAssignable(Types::Boolean, Types::Int));
+  REQUIRE(!Types::isAssignable(Types::Char, Types::TwoWord));
+  REQUIRE(!Types::isAssignable(Types::Byte, Types::Reference));
 
   // Some transitive checks
-  REQUIRE(Type::isAssignable(Type::UninitializedOffset(5), Type::Top));
-  REQUIRE(Type::isAssignable(Type::UninitializedThis, Type::Reference));
+  REQUIRE(Types::isAssignable(Types::UninitializedOffset(5), Types::Top));
+  REQUIRE(Types::isAssignable(Types::UninitializedThis, Types::Reference));
 
   // Some negative checks
-  REQUIRE(!Type::isAssignable(Type::Int, Type::Reference));
-  REQUIRE(!Type::isAssignable(Type::Float, Type::Int));
-  REQUIRE(!Type::isAssignable(Type::Top, Type::Reference));
-  REQUIRE(!Type::isAssignable(Type::UninitializedOffset(), Type::Float));
+  REQUIRE(!Types::isAssignable(Types::Int, Types::Reference));
+  REQUIRE(!Types::isAssignable(Types::Float, Types::Int));
+  REQUIRE(!Types::isAssignable(Types::Top, Types::Reference));
+  REQUIRE(!Types::isAssignable(Types::UninitializedOffset(), Types::Float));
 }
 
 TEST_CASE("Type size", "[Verifier][Types]") {
-  REQUIRE(Type::sizeOf(Type::Top) == 1);
-  REQUIRE(Type::sizeOf(Type::OneWord) == 1);
-  REQUIRE(Type::sizeOf(Type::Int) == 1);
-  REQUIRE(Type::sizeOf(Type::Class) == 1);
-  REQUIRE(Type::sizeOf(Type::Null) == 1);
-  REQUIRE(Type::sizeOf(Type::Byte) == 1);
-  REQUIRE(Type::sizeOf(Type::TwoWord) == 2);
-  REQUIRE(Type::sizeOf(Type::Double) == 2);
-  REQUIRE(Type::sizeOf(Type::Long) == 2);
+  REQUIRE(Types::sizeOf(Types::Top) == 1);
+  REQUIRE(Types::sizeOf(Types::OneWord) == 1);
+  REQUIRE(Types::sizeOf(Types::Int) == 1);
+  REQUIRE(Types::sizeOf(Types::Class) == 1);
+  REQUIRE(Types::sizeOf(Types::Null) == 1);
+  REQUIRE(Types::sizeOf(Types::Byte) == 1);
+  REQUIRE(Types::sizeOf(Types::TwoWord) == 2);
+  REQUIRE(Types::sizeOf(Types::Double) == 2);
+  REQUIRE(Types::sizeOf(Types::Long) == 2);
 }
 
 TEST_CASE("Convert to verifier type", "[Verifier][Types]") {
-  REQUIRE(Type::toVerificationType(Type::Int) == Type::Int);
-  REQUIRE(Type::toVerificationType(Type::Float) == Type::Float);
-  REQUIRE(Type::toVerificationType(Type::Byte) == Type::Int);
-  REQUIRE(Type::toVerificationType(Type::Char) == Type::Int);
-  REQUIRE(Type::toVerificationType(Type::Boolean) == Type::Int);
-  REQUIRE(Type::toVerificationType(Type::Short) == Type::Int);
+  REQUIRE(Types::toVerificationType(Types::Int) == Types::Int);
+  REQUIRE(Types::toVerificationType(Types::Float) == Types::Float);
+  REQUIRE(Types::toVerificationType(Types::Byte) == Types::Int);
+  REQUIRE(Types::toVerificationType(Types::Char) == Types::Int);
+  REQUIRE(Types::toVerificationType(Types::Boolean) == Types::Int);
+  REQUIRE(Types::toVerificationType(Types::Short) == Types::Int);
 }

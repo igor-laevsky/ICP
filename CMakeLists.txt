@@ -36,7 +36,10 @@ set(SOURCE_FILES
         src/Bytecode/InstructionsFwd.h
         src/Verifier/Verifier.cpp
         src/Verifier/Verifier.h
-        src/JavaTypes/JavaTypesFwd.h src/Verifier/VerifierFwd.h src/Interpreter/Interpreter.h src/Interpreter/Interpreter.cpp)
+        src/JavaTypes/JavaTypesFwd.h
+        src/Verifier/VerifierFwd.h
+        src/Interpreter/Interpreter.h
+        src/Interpreter/Interpreter.cpp)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
@@ -47,7 +50,9 @@ set (TEST_FILES
         tests/Verifier/TypeTests.cpp
         tests/Verifier/StackFrameTests.cpp
         tests/JavaTypes/InstructionVisitorTests.cpp
-        tests/Verifier/VerifierTests.cpp tests/Utils/TestUtils.cpp tests/Utils/TestUtils.h)
+        tests/Verifier/VerifierTests.cpp
+        tests/Utils/TestUtils.cpp
+        tests/Utils/TestUtils.h)
 
 add_library(ICP_LIB ${SOURCE_FILES})
 

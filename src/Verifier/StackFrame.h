@@ -16,7 +16,7 @@ namespace Verifier {
 
 // This class more or less directly reflects the term
 // "frame(Locals, OperandStack, Flags)" from the JVM specification.
-// Internally two word types are encoded as pairs of (Actual type, Type::Top)
+// Internally two word types are encoded as pairs of (Actual type, Types::Top)
 // This is strictly internal format and all input data is expected to be in a
 // regular form (i.e two-word types are stored as a single element)
 class StackFrame {
@@ -87,7 +87,7 @@ public:
   // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3
   // \returns Pair where first element is the return type and
   // second element is vector of the argument types. For void functions return
-  // type is Type::Top.
+  // type is Types::Top.
   // \throws ParsingError In case of any errors.
   static std::pair<Type, std::vector<Type>>
   parseMethodDescriptor(const std::string &Desc);
@@ -97,7 +97,7 @@ private:
   void computeFlags();
 
   // Expands each TwoWord type into the two consequential slots:
-  //   (Actual type, Type::Top)
+  //   (Actual type, Types::Top)
   // \returns New vector with expanded types.
   static std::vector<Type> expandTypes(const std::vector<Type> &Src);
 

@@ -35,16 +35,16 @@ public:
     // Add 'this' argument type
     if (!(Method.getAccessFlags() & JavaMethod::AccessFlags::ACC_STATIC)) {
       if (Method.getName() == "<init>")
-        LocalTypes.insert(LocalTypes.begin(), Type::UninitializedThis);
+        LocalTypes.insert(LocalTypes.begin(), Types::UninitializedThis);
       else
-        LocalTypes.insert(LocalTypes.begin(), Type::Class);
+        LocalTypes.insert(LocalTypes.begin(), Types::Class);
     }
 
     CurrentFrame = StackFrame(LocalTypes, {});
   }
 
   void visit(const aload_0 &) override {
-    loadFromLocal(0, Type::Reference);
+    loadFromLocal(0, Types::Reference);
   }
 
   void visit(const invokespecial &) override {
@@ -56,14 +56,14 @@ public:
   }
 
   void visit(const iconst_0 &) override {
-    CurrentFrame.pushList({Type::Int});
+    CurrentFrame.pushList({Types::Int});
   }
 
   void visit(const ireturn &) override {
-    if (ReturnType != Type::Int)
+    if (ReturnType != Types::Int)
       throw VerificationError("Return type should be integer");
 
-    if (!CurrentFrame.popMatchingList({Type::Int}))
+    if (!CurrentFrame.popMatchingList({Types::Int}))
       throw VerificationError("Expected integer type to be on the stack");
   }
 
@@ -87,7 +87,7 @@ private:
           "Unable to load local variable at index " + std::to_string(Idx));
 
     Type ActualType = CurrentFrame.getLocal(Idx);
-    if (!Type::isAssignable(ActualType, T))
+    if (!Types::isAssignable(ActualType, T))
       throw VerificationError(
           "Local variable has incompatible type at index " + std::to_string(Idx));
 
@@ -100,7 +100,7 @@ private:
   const ConstantPool &CP;
 
   StackFrame CurrentFrame{{}, {}};
-  Type ReturnType = Type::Top;
+  Type ReturnType = Types::Top;
 };
 
 }

@@ -11,7 +11,7 @@ void StackFrame::computeFlags() {
   Flags =
       std::find(
           Locals.begin(), Locals.end(),
-          Type::UninitializedThis) != Locals.end();
+          Types::UninitializedThis) != Locals.end();
 }
 
 std::vector<Type> StackFrame::expandTypes(const std::vector<Type> &Src) {
@@ -20,8 +20,8 @@ std::vector<Type> StackFrame::expandTypes(const std::vector<Type> &Src) {
   Ret.reserve(Src.size());
   for (const auto &T: Src) {
     Ret.push_back(T);
-    if (Type::sizeOf(T) == 2)
-      Ret.push_back(Type::Top);
+    if (Types::sizeOf(T) == 2)
+      Ret.push_back(Types::Top);
   }
 
   return Ret;
@@ -33,8 +33,8 @@ bool StackFrame::popMatchingList(const std::vector<Type> &Types) {
 
   auto IsTwoWordType = [&] (auto Idx) {
     return Idx >= 1 &&
-        stack()[Idx] == Type::Top &&
-        Type::sizeOf(stack()[Idx - 1]) == 2;
+        stack()[Idx] == Types::Top &&
+        Types::sizeOf(stack()[Idx - 1]) == 2;
   };
 
   // First check that we can pop all the types
@@ -50,7 +50,7 @@ bool StackFrame::popMatchingList(const std::vector<Type> &Types) {
       assert(TopIdx >= 0);
     }
 
-    if (!Type::isAssignable(stack()[TopIdx], T))
+    if (!Types::isAssignable(stack()[TopIdx], T))
       return false;
     --TopIdx;
   }
@@ -70,8 +70,8 @@ bool StackFrame::popMatchingList(const std::vector<Type> &Types) {
 bool StackFrame::verifyTypeEncoding() {
   auto CheckVector = [&] (const auto &Vec) {
     for (std::size_t i = 0; i < Vec.size(); ++i) {
-      if (Type::sizeOf(Vec[i]) == 2)
-        return i <= Vec.size() - 2 && Vec[i + 1] == Type::Top;
+      if (Types::sizeOf(Vec[i]) == 2)
+        return i <= Vec.size() - 2 && Vec[i + 1] == Types::Top;
     }
 
     return true;
@@ -98,8 +98,8 @@ bool StackFrame::doTypeTransition(
 
   // Push the result
   push(ToPush);
-  if (Type::sizeOf(ToPush) == 2)
-    push(Type::Top);
+  if (Types::sizeOf(ToPush) == 2)
+    push(Types::Top);
 
   assert(verifyTypeEncoding());
   return true;
@@ -115,14 +115,14 @@ Type StackFrame::parseFieldDescriptor(
     *LastPos = 1;
 
   switch (Desc[0]) {
-    case 'B': return Type::Byte;
-    case 'C': return Type::Char;
-    case 'D': return Type::Double;
-    case 'F': return Type::Float;
-    case 'I': return Type::Int;
-    case 'J': return Type::Long;
-    case 'S': return Type::Short;
-    case 'Z': return Type::Boolean;
+    case 'B': return Types::Byte;
+    case 'C': return Types::Char;
+    case 'D': return Types::Double;
+    case 'F': return Types::Float;
+    case 'I': return Types::Int;
+    case 'J': return Types::Long;
+    case 'S': return Types::Short;
+    case 'Z': return Types::Boolean;
 
     case 'L': {
       auto End = Desc.find(';');
@@ -131,7 +131,7 @@ Type StackFrame::parseFieldDescriptor(
 
       if (LastPos != nullptr)
         *LastPos = End + 1;
-      return Type::Class;
+      return Types::Class;
     }
 
     case '[': {
@@ -143,7 +143,7 @@ Type StackFrame::parseFieldDescriptor(
         // This will also catch cases when substr(1) had throw and exception
         throw ParsingError("Array type in a wrong format");
       }
-      return Type::Array;
+      return Types::Array;
     }
 
     default:
@@ -181,7 +181,7 @@ StackFrame::parseMethodDescriptor(const std::string &Desc) {
   }
 
   // Parse return type
-  auto RetType = Type::Void;
+  auto RetType = Types::Void;
   if (RetDesc != "V") {
     std::size_t RetEnd;
     RetType = parseFieldDescriptor(RetDesc, &RetEnd);
@@ -196,9 +196,9 @@ void StackFrame::setLocal(uint32_t Idx, Type T) {
   assert(Idx < locals().size());
   locals()[Idx] = T;
 
-  if (Type::sizeOf(T) == 2) {
+  if (Types::sizeOf(T) == 2) {
     assert(Idx + 1 < locals().size());
-    locals()[Idx + 1] = Type::Top;
+    locals()[Idx + 1] = Types::Top;
   }
 
   computeFlags();
