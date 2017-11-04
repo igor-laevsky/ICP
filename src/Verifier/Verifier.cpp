@@ -49,6 +49,8 @@ public:
 
   void visit(const invokespecial &) override {
     assert(false); // Unimplemented
+
+
   }
 
   void visit(const java_return &) override {

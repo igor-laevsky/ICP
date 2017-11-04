@@ -44,29 +44,19 @@ public:
   }
 
   template<class T>
-  T popSingle() {
+  T pop() {
     assert(!stack().empty());
 
     auto Ret = std::any_cast<T>(stack().back());
     stack().pop_back();
     return Ret;
   }
-  template<class T>
-  T popDouble() {
-    popSingle<T>();
-    return popSingle<T>();
-  }
 
   // Note: Disable template type deduction. User should explicitly think
   // what type is going to be pushed to stack.
   template<class T>
-  void pushSingle(std::common_type_t<T> Val) {
-    stack().push_back(std::any(std::move(Val)));
-  }
-  template<class T>
-  void pushDouble(std::common_type_t<T> Val) {
-    pushSingle<T>(std::move(Val));
-    pushSingle<T>(0);
+  void push(std::common_type_t<T> Val) {
+    stack().emplace_back(std::move(Val));
   }
 
 private:
@@ -164,14 +154,14 @@ private:
 };
 
 void Interpreter::visit(const iconst_0 &) {
-  stack().curentFrame().pushSingle<JavaInt>(0);
+  stack().curentFrame().push<JavaInt>(0);
 }
 
 void Interpreter::visit(const ireturn &) {
   // TODO: pop frame and push result to stack
   assert(stack().numFrames() == 1); // function calls are not supported
 
-  RetVal = stack().curentFrame().popSingle<JavaInt>();
+  RetVal = stack().curentFrame().pop<JavaInt>();
   stack().exit_function();
 }
 
