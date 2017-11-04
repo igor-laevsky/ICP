@@ -2,7 +2,7 @@
 // Implementation of the interpreter.
 //
 
-#include "Interpreter.h"
+#include "SlowInterpreter.h"
 
 #include <cassert>
 #include <vector>

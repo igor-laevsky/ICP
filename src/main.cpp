@@ -34,7 +34,7 @@ int main() {
   auto Ret = SlowInterpreter::Interpret(*Method, {});
   assert(Ret.has_value());
 
-  std::cout << "Interpreter returned: " <<
+  std::cout << "SlowInterpreter returned: " <<
     std::any_cast<SlowInterpreter::JavaInt>(Ret);
 
   return 0;

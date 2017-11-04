@@ -38,8 +38,8 @@ set(SOURCE_FILES
         src/Verifier/Verifier.h
         src/JavaTypes/JavaTypesFwd.h
         src/Verifier/VerifierFwd.h
-        src/Interpreter/Interpreter.h
-        src/Interpreter/Interpreter.cpp)
+        src/SlowInterpreter/SlowInterpreter.h
+        src/SlowInterpreter/SlowInterpreter.cpp)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
