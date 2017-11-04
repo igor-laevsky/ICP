@@ -37,10 +37,8 @@ private:
     ;
   }
 
-  // Allow calling constructor from the create function
-  template<class InstructionType>
-  friend std::unique_ptr<Instruction> Instruction::create(
-      const Container &Bytecodes, ContainerIterator &It);
+  // Allow calling constructor from the Instruction::create function
+  friend class Instruction;
 
 private:
   const IdxType Idx;
