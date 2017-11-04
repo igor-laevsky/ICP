@@ -37,7 +37,10 @@ public:
     ACC_NATIVE = 0x0100,
     ACC_ABSTRACT = 0x0400,
     ACC_STRICT = 0x0800,
-    ACC_SYNTHETIC = 0x1000
+    ACC_SYNTHETIC = 0x1000,
+
+    // Shortcuts for the widely used flags
+    ACC_PUBLIC_STATIC = ACC_PUBLIC | ACC_STATIC
   };
 
   // Allows using AccessFlags as a bitfield.

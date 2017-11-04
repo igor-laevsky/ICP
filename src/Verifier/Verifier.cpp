@@ -48,13 +48,14 @@ public:
   }
 
   void visit(const invokespecial &) override {
-    assert(false); // Unimplemented
-
-
+    assert(false);
   }
 
   void visit(const java_return &) override {
-    assert(false); // Unimplemented
+    if (ReturnType != Types::Void)
+      throw VerificationError("Return type should be 'void'");
+    if (CurrentFrame.flagThisUninit())
+      throw VerificationError("Exiting <init> method before complete initialization");
   }
 
   void visit(const iconst_0 &) override {

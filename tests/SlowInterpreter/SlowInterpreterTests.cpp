@@ -18,6 +18,7 @@ template<typename ResT>
 static bool testWithMethod(
     ResT ExpectedResult,
     const std::vector<std::any>& InputArgs,
+    JavaMethod::AccessFlags Flags,
     uint16_t MaxStack, uint16_t MaxLocals,
     ConstantPool::IndexType NameIdx, ConstantPool::IndexType DescriptorIdx,
     const std::vector<uint8_t> &Bytecode,
@@ -29,7 +30,8 @@ static bool testWithMethod(
       NameIdx,
       DescriptorIdx,
       Bytecode,
-      std::move(StackMapTable));
+      std::move(StackMapTable),
+      Flags);
 
   std::any Res = SlowInterpreter::Interpret(*Method, InputArgs);
   return std::any_cast<ResT>(Res) == ExpectedResult;
@@ -39,6 +41,7 @@ TEST_CASE("iconst with ireturn", "[SlowInterpreter]") {
   REQUIRE(testWithMethod<SlowInterpreter::JavaInt>(
       0, // Expected result
       {},// Input args
+      JavaMethod::AccessFlags::ACC_PUBLIC,
       2, // Max stack
       2, // Max locals
       1, // trivial_method
@@ -53,6 +56,7 @@ TEST_CASE("iconst with ireturn", "[SlowInterpreter]") {
   REQUIRE(testWithMethod<SlowInterpreter::JavaInt>(
       0, // Expected result
       {},// Input args
+      JavaMethod::AccessFlags::ACC_PUBLIC,
       2, // Max stack
       2, // Max locals
       1, // trivial_method

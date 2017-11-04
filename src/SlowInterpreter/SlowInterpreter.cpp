@@ -185,6 +185,8 @@ std::any SlowInterpreter::Interpret(
 
   Interpreter I(Method.getName(), InputArguments);
 
+  // TODO: assert that all required arguments are specified
+
   for (const auto &Instr: Method) {
     Instr.accept(I);
   }

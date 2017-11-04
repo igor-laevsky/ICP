@@ -22,7 +22,7 @@ static std::vector<uint8_t> trivialBytecodePlain() {
 }
 
 static std::unique_ptr<ConstantPool> createConstantPool() {
-  ConstantPoolBuilder Builder(6);
+  ConstantPoolBuilder Builder(9);
 
   Builder.set(1, std::make_unique<ConstantPoolRecords::Utf8>("trivial_method"));
   Builder.set(2, std::make_unique<ConstantPoolRecords::Utf8>("()I"));
@@ -33,6 +33,10 @@ static std::unique_ptr<ConstantPool> createConstantPool() {
 
   Builder.set(5, std::make_unique<ConstantPoolRecords::Utf8>("()V"));
   Builder.set(6, std::make_unique<ConstantPoolRecords::Utf8>("()J"));
+
+  Builder.set(7, std::make_unique<ConstantPoolRecords::Utf8>("([Ljava/lang/String;)V"));
+  Builder.set(8, std::make_unique<ConstantPoolRecords::Utf8>("(Ljava/lang/Object;)V"));
+  Builder.set(9, std::make_unique<ConstantPoolRecords::Utf8>("(I)V"));
 
   auto CP = Builder.createConstantPool();
   assert(CP->verify());
@@ -55,7 +59,8 @@ std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
     ConstantPool::IndexType NameIdx,
     ConstantPool::IndexType DescriptorIdx,
     const std::vector<uint8_t> &Bytecode,
-    JavaMethod::StackMapTableType &&StackMapTable) {
+    JavaMethod::StackMapTableType &&StackMapTable,
+    JavaMethod::AccessFlags Flags /*= ACC_PUBLIC */) {
 
   const auto &Name =
       getEternalConstantPool().getAs<ConstantPoolRecords::Utf8>(NameIdx);
@@ -64,7 +69,7 @@ std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
 
   JavaMethod::MethodConstructorParameters Params;
 
-  Params.Flags = JavaMethod::AccessFlags::ACC_PUBLIC;
+  Params.Flags = Flags;
 
   Params.Name = &Name;
   Params.Descriptor = &Descriptor;
