@@ -52,7 +52,8 @@ set (TEST_FILES
         tests/JavaTypes/InstructionVisitorTests.cpp
         tests/Verifier/VerifierTests.cpp
         tests/Utils/TestUtils.cpp
-        tests/Utils/TestUtils.h)
+        tests/Utils/TestUtils.h
+        tests/SlowInterpreter/SlowInterpreterTests.cpp)
 
 add_library(ICP_LIB ${SOURCE_FILES})
 

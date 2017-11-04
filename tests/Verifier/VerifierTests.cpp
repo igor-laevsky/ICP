@@ -19,7 +19,6 @@ static void testWithMethod(
     const std::vector<uint8_t> &Bytecode,
     JavaTypes::JavaMethod::StackMapTableType &&StackMapTable) {
 
-  // Stack overflow
   std::vector<std::unique_ptr<JavaTypes::JavaMethod>> Methods;
   Methods.push_back(TestUtils::createMethod(
       MaxStack,
