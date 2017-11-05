@@ -144,6 +144,8 @@ public:
 
   void visit(const ireturn &) override;
 
+  void visit(const aload &) override;
+
 private:
   InterpreterStack &stack() { return Stack; }
   const InterpreterStack &stack() const { return Stack; }
@@ -174,6 +176,10 @@ void Interpreter::visit(const invokespecial &) {
 }
 
 void Interpreter::visit(const java_return &) {
+  assert(false); // Not implemented
+}
+
+void Interpreter::visit(const aload &) {
   assert(false); // Not implemented
 }
 

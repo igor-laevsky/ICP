@@ -55,6 +55,17 @@ public:
   }
 };
 
+class aload final: public SingleIndex<aload> {
+  using SingleIndex::SingleIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0x2b;
+
+  void print(std::ostream &Out) const override {
+    Out << "aload " << getIdx() << "\n";
+  }
+};
+
 class invokespecial final: public SingleIndex<invokespecial> {
   using SingleIndex::SingleIndex;
 

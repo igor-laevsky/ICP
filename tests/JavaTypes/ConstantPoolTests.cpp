@@ -59,6 +59,9 @@ TEST_CASE("Constant pool with wrong record type", "[ConstantPool]") {
   REQUIRE(Rec2 != nullptr);
   REQUIRE_FALSE(Rec2->isValid());
 
+  const auto *Rec3 = CP->getAsOrNull<ClassInfo>(100);
+  REQUIRE(Rec3 == nullptr);
+
   std::string Error;
   bool IsValid = CP->verify(Error);
   REQUIRE_FALSE(IsValid);

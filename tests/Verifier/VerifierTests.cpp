@@ -39,7 +39,7 @@ TEST_CASE("Basic verification", "[Verifier]") {
   REQUIRE_NOTHROW(testWithMethod(
       JavaMethod::AccessFlags::ACC_PUBLIC,
       1, // Max stack
-      0, // Max locals
+      1, // Max locals
       1, // trivial_method
       2, // ()I
       {
@@ -176,6 +176,164 @@ TEST_CASE("aload_0", "[Verifier]") {
       5, // ()V
       {
           Bytecode::aload_0::OpCode,
+          Bytecode::java_return::OpCode,
+      },
+      {} // No stack map
+  ), VerificationError);
+}
+
+TEST_CASE("invokespecial", "[Verifier]") {
+  // Trivial init method
+  REQUIRE_NOTHROW(testWithMethod(
+      JavaMethod::AccessFlags::ACC_PUBLIC,
+      1, // Max stack
+      1, // Max locals
+      11, // <init>
+      5, // ()V
+      {
+          Bytecode::aload_0::OpCode,
+          Bytecode::invokespecial::OpCode, 0x00, 14, // java/lang/Object."<init>":()V
+          Bytecode::java_return::OpCode,
+      },
+      {} // No stack map
+  ));
+
+  // No uninitializedArg on the stack
+  REQUIRE_THROWS_AS(testWithMethod(
+      JavaMethod::AccessFlags::ACC_PUBLIC,
+      1, // Max stack
+      1, // Max locals
+      11, // <init>
+      5, // ()V
+      {
+          Bytecode::invokespecial::OpCode, 0x00, 14, // java/lang/Object."<init>":()V
+          Bytecode::java_return::OpCode,
+      },
+      {} // No stack map
+  ), VerificationError);
+
+  // Init method with arguments
+  REQUIRE_NOTHROW(testWithMethod(
+      JavaMethod::AccessFlags::ACC_PUBLIC,
+      3, // Max stack
+      2, // Max locals
+      11, // <init>
+      8, // (Ljava/lang/Object;)V
+      {
+          Bytecode::aload_0::OpCode,
+          Bytecode::aload::OpCode, 0x00, 1,
+          Bytecode::iconst_0::OpCode,
+          Bytecode::invokespecial::OpCode, 0x00, 17, // java/lang/Object.<init>:(Ljava/lang/Object;I)V
+          Bytecode::java_return::OpCode,
+      },
+      {} // No stack map
+  ));
+
+  // Init method with arguments in the wrong order
+  REQUIRE_THROWS_AS(testWithMethod(
+      JavaMethod::AccessFlags::ACC_PUBLIC,
+      3, // Max stack
+      2, // Max locals
+      11, // <init>
+      8, // (Ljava/lang/Object;)V
+      {
+          Bytecode::aload_0::OpCode,
+          Bytecode::iconst_0::OpCode,
+          Bytecode::aload::OpCode, 0x00, 1,
+          Bytecode::invokespecial::OpCode, 0x00, 17, // java/lang/Object.<init>:(Ljava/lang/Object;I)V
+          Bytecode::java_return::OpCode,
+      },
+      {} // No stack map
+  ), VerificationError);
+
+  // Init method with non void return type
+  REQUIRE_THROWS_AS(testWithMethod(
+      JavaMethod::AccessFlags::ACC_PUBLIC,
+      1, // Max stack
+      1, // Max locals
+      11, // <init>
+      5, // ()V
+      {
+          Bytecode::invokespecial::OpCode, 0x00, 20, // java/lang/Object.<init>:()I
+          Bytecode::java_return::OpCode,
+      },
+      {} // No stack map
+  ), VerificationError);
+
+  // Returning before complete initialization
+  REQUIRE_THROWS_AS(testWithMethod(
+      JavaMethod::AccessFlags::ACC_PUBLIC,
+      1, // Max stack
+      1, // Max locals
+      11, // <init>
+      5, // ()V
+      {
+          Bytecode::java_return::OpCode,
+      },
+      {} // No stack map
+  ), VerificationError);
+
+  // Not an init method
+  REQUIRE_THROWS_AS(testWithMethod(
+      JavaMethod::AccessFlags::ACC_PUBLIC,
+      1, // Max stack
+      1, // Max locals
+      1, // trivial_method
+      5, // ()V
+      {
+          Bytecode::aload_0::OpCode,
+          Bytecode::invokespecial::OpCode, 0x00, 14, // java/lang/Object."<init>":()V
+          Bytecode::java_return::OpCode,
+      },
+      {} // No stack map
+  ), VerificationError);
+}
+
+TEST_CASE("aload", "[Verifier]") {
+  REQUIRE_NOTHROW(testWithMethod(
+      JavaMethod::AccessFlags::ACC_PUBLIC,
+      1, // Max stack
+      1, // Max locals
+      11, // <init>
+      5, // ()V
+      {
+          Bytecode::aload::OpCode, 0x00, 0,
+          Bytecode::invokespecial::OpCode, 0x00,
+          14, // java/lang/Object."<init>":()V
+          Bytecode::java_return::OpCode,
+      },
+      {} // No stack map
+  ));
+
+  // Local index is out of bounds
+  REQUIRE_THROWS_AS(testWithMethod(
+      JavaMethod::AccessFlags::ACC_PUBLIC,
+      1, // Max stack
+      1, // Max locals
+      11, // <init>
+      5, // ()V
+      {
+          Bytecode::aload::OpCode, 0x00, 10,
+          Bytecode::invokespecial::OpCode, 0x00,
+          14, // java/lang/Object."<init>":()V
+          Bytecode::java_return::OpCode,
+      },
+      {} // No stack map
+  ), VerificationError);
+}
+
+TEST_CASE("too many locals", "[Verifier]") {
+  REQUIRE_THROWS_AS(testWithMethod(
+      JavaMethod::AccessFlags::ACC_PUBLIC,
+      3, // Max stack
+      0, // Max locals
+      11, // <init>
+      8, // (Ljava/lang/Object;)V
+      {
+          Bytecode::aload_0::OpCode,
+          Bytecode::aload::OpCode, 0x00, 1,
+          Bytecode::iconst_0::OpCode,
+          Bytecode::invokespecial::OpCode, 0x00, 17, // java/lang/Object.<init>:(Ljava/lang/Object;I)V
           Bytecode::java_return::OpCode,
       },
       {} // No stack map

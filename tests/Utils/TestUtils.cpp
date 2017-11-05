@@ -5,12 +5,6 @@
 
 #include "TestUtils.h"
 
-#include "Bytecode/Bytecode.h"
-
-#include "JavaTypes/ConstantPool.h"
-#include "JavaTypes/JavaClass.h"
-#include "JavaTypes/JavaMethod.h"
-
 using namespace TestUtils;
 using namespace JavaTypes;
 
@@ -22,7 +16,7 @@ static std::vector<uint8_t> trivialBytecodePlain() {
 }
 
 static std::unique_ptr<ConstantPool> createConstantPool() {
-  ConstantPoolBuilder Builder(9);
+  ConstantPoolBuilder Builder(20);
 
   Builder.set(1, std::make_unique<ConstantPoolRecords::Utf8>("trivial_method"));
   Builder.set(2, std::make_unique<ConstantPoolRecords::Utf8>("()I"));
@@ -37,6 +31,39 @@ static std::unique_ptr<ConstantPool> createConstantPool() {
   Builder.set(7, std::make_unique<ConstantPoolRecords::Utf8>("([Ljava/lang/String;)V"));
   Builder.set(8, std::make_unique<ConstantPoolRecords::Utf8>("(Ljava/lang/Object;)V"));
   Builder.set(9, std::make_unique<ConstantPoolRecords::Utf8>("(I)V"));
+
+  Builder.set(10, std::make_unique<ConstantPoolRecords::Utf8>("java/lang/Object"));
+  Builder.set(12, std::make_unique<ConstantPoolRecords::ClassInfo>(
+      Builder.getCellReference(10)));
+
+  // NameAndType "<init>":()V
+  Builder.set(11, std::make_unique<ConstantPoolRecords::Utf8>("<init>"));
+  Builder.set(13, std::make_unique<ConstantPoolRecords::NameAndType>(
+      Builder.getCellReference(11), Builder.getCellReference(5)));
+  // MethodRef java/lang/Object."<init>":()V
+  Builder.set(14, std::make_unique<ConstantPoolRecords::MethodRef>(
+      Builder.getCellReference(12), Builder.getCellReference(13)));
+
+  // NameAndType <init>:(Ljava/lang/Object;I)V
+  Builder.set(15,
+      std::make_unique<ConstantPoolRecords::Utf8>("(Ljava/lang/String;I)V"));
+  Builder.set(16, std::make_unique<ConstantPoolRecords::NameAndType>(
+      Builder.getCellReference(11), Builder.getCellReference(15)));
+  // MethodRef java/lang/Object.<init>:(Ljava/lang/Object;I)V
+  Builder.set(17, std::make_unique<ConstantPoolRecords::MethodRef>(
+      Builder.getCellReference(12), Builder.getCellReference(16)));
+
+  // NameAndType <init>:(Ljava/lang/Object;)V
+  Builder.set(18, std::make_unique<ConstantPoolRecords::NameAndType>(
+      Builder.getCellReference(11), Builder.getCellReference(8)));
+
+  // NameAndType <init>:()I
+  Builder.set(19, std::make_unique<ConstantPoolRecords::NameAndType>(
+      Builder.getCellReference(11), Builder.getCellReference(2)));
+  // MethodRef java/lang/Object.<init>:()I
+  Builder.set(20, std::make_unique<ConstantPoolRecords::MethodRef>(
+      Builder.getCellReference(12), Builder.getCellReference(19)));
+
 
   auto CP = Builder.createConstantPool();
   assert(CP->verify());

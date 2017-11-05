@@ -47,12 +47,12 @@ public:
     ;
   }
 
-  const std::string &getName() const {
+  const Utf8String &getName() const {
     assert(isValid());
     return static_cast<Utf8*>(NameRef.get())->getValue();
   }
 
-  const std::string &getDescriptor() const {
+  const Utf8String &getDescriptor() const {
     assert(isValid());
     return static_cast<Utf8*>(DescriptorRef.get())->getValue();
   }
@@ -119,8 +119,19 @@ public:
     return *static_cast<NameAndType*>(NameAndTypeRef.get());
   }
 
+  const Utf8String &getClassName() const {
+    return getClass().getName();
+  }
+
+  const Utf8String &getName() const {
+    return getNameAndType().getName();
+  }
+
+  const Utf8String &getDescriptor() const {
+    return getNameAndType().getDescriptor();
+  }
+
   bool isValid() const override {
-    // TODO: Check that name is in a correct form.
     return ClassRef != nullptr && dynamic_cast<ClassInfo*>(ClassRef.get()) &&
       NameAndTypeRef != nullptr && dynamic_cast<NameAndType*>(NameAndTypeRef.get());
   }

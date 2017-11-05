@@ -3,5 +3,6 @@
 //
 
 #define CATCH_CONFIG_MAIN
-#include "Catch.hpp"
+#define CATCH_CONFIG_FAST_COMPILE
 
+#include "Catch.hpp"

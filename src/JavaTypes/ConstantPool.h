@@ -68,11 +68,14 @@ public:
   }
 
   // Get record at the index 'Idx' with a type 'RecordType'.
-  // \returns Record at the index 'Idx' or fails an assertion if record doesn't
-  //          exist.
+  // \returns Record at the index 'Idx' or nullptr if index is out of range
+  //          or record has the wrong type.
   // \returns Null pointer if record has unexpected type.
   template<class RecordType>
   const RecordType *getAsOrNull(IndexType Idx) const {
+    if (!isValidIndex(Idx))
+      return nullptr;
+
     const ConstantPoolRecords::Record &Res = get(Idx);
     return dynamic_cast<const RecordType*>(&Res);
   }

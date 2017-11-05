@@ -12,6 +12,7 @@ class Instruction;
 template<class T> class NoIndex;
 template<class T> class SingleIndex;
 
+class aload;
 class aload_0;
 class invokespecial;
 class java_return;

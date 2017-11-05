@@ -10,6 +10,7 @@ namespace Bytecode {
 
 class InstructionVisitor {
 public:
+  virtual void visit(const aload &) = 0;
   virtual void visit(const aload_0 &) = 0;
   virtual void visit(const invokespecial &) = 0;
   virtual void visit(const java_return &) = 0;

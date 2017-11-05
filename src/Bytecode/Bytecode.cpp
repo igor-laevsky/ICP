@@ -20,6 +20,7 @@ std::unique_ptr<Instruction> Bytecode::parseInstruction(
       return Instruction::create<OpType>(Bytecodes, It);
 
   switch (*It) {
+    PARSE_OP(aload);
     PARSE_OP(aload_0);
     PARSE_OP(invokespecial);
     PARSE_OP(java_return);

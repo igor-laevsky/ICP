@@ -34,6 +34,10 @@ public:
     assert(false);
   }
 
+  void visit(const aload &) override {
+   assert(false);
+  }
+
   bool seenEverything() const {
     return seenAload && seenInvoke && seenRet;
   }

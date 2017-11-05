@@ -4,7 +4,7 @@
 #include "JavaTypes/JavaClass.h"
 #include "ClassFileReader/ClassFileReader.h"
 #include "Verifier/Verifier.h"
-#include "Interpreter/Interpreter.h"
+#include "SlowInterpreter/SlowInterpreter.h"
 
 int main() {
   std::unique_ptr<JavaTypes::JavaClass> NewClass;
@@ -23,7 +23,7 @@ int main() {
 
   // Verify class
   std::string ErrorMessage;
-  //Verifier::verify(*NewClass);
+  Verifier::verify(*NewClass);
 
   NewClass->print(std::cout);
 
@@ -34,7 +34,7 @@ int main() {
   auto Ret = SlowInterpreter::Interpret(*Method, {});
   assert(Ret.has_value());
 
-  std::cout << "SlowInterpreter returned: " <<
+  std::cout << "Interpreter returned: " <<
     std::any_cast<SlowInterpreter::JavaInt>(Ret);
 
   return 0;

@@ -8,9 +8,7 @@
 #include "Bytecode/InstructionVisitor.h"
 
 #include "JavaTypes/JavaClass.h"
-#include "JavaTypes/JavaMethod.h"
-
-#include <vector>
+#include "Bytecode/Instructions.h"
 
 using namespace JavaTypes;
 using namespace Bytecode;
@@ -40,6 +38,9 @@ public:
         LocalTypes.insert(LocalTypes.begin(), Types::Class);
     }
 
+    if (LocalTypes.size() > Method.getMaxLocals())
+      throw VerificationError("Exceeded maximum number of locals");
+
     CurrentFrame = StackFrame(LocalTypes, {});
   }
 
@@ -47,8 +48,45 @@ public:
     loadFromLocal(0, Types::Reference);
   }
 
-  void visit(const invokespecial &) override {
-    assert(false);
+  void visit(const aload &Inst) override {
+    loadFromLocal(Inst.getIdx(), Types::Reference);
+  }
+
+  void visit(const invokespecial &Inst) override {
+    const auto *MRef =
+        CP.getAsOrNull<ConstantPoolRecords::MethodRef>(Inst.getIdx());
+    if (MRef == nullptr)
+      throw VerificationError("Incorrect CP index at invokespecial");
+
+    assert(MRef->getName() == "<init>"); // other calls are not yet supported
+
+    std::vector<Type> ArgTypes;
+    Type CallRetType = Types::Void;
+    std::tie(CallRetType, ArgTypes) =
+      StackFrame::parseMethodDescriptor(MRef->getDescriptor());
+
+    if (CallRetType != Types::Void)
+      throw VerificationError("<init> method should have void return type");
+
+    // Pop method arguments
+    std::reverse(ArgTypes.begin(), ArgTypes.end());
+    if (!CurrentFrame.popMatchingList(ArgTypes))
+      throw VerificationError("Unable to pop arguments");
+
+    // Pop UninitializedArg
+    // TODO: Support uninitialized(Address)
+    Type UninitializedArg = Types::UninitializedThis;
+    Type UninitializedRepl = Types::Class;
+
+    if (!CurrentFrame.popMatchingList({UninitializedArg}))
+      throw VerificationError("Unable to pop uninitializedThis");
+
+    // Replace UninitializedArg in locals
+    for (std::size_t i = 0; i < CurrentFrame.numLocals(); ++i)
+      if (CurrentFrame.getLocal(i) == UninitializedArg)
+        CurrentFrame.setLocal(i, UninitializedRepl);
+
+    // TODO: Replace UninitializedArg on the stack
   }
 
   void visit(const java_return &) override {
@@ -94,7 +132,7 @@ private:
       throw VerificationError(
           "Local variable has incompatible type at index " + std::to_string(Idx));
 
-    CurrentFrame.pushList({T});
+    CurrentFrame.pushList({ActualType});
   }
 
 

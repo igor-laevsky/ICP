@@ -42,11 +42,11 @@ public:
 
   // Locals accessors
   const auto &locals() const { return Locals; }
-  Type getLocal(uint32_t Idx) const {
+  Type getLocal(std::size_t Idx) const {
     assert(Idx < locals().size());
     return locals()[Idx];
   }
-  void setLocal(uint32_t Idx, Type T);
+  void setLocal(std::size_t Idx, Type T);
 
   // Returns true if locals have uninitialized this flag
   bool flagThisUninit() const { return Flags; }

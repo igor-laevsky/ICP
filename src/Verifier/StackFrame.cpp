@@ -52,6 +52,7 @@ bool StackFrame::popMatchingList(const std::vector<Type> &Types) {
 
     if (!Types::isAssignable(stack()[TopIdx], T))
       return false;
+
     --TopIdx;
   }
 
@@ -192,7 +193,7 @@ StackFrame::parseMethodDescriptor(const std::string &Desc) {
   return std::pair(RetType, ArgTypes);
 }
 
-void StackFrame::setLocal(uint32_t Idx, Type T) {
+void StackFrame::setLocal(std::size_t Idx, Type T) {
   assert(Idx < locals().size());
   locals()[Idx] = T;
 
