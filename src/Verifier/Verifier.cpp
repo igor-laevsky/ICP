@@ -87,15 +87,15 @@ private:
   Type ReturnType = Types::Top;
 };
 
-void MethodVerifier::visit(const aload_0 &) override {
+void MethodVerifier::visit(const aload_0 &) {
   loadFromLocal(0, Types::Reference);
 }
 
-void MethodVerifier::visit(const aload &Inst) override {
+void MethodVerifier::visit(const aload &Inst) {
   loadFromLocal(Inst.getIdx(), Types::Reference);
 }
 
-void MethodVerifier::visit(const invokespecial &Inst) override {
+void MethodVerifier::visit(const invokespecial &Inst) {
   const auto *MRef =
       CP.getAsOrNull<ConstantPoolRecords::MethodRef>(Inst.getIdx());
   if (MRef == nullptr)
@@ -132,18 +132,18 @@ void MethodVerifier::visit(const invokespecial &Inst) override {
   // TODO: Replace UninitializedArg on the stack
 }
 
-void MethodVerifier::visit(const java_return &) override {
+void MethodVerifier::visit(const java_return &) {
   if (ReturnType != Types::Void)
     throw VerificationError("Return type should be 'void'");
   if (CurrentFrame.flagThisUninit())
     throw VerificationError("Exiting <init> method before complete initialization");
 }
 
-void MethodVerifier::visit(const iconst_0 &) override {
+void MethodVerifier::visit(const iconst_0 &) {
   CurrentFrame.pushList({Types::Int});
 }
 
-void MethodVerifier::visit(const ireturn &) override {
+void MethodVerifier::visit(const ireturn &) {
   if (ReturnType != Types::Int)
     throw VerificationError("Return type should be integer");
 

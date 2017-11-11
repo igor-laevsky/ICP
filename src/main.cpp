@@ -22,7 +22,6 @@ int main() {
   assert(NewClass != nullptr);
 
   // Verify class
-  std::string ErrorMessage;
   Verifier::verify(*NewClass);
 
   NewClass->print(std::cout);
