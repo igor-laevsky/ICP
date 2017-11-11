@@ -9,12 +9,26 @@
 #include <string>
 #include <optional>
 #include <cstdint>
+#include <ostream>
+#include <iostream>
 
 #include "Bytecode/InstructionVisitor.h"
 #include "JavaTypes/JavaMethod.h"
 
 using namespace Bytecode;
 using namespace SlowInterpreter;
+
+// This is helper function to print std::any using knowledge that it is only
+// going to contain java types.
+static std::ostream& operator<<(std::ostream &Out, const std::any &Data) {
+  if (!Data.has_value()) {
+    Out << "empty";
+    return Out;
+  }
+
+  Out << std::any_cast<JavaInt>(Data);
+  return Out;
+}
 
 namespace {
 
@@ -57,6 +71,24 @@ public:
   template<class T>
   void push(std::common_type_t<T> Val) {
     stack().emplace_back(std::move(Val));
+  }
+
+  void print(std::ostream &Out = std::cout) {
+    Out << "Frame for: " << FunctionName << "\n";
+
+    Out << "  Locals:\n";
+    int Idx = 0;
+    for (const auto &L: Locals) {
+      Out << "    [" << Idx << "] " << L << "\n";
+      Idx++;
+    }
+
+    Out << "  Stack:\n";
+    Idx = 0;
+    for (auto It = Stack.rbegin(); It != Stack.rend(); ++It) {
+      Out << "    [" << Idx << "] " << *It << "\n";
+      Idx++;
+    }
   }
 
 private:
@@ -116,6 +148,15 @@ public:
 
   bool empty() { return stack().empty(); }
 
+  void print(std::ostream &Out = std::cout) {
+    int Idx = 0;
+    for (auto It = Stack.rbegin(); It != Stack.rend(); ++It) {
+      Out << "<<< " << Idx << "\n";
+      It->print(Out);
+      ++Idx;
+    }
+  }
+
 private:
   std::vector<InterpreterFrame> &stack() { return Stack; }
   const std::vector<InterpreterFrame> &stack() const { return Stack; }
@@ -134,16 +175,13 @@ public:
   std::any getRetVal() { return RetVal; }
   bool emptyStack() { return stack().empty(); }
 
+  void print(std::ostream &Out = std::cout) { Stack.print(Out); }
+
   void visit(const aload_0 &) override;
-
   void visit(const invokespecial &) override;
-
   void visit(const java_return &) override;
-
   void visit(const iconst_0 &) override;
-
   void visit(const ireturn &) override;
-
   void visit(const aload &) override;
 
 private:
@@ -187,7 +225,8 @@ void Interpreter::visit(const aload &) {
 
 std::any SlowInterpreter::Interpret(
     const JavaTypes::JavaMethod &Method,
-    const std::vector<std::any> &InputArguments) {
+    const std::vector<std::any> &InputArguments,
+    bool Debug /*= false*/) {
 
   Interpreter I(Method.getName(), InputArguments);
 
@@ -195,6 +234,12 @@ std::any SlowInterpreter::Interpret(
 
   for (const auto &Instr: Method) {
     Instr.accept(I);
+
+    if (Debug) {
+      std::cout << "#" << Instr.getBci() << " ";
+      Instr.print(std::cout);
+      I.print();
+    }
   }
 
   assert(I.emptyStack()); // should exit all functions

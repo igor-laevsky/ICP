@@ -18,7 +18,8 @@ using JavaInt = uint32_t;
 // Expects verified method and returns it's result if it's specified.
 std::any Interpret(
     const JavaTypes::JavaMethod &Method,
-    const std::vector<std::any> &InputArguments);
+    const std::vector<std::any> &InputArguments,
+    bool Debug = false);
 
 }
 

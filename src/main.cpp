@@ -30,7 +30,7 @@ int main() {
   auto Method = NewClass->getMethod("main");
   assert(Method != nullptr);
 
-  auto Ret = SlowInterpreter::Interpret(*Method, {});
+  auto Ret = SlowInterpreter::Interpret(*Method, {}, true);
   assert(Ret.has_value());
 
   std::cout << "Interpreter returned: " <<
