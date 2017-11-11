@@ -44,69 +44,12 @@ public:
     CurrentFrame = StackFrame(LocalTypes, {});
   }
 
-  void visit(const aload_0 &) override {
-    loadFromLocal(0, Types::Reference);
-  }
-
-  void visit(const aload &Inst) override {
-    loadFromLocal(Inst.getIdx(), Types::Reference);
-  }
-
-  void visit(const invokespecial &Inst) override {
-    const auto *MRef =
-        CP.getAsOrNull<ConstantPoolRecords::MethodRef>(Inst.getIdx());
-    if (MRef == nullptr)
-      throw VerificationError("Incorrect CP index at invokespecial");
-
-    assert(MRef->getName() == "<init>"); // other calls are not yet supported
-
-    std::vector<Type> ArgTypes;
-    Type CallRetType = Types::Void;
-    std::tie(CallRetType, ArgTypes) =
-      StackFrame::parseMethodDescriptor(MRef->getDescriptor());
-
-    if (CallRetType != Types::Void)
-      throw VerificationError("<init> method should have void return type");
-
-    // Pop method arguments
-    std::reverse(ArgTypes.begin(), ArgTypes.end());
-    if (!CurrentFrame.popMatchingList(ArgTypes))
-      throw VerificationError("Unable to pop arguments");
-
-    // Pop UninitializedArg
-    // TODO: Support uninitialized(Address)
-    Type UninitializedArg = Types::UninitializedThis;
-    Type UninitializedRepl = Types::Class;
-
-    if (!CurrentFrame.popMatchingList({UninitializedArg}))
-      throw VerificationError("Unable to pop uninitializedThis");
-
-    // Replace UninitializedArg in locals
-    for (std::size_t i = 0; i < CurrentFrame.numLocals(); ++i)
-      if (CurrentFrame.getLocal(i) == UninitializedArg)
-        CurrentFrame.setLocal(i, UninitializedRepl);
-
-    // TODO: Replace UninitializedArg on the stack
-  }
-
-  void visit(const java_return &) override {
-    if (ReturnType != Types::Void)
-      throw VerificationError("Return type should be 'void'");
-    if (CurrentFrame.flagThisUninit())
-      throw VerificationError("Exiting <init> method before complete initialization");
-  }
-
-  void visit(const iconst_0 &) override {
-    CurrentFrame.pushList({Types::Int});
-  }
-
-  void visit(const ireturn &) override {
-    if (ReturnType != Types::Int)
-      throw VerificationError("Return type should be integer");
-
-    if (!CurrentFrame.popMatchingList({Types::Int}))
-      throw VerificationError("Expected integer type to be on the stack");
-  }
+  void visit(const aload_0 &) override;
+  void visit(const aload &Inst) override;
+  void visit(const invokespecial &Inst) override;
+  void visit(const java_return &) override;
+  void visit(const iconst_0 &) override;
+  void visit(const ireturn &) override;
 
 
   // These two functions are called before or after processing an instruction.
@@ -143,6 +86,70 @@ private:
   StackFrame CurrentFrame{{}, {}};
   Type ReturnType = Types::Top;
 };
+
+void MethodVerifier::visit(const aload_0 &) override {
+  loadFromLocal(0, Types::Reference);
+}
+
+void MethodVerifier::visit(const aload &Inst) override {
+  loadFromLocal(Inst.getIdx(), Types::Reference);
+}
+
+void MethodVerifier::visit(const invokespecial &Inst) override {
+  const auto *MRef =
+      CP.getAsOrNull<ConstantPoolRecords::MethodRef>(Inst.getIdx());
+  if (MRef == nullptr)
+    throw VerificationError("Incorrect CP index at invokespecial");
+
+  assert(MRef->getName() == "<init>"); // other calls are not yet supported
+
+  std::vector<Type> ArgTypes;
+  Type CallRetType = Types::Void;
+  std::tie(CallRetType, ArgTypes) =
+    StackFrame::parseMethodDescriptor(MRef->getDescriptor());
+
+  if (CallRetType != Types::Void)
+    throw VerificationError("<init> method should have void return type");
+
+  // Pop method arguments
+  std::reverse(ArgTypes.begin(), ArgTypes.end());
+  if (!CurrentFrame.popMatchingList(ArgTypes))
+    throw VerificationError("Unable to pop arguments");
+
+  // Pop UninitializedArg
+  // TODO: Support uninitialized(Address)
+  Type UninitializedArg = Types::UninitializedThis;
+  Type UninitializedRepl = Types::Class;
+
+  if (!CurrentFrame.popMatchingList({UninitializedArg}))
+    throw VerificationError("Unable to pop uninitializedThis");
+
+  // Replace UninitializedArg in locals
+  for (std::size_t i = 0; i < CurrentFrame.numLocals(); ++i)
+    if (CurrentFrame.getLocal(i) == UninitializedArg)
+      CurrentFrame.setLocal(i, UninitializedRepl);
+
+  // TODO: Replace UninitializedArg on the stack
+}
+
+void MethodVerifier::visit(const java_return &) override {
+  if (ReturnType != Types::Void)
+    throw VerificationError("Return type should be 'void'");
+  if (CurrentFrame.flagThisUninit())
+    throw VerificationError("Exiting <init> method before complete initialization");
+}
+
+void MethodVerifier::visit(const iconst_0 &) override {
+  CurrentFrame.pushList({Types::Int});
+}
+
+void MethodVerifier::visit(const ireturn &) override {
+  if (ReturnType != Types::Int)
+    throw VerificationError("Return type should be integer");
+
+  if (!CurrentFrame.popMatchingList({Types::Int}))
+    throw VerificationError("Expected integer type to be on the stack");
+}
 
 }
 
