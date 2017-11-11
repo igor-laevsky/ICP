@@ -39,7 +39,7 @@ set(SOURCE_FILES
         src/JavaTypes/JavaTypesFwd.h
         src/Verifier/VerifierFwd.h
         src/SlowInterpreter/SlowInterpreter.h
-        src/SlowInterpreter/SlowInterpreter.cpp)
+        src/SlowInterpreter/SlowInterpreter.cpp src/CD/Lexer.cpp src/CD/Lexer.h)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
@@ -53,7 +53,7 @@ set (TEST_FILES
         tests/Verifier/VerifierTests.cpp
         tests/Utils/TestUtils.cpp
         tests/Utils/TestUtils.h
-        tests/SlowInterpreter/SlowInterpreterTests.cpp)
+        tests/SlowInterpreter/SlowInterpreterTests.cpp tests/CD/LexerTests.cpp)
 
 add_library(ICP_LIB ${SOURCE_FILES})
 
