@@ -33,7 +33,7 @@ static bool testWithMethod(
       std::move(StackMapTable),
       Flags);
 
-  std::any Res = SlowInterpreter::Interpret(*Method, InputArgs);
+  std::any Res = SlowInterpreter::interpret(*Method, InputArgs);
   return std::any_cast<ResT>(Res) == ExpectedResult;
 }
 

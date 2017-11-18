@@ -223,7 +223,7 @@ void Interpreter::visit(const aload &) {
 
 }
 
-std::any SlowInterpreter::Interpret(
+std::any SlowInterpreter::interpret(
     const JavaTypes::JavaMethod &Method,
     const std::vector<std::any> &InputArguments,
     bool Debug /*= false*/) {

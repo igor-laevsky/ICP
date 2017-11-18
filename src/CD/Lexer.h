@@ -1,3 +1,6 @@
+///
+/// Lexer for the CD language.
+///
 
 #ifndef ICP_LEXER_H
 #define ICP_LEXER_H

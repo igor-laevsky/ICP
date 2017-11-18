@@ -26,11 +26,11 @@ int main() {
 
   NewClass->print(std::cout);
 
-  // Interpret
+  // interpret
   auto Method = NewClass->getMethod("main");
   assert(Method != nullptr);
 
-  auto Ret = SlowInterpreter::Interpret(*Method, {}, true);
+  auto Ret = SlowInterpreter::interpret(*Method, {}, true);
   assert(Ret.has_value());
 
   std::cout << "Interpreter returned: " <<

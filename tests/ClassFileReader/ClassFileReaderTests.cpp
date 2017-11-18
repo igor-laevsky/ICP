@@ -22,7 +22,7 @@ TEST_CASE("Read verify and interpret simple class", "[ClassFileReader]") {
   auto Method = NewClass->getMethod("main");
   REQUIRE(Method != nullptr);
 
-  auto Ret = SlowInterpreter::Interpret(*Method, {});
+  auto Ret = SlowInterpreter::interpret(*Method, {});
   REQUIRE(Ret.has_value());
 
   REQUIRE_NOTHROW(std::any_cast<SlowInterpreter::JavaInt>(Ret));
