@@ -45,8 +45,10 @@ TEST_CASE("Simple tokens", "[CD]") {
   REQUIRE(lex.getNext() == Token::Sharp);
 
   REQUIRE(!lex.hasNext());
-  t = lex.consume(Token::Id());
-  REQUIRE(!t.has_value());
+
+  // Check that we don't consume from the empty lexer
+  REQUIRE(!lex.consume(Token::Id()));
+  REQUIRE(!lex.isNext(Token::Id()));
 }
 
 TEST_CASE("Complex tokens", "[CD]") {

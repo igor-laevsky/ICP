@@ -120,5 +120,7 @@ std::optional<Token> Lexer::consume(const Token &Tok) {
 }
 
 bool Lexer::isNext(const Token &Tok) const {
+  if (!hasNext())
+    return false;
   return tokens().back() == Tok;
 }
