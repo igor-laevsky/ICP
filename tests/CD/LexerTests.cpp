@@ -33,16 +33,16 @@ TEST_CASE("Simple tokens", "[CD]") {
   REQUIRE(!lex.isNext(Token::Keyword()));
   REQUIRE(!lex.consume(Token::Num()).has_value());
   REQUIRE(lex.isNext(Token::Colon));
-  REQUIRE(lex.getNext() == Token::Colon);
+  REQUIRE(lex.consume() == Token::Colon);
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::LBrace);
+  REQUIRE(lex.consume() == Token::LBrace);
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::RBrace);
+  REQUIRE(lex.consume() == Token::RBrace);
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::Sharp);
+  REQUIRE(lex.consume() == Token::Sharp);
 
   REQUIRE(!lex.hasNext());
 
@@ -55,22 +55,22 @@ TEST_CASE("Complex tokens", "[CD]") {
   Lexer lex("class aload_0 method \"string\" 123 0ident");
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::Keyword("class"));
+  REQUIRE(lex.consume() == Token::Keyword("class"));
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::Id("aload_0"));
+  REQUIRE(lex.consume() == Token::Id("aload_0"));
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::Keyword());
+  REQUIRE(lex.consume() == Token::Keyword());
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::String("string"));
+  REQUIRE(lex.consume() == Token::String("string"));
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::Num("123"));
+  REQUIRE(lex.consume() == Token::Num("123"));
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::Id("0ident"));
+  REQUIRE(lex.consume() == Token::Id("0ident"));
 
   REQUIRE(!lex.hasNext());
 }
@@ -85,10 +85,10 @@ TEST_CASE("Multiline", "[CD]") {
       "  }\n");
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::Keyword("class"));
+  REQUIRE(lex.consume() == Token::Keyword("class"));
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::LBrace);
+  REQUIRE(lex.consume() == Token::LBrace);
 
   REQUIRE(lex.hasNext());
   auto t = lex.consume(Token::Keyword());
@@ -96,16 +96,16 @@ TEST_CASE("Multiline", "[CD]") {
   REQUIRE(*t == Token::Keyword("bytecode"));
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::LBrace);
+  REQUIRE(lex.consume() == Token::LBrace);
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::Id("aload_0"));
+  REQUIRE(lex.consume() == Token::Id("aload_0"));
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::RBrace);
+  REQUIRE(lex.consume() == Token::RBrace);
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::RBrace);
+  REQUIRE(lex.consume() == Token::RBrace);
 
   REQUIRE(!lex.hasNext());
 }
@@ -120,16 +120,16 @@ TEST_CASE("Comments", "[CD]") {
       "}\n");
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::Keyword("class"));
+  REQUIRE(lex.consume() == Token::Keyword("class"));
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::LBrace);
+  REQUIRE(lex.consume() == Token::LBrace);
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::Id("aload_0"));
+  REQUIRE(lex.consume() == Token::Id("aload_0"));
 
   REQUIRE(lex.hasNext());
-  REQUIRE(lex.getNext() == Token::RBrace);
+  REQUIRE(lex.consume() == Token::RBrace);
 
   REQUIRE(!lex.hasNext());
 }

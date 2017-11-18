@@ -162,16 +162,16 @@ public:
   // Return true if there are any tokens left in the stream.
   bool hasNext() const;
 
+  // Checks if next token in the stream matches 'Tok'.
+  // Doesn't extract it.
+  bool isNext(const Token &Tok) const;
+
   // Extracts next token from the stream.
-  Token getNext();
+  Token consume();
 
   // If next token is equal to Tok - extracts it and returns.
   // Otherwise return empty value.
   std::optional<Token> consume(const Token &Tok);
-
-  // Checks if next token in the stream matches 'Tok'.
-  // Doesn't extract it.
-  bool isNext(const Token &Tok) const;
 
 private:
   const auto &tokens() const { return Tokens; }

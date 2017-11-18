@@ -105,7 +105,7 @@ bool Lexer::hasNext() const {
   return !tokens().empty();
 }
 
-Token Lexer::getNext() {
+Token Lexer::consume() {
   assert(hasNext());
   Token Ret = tokens().back();
   tokens().pop_back();
@@ -116,7 +116,7 @@ std::optional<Token> Lexer::consume(const Token &Tok) {
   if (!hasNext() || !isNext(Tok))
     return std::nullopt;
 
-  return getNext();
+  return consume();
 }
 
 bool Lexer::isNext(const Token &Tok) const {
