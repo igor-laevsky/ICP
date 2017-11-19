@@ -52,7 +52,7 @@ TEST_CASE("Simple tokens", "[CD]") {
 }
 
 TEST_CASE("Complex tokens", "[CD]") {
-  Lexer lex("class aload_0 method \"string\" 123 0ident");
+  Lexer lex("class aload_0 method \"string\" 123 0ident auto");
 
   REQUIRE(lex.hasNext());
   REQUIRE(lex.consume() == Token::Keyword("class"));
@@ -71,6 +71,9 @@ TEST_CASE("Complex tokens", "[CD]") {
 
   REQUIRE(lex.hasNext());
   REQUIRE(lex.consume() == Token::Id("0ident"));
+
+  REQUIRE(lex.hasNext());
+  REQUIRE(lex.consume() == Token::Keyword("auto"));
 
   REQUIRE(!lex.hasNext());
 }

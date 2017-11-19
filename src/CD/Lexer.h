@@ -56,7 +56,7 @@ public:
       case COLON: return ":";
       case SHARP: return "#";
       case STRING: return "\"\\w+\"";
-      case KEYWORD: return "class|constant_pool|method|bytecode";
+      case KEYWORD: return "class|constant_pool|method|bytecode|auto";
       case NUM: return "\\d+\\b";
       case ID: return "[a-zA-Z0-9_]+\\b";
 
