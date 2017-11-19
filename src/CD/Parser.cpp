@@ -49,6 +49,23 @@ static ConstantPool::IndexType parseCPIndex(Lexer &Lex) {
   return *Ret;
 }
 
+// Helper function. Looks for the specified string in the constant pool.
+// This is inefficient and should be replaced with the proper symbol table.
+// \returns Pointer to the cp record or null if nothing found.
+static const ConstantPoolRecords::Utf8 *findStringInCP(
+    const std::string &Target,
+    const ConstantPool &CP) {
+
+  for (ConstantPool::IndexType Idx = 1; Idx <= CP.numRecords(); ++Idx) {
+    if (const auto *Rec = CP.getAsOrNull<ConstantPoolRecords::Utf8>(Idx)) {
+      if (Rec->getValue() == Target)
+        return Rec;
+    }
+  }
+
+  return nullptr;
+}
+
 static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
   if (!Lex.consume(Token::Keyword("constant_pool")))
     throw ParserError("Expected constant_pool as a first member of the class");
@@ -59,8 +76,7 @@ static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
   // actual constant pool creation process, so we follow a multistep process:
   // 1. Parse everything into temporary data structures
   // 2. Assign cp indexes for the unique strings
-  // 3. Compute total amount of records
-  // 4. Create constant pool
+  // 3. Create constant pool
 
 
   // Temporary data structures to store pre-parsed constant pool
@@ -80,8 +96,8 @@ static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
   //
 
   while (!Lex.isNext(Token::RBrace)) {
-    // Record is either in the form of "<num>: <id> <args>" or "auto: <string>"
     if (Lex.isNext(Token::Num())) {
+      // Parse "<number>: <id> <args>"
 
       auto Idx = static_cast<ConstantPool::IndexType>(
           std::stoi(Lex.consume().getData()));
@@ -112,9 +128,10 @@ static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
       ParsedRecords[Idx] = std::move(NewRec);
 
     } else if (Lex.consume(Token::Keyword("auto"))) {
+      // Parse "auto: <string>"
 
       consumeOrThrow(Token::Colon, Lex);
-      const std::string &Str = consumeOrThrow(Token::String(), Lex).getData();
+      const std::string Str = consumeOrThrow(Token::String(), Lex).getData();
       StringToIdx[Str] = 0;
 
     } else {
@@ -125,6 +142,7 @@ static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
 
   // Allocate constant pool indexes for the "free standing" strings
   //
+
   for (const auto &[Str, Idx]: StringToIdx) {
     assert(Idx == 0); // no indexes should be assigned
     MaxCPIdx++;
@@ -198,11 +216,68 @@ static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
   return CP;
 }
 
+static std::unique_ptr<JavaMethod> parseMethod(
+    Lexer &Lex,
+    const ConstantPool &CP) {
+
+  JavaMethod::MethodConstructorParameters Params;
+
+  consumeOrThrow(Token::Keyword("method"), Lex);
+
+  // Parse name and descriptor
+  const std::string Name = consumeOrThrow(Token::String(), Lex).getData();
+  Params.Name = findStringInCP(Name, CP);
+  if (Params.Name == nullptr)
+    throw ParserError("Method name was not found in constant pool");
+
+  const std::string Descr = consumeOrThrow(Token::String(), Lex).getData();
+  Params.Descriptor = findStringInCP(Descr, CP);
+  if (Params.Descriptor == nullptr)
+    throw ParserError("Method descriptor was not found in constant pool");
+
+  consumeOrThrow(Token::LBrace, Lex);
+
+  // Parse flags
+  consumeOrThrow(Token::Id("Flags"), Lex);
+  consumeOrThrow(Token::Colon, Lex);
+
+  Params.Flags = JavaMethod::AccessFlags::ACC_NONE;
+  do {
+    const std::string &FlagName = consumeOrThrow(Token::Id(), Lex).getData();
+
+    if (FlagName == "public")
+      Params.Flags = Params.Flags | JavaMethod::AccessFlags::ACC_PUBLIC;
+    else if (FlagName == "static")
+      Params.Flags = Params.Flags | JavaMethod::AccessFlags::ACC_STATIC;
+    else
+      throw ParserError("Unrecognized method access flag");
+
+  } while (Lex.consume(Token::Comma));
+
+  // Parse MaxStack and MaxLocals
+  consumeOrThrow(Token::Id("MaxStack"), Lex);
+  consumeOrThrow(Token::Colon, Lex);
+  Params.MaxStack = static_cast<uint16_t>(
+      std::stoi(consumeOrThrow(Token::Num(), Lex).getData()));
+
+  consumeOrThrow(Token::Id("MaxLocals"), Lex);
+  consumeOrThrow(Token::Colon, Lex);
+  Params.MaxLocals = static_cast<uint16_t>(
+      std::stoi(consumeOrThrow(Token::Num(), Lex).getData()));
+
+  // Only empty bytecode for now
+  consumeOrThrow(Token::Keyword("bytecode"), Lex);
+  consumeOrThrow(Token::LBrace, Lex);
+  consumeOrThrow(Token::RBrace, Lex);
+
+  consumeOrThrow(Token::RBrace, Lex);
+
+  return std::make_unique<JavaMethod>(std::move(Params));
+}
+
 static void parseClass(JavaClass::ClassParameters &Params, Lexer &Lex) {
-  if (!Lex.consume(Token::Keyword("class")))
-    throw ParserError("Expected 'class' keyword");
-  if (!Lex.consume(Token::LBrace))
-    throw ParserError("Expected LBrace");
+  consumeOrThrow(Token::Keyword("class"), Lex);
+  consumeOrThrow(Token::LBrace, Lex);
 
   // Parse constant pool
   Params.CP = parseConstantPool(Lex);
@@ -222,15 +297,19 @@ static void parseClass(JavaClass::ClassParameters &Params, Lexer &Lex) {
   const auto &SuperIdx = parseCPIndex(Lex);
   if (!Params.CP->isA<ConstantPoolRecords::ClassInfo>(SuperIdx))
     throw ParserError("Super class name cp record has unexpected type");
-  Params.ClassName =
-      &Params.CP->getAs<ConstantPoolRecords::ClassInfo>(ClassNameIdx);
+  Params.SuperClass =
+      &Params.CP->getAs<ConstantPoolRecords::ClassInfo>(SuperIdx);
 
   // TODO: Use real access flags
   Params.Flags =
       JavaClass::AccessFlags::ACC_PUBLIC | JavaClass::AccessFlags::ACC_SUPER;
 
-  if (!Lex.consume(Token::RBrace))
-    throw ParserError("Expected RBrace");
+  // Parse methods
+  while (Lex.isNext(Token::Keyword("method"))) {
+    Params.Methods.push_back(parseMethod(Lex, *Params.CP));
+  }
+
+  consumeOrThrow(Token::RBrace, Lex);
 }
 
 std::unique_ptr<JavaTypes::JavaClass> CD::parseFromStream(
