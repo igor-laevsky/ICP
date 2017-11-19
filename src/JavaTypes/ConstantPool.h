@@ -80,6 +80,17 @@ public:
     return dynamic_cast<const RecordType*>(&Res);
   }
 
+  // Checks if the record has given type.
+  // \returns true if record exists and has desired type. false if record
+  //          exists but has the wrong type or doesn't exist.
+  template<class RecordType>
+  bool isA(IndexType Idx) const {
+    if (!isValidIndex(Idx))
+      return false;
+    const auto &Res = get(Idx);
+    return dynamic_cast<const RecordType*>(&Res) != nullptr;
+  }
+
   // Get number of records (including dummy empty ones).
   SizeType numRecords() const {
     return static_cast<SizeType>(getRecordTable().size());

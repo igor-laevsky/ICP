@@ -298,8 +298,8 @@ static std::unique_ptr<JavaMethod> parseMethod(
 
 std::unique_ptr<JavaTypes::JavaClass> ClassFileReader::loadClassFromFile(
     const std::string &FileName) {
-  std::ifstream file(FileName, std::ios_base::in | std::ios_base::binary);
 
+  std::ifstream file(FileName, std::ios_base::in | std::ios_base::binary);
   if (!file)
     throw FileNotFound();
 

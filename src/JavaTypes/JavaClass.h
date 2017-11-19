@@ -74,7 +74,8 @@ public:
     return Methods;
   }
 
-  // Finds method by name and return null if none found
+  // Finds method by name or return null if nothing found
+  // TODO: Support overloading
   const JavaMethod *getMethod(const std::string &Name) const;
 
   // Checks if this class has a super class

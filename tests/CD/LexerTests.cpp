@@ -52,7 +52,7 @@ TEST_CASE("Simple tokens", "[CD]") {
 }
 
 TEST_CASE("Complex tokens", "[CD]") {
-  Lexer lex("class aload_0 method \"string\" 123 0ident auto");
+  Lexer lex("class aload_0 method \"string\" 123 0ident auto \"<init>\"");
 
   REQUIRE(lex.hasNext());
   REQUIRE(lex.consume() == Token::Keyword("class"));
@@ -75,6 +75,9 @@ TEST_CASE("Complex tokens", "[CD]") {
   REQUIRE(lex.hasNext());
   REQUIRE(lex.consume() == Token::Keyword("auto"));
 
+  REQUIRE(lex.hasNext());
+  REQUIRE(lex.consume() == Token::String("<init>"));
+
   REQUIRE(!lex.hasNext());
 }
 
@@ -84,7 +87,7 @@ TEST_CASE("Multiline", "[CD]") {
       "  {\n"
         "  bytecode {\r\n"
           "    aload_0\r\n"
-        "  }\n"
+        "  }\r"
       "  }\n");
 
   REQUIRE(lex.hasNext());
@@ -144,4 +147,8 @@ TEST_CASE("Lexer error", "[CD]") {
   // empty strings are specifically disallowed
   REQUIRE_THROWS_AS(
       Lexer("\"\""), Lexer::LexerError);
+}
+
+TEST_CASE("Slashes in strings", "[CD]") {
+  REQUIRE_NOTHROW(Lexer("\"java/lang/Object\"\n"));
 }

@@ -14,7 +14,7 @@ TEST_CASE("Throw exception if file not found", "[ClassFileReader]") {
 }
 
 TEST_CASE("Read verify and interpret simple class", "[ClassFileReader]") {
-  auto NewClass = ClassFileReader::loadClassFromFile("./assets/Simple.class");
+  auto NewClass = ClassFileReader::loadClassFromFile("./Simple.class");
   assert(NewClass != nullptr);
 
   Verifier::verify(*NewClass);

@@ -26,7 +26,7 @@ int main() {
 
   NewClass->print(std::cout);
 
-  // interpret
+  // Interpret
   auto Method = NewClass->getMethod("main");
   assert(Method != nullptr);
 

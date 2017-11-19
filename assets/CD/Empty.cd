@@ -1,0 +1,9 @@
+class {
+  constant_pool {
+    1: ClassInfo "Simple"
+    2: ClassInfo "java/lang/Object"
+  }
+
+  Name: #1
+  Super: #2
+}

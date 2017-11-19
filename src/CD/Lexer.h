@@ -55,7 +55,7 @@ public:
       case COMMA: return ",";
       case COLON: return ":";
       case SHARP: return "#";
-      case STRING: return "\"\\w+\"";
+      case STRING: return "\"[a-zA-Z0-9_<>/]+\"";
       case KEYWORD: return "class|constant_pool|method|bytecode|auto";
       case NUM: return "\\d+\\b";
       case ID: return "[a-zA-Z0-9_]+\\b";
@@ -101,20 +101,29 @@ public:
   }
 
   friend std::ostream& operator<<(std::ostream &Out, const Token &Tok) {
-    Out << std::to_string(Tok.T) << " (";
-    if (Tok.Data)
-      Out << *Tok.Data;
-    else
-      Out << "None";
-    Out << ")";
+    Out << to_string(Tok);
     return Out;
+  }
+
+  friend std::string to_string(const Token &Tok) {
+    std::string Res = std::to_string(Tok.T) + " (";
+
+    if (Tok.Data)
+      Res += *Tok.Data;
+    else
+      Res += "none";
+    Res += ")";
+    return Res;
   }
 
   bool operator!=(const Token &Rhs) const noexcept {
     return !(*this == Rhs);
   }
 
-  const auto &getData() const { return Data; }
+  const auto &getData() const {
+    assert(Data);
+    return *Data;
+  }
 
   void swap(Token &Other) {
     using std::swap;
