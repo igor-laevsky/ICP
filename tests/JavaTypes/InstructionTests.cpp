@@ -79,7 +79,7 @@ TEST_CASE("Parse from string") {
   REQUIRE(aloadInst->isA<aload>());
   REQUIRE(aloadInst->getAs<aload>().getIdx() == 1);
 
-  auto invoke = parseFromString("invokespacial", 1);
+  auto invoke = parseFromString("invokespecial", 1);
   REQUIRE(invoke);
   REQUIRE(invoke->isA<invokespecial>());
   REQUIRE(invoke->getAs<invokespecial>().getIdx() == 1);

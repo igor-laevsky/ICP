@@ -215,6 +215,31 @@ static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
   return CP;
 }
 
+static JavaMethod::CodeOwnerType parseBytecode(Lexer &Lex) {
+
+  consumeOrThrow(Token::Keyword("bytecode"), Lex);
+  consumeOrThrow(Token::LBrace, Lex);
+
+  JavaMethod::CodeOwnerType Ret;
+  while (!Lex.isNext(Token::RBrace)) {
+    const std::string &Name = consumeOrThrow(Token::Id(), Lex).getData();
+    // Only single indexed instructions for now
+    const auto &IdxOpt = tryParseCPIndex(Lex);
+    const auto Idx = IdxOpt ? static_cast<Bytecode::IdxType>(*IdxOpt) : 0;
+
+    try {
+      Ret.push_back(Bytecode::parseFromString(Name, Idx));
+    } catch (Bytecode::UnknownBytecode &) {
+      throw ParserError("Unable to parse method bytecode");
+    }
+    assert(Ret.back() != nullptr);
+  }
+
+  consumeOrThrow(Token::RBrace, Lex);
+
+  return Ret;
+}
+
 static std::unique_ptr<JavaMethod> parseMethod(
     Lexer &Lex,
     const ConstantPool &CP) {
@@ -265,9 +290,7 @@ static std::unique_ptr<JavaMethod> parseMethod(
       std::stoi(consumeOrThrow(Token::Num(), Lex).getData()));
 
   // Parse bytecode
-  consumeOrThrow(Token::Keyword("bytecode"), Lex);
-  consumeOrThrow(Token::LBrace, Lex);
-  consumeOrThrow(Token::RBrace, Lex);
+  Params.Code = parseBytecode(Lex);
 
   consumeOrThrow(Token::RBrace, Lex);
 

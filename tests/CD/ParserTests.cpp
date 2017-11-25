@@ -25,26 +25,26 @@ TEST_CASE("String input", "[CD][Parser]") {
 
   // No super
   REQUIRE_THROWS_AS(parseFromString(
-                              "class {\n"
-                              "  constant_pool {\n"
-                              "    1: ClassInfo \"Simple\"\n"
-                              "    2: ClassInfo \"java/lang/Object\"\n"
-                              "  }\n"
-                              "\n"
-                              "  Name: #1\n"
-                              "}"), ParserError);
+    "class {\n"
+    "  constant_pool {\n"
+    "    1: ClassInfo \"Simple\"\n"
+    "    2: ClassInfo \"java/lang/Object\"\n"
+    "  }\n"
+    "\n"
+    "  Name: #1\n"
+    "}"), ParserError);
 
   // Empty class
   REQUIRE(parseFromString(
-                              "class {\n"
-                              "  constant_pool {\n"
-                              "    1: ClassInfo \"Simple\"\n"
-                              "    2: ClassInfo \"java/lang/Object\"\n"
-                              "  }\n"
-                              "\n"
-                              "  Name: #1\n"
-                              "  Super: #2\n"
-                              "}"));
+    "class {\n"
+    "  constant_pool {\n"
+    "    1: ClassInfo \"Simple\"\n"
+    "    2: ClassInfo \"java/lang/Object\"\n"
+    "  }\n"
+    "\n"
+    "  Name: #1\n"
+    "  Super: #2\n"
+    "}"));
 }
 
 TEST_CASE("Incomplete", "[CD][Parser]") {

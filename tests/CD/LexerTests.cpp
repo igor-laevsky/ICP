@@ -118,11 +118,11 @@ TEST_CASE("Multiline", "[CD]") {
 
 TEST_CASE("Comments", "[CD]") {
   Lexer lex(
-      "\\\\ comment \n"
+      "// comment \n"
       "class \n"
       "{\n"
-        "aload_0 \\\\another comment\r\n"
-        "  \\\\ valid in the comment: \"\"\n"
+        "aload_0 // another comment\r\n"
+        "  // valid in the comment: \"\"\n"
       "}\n");
 
   REQUIRE(lex.hasNext());

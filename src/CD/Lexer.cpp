@@ -59,7 +59,7 @@ Lexer::Lexer(std::string &&Input) {
   PatternStr.pop_back();
 
   std::regex Pattern(PatternStr);
-  std::regex Spaces("^\\s*(\\\\.*[\n|\r\n|\r]\\s*)*");
+  std::regex Spaces("^\\s*(//.*[\n|\r\n|\r]\\s*)*");
 
   // Match tokens until the end of string.
   // We can modify 'Input' because it's an rvalue.

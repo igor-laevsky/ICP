@@ -73,7 +73,7 @@ class invokespecial final: public SingleIndex<invokespecial> {
 
 public:
   static constexpr uint8_t OpCode = 0xb7;
-  static constexpr const char *Name = "invokespacial";
+  static constexpr const char *Name = "invokespecial";
 };
 
 class java_return final: public NoIndex<java_return> {
