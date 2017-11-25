@@ -97,30 +97,30 @@ Lexer::Lexer(std::string &&Input) {
   if (!Input.empty())
     throw LexerError("Unable to lex the whole string");
 
-  // Reverse token list so that we can pop_back to advance to the next token
+  // Reverse the list to simplify common operations
   std::reverse(Tokens.begin(), Tokens.end());
+  NumTokens = Tokens.size();
 }
 
 bool Lexer::hasNext() const {
-  return !tokens().empty();
+  return NumTokens >= 1;
 }
 
-Token Lexer::consume() {
+const Token &Lexer::consume() {
   assert(hasNext());
-  Token Ret = tokens().back();
-  tokens().pop_back();
-  return Ret;
-}
-
-std::optional<Token> Lexer::consume(const Token &Tok) {
-  if (!hasNext() || !isNext(Tok))
-    return std::nullopt;
-
-  return consume();
+  --NumTokens;
+  return tokens()[numTokens()];
 }
 
 bool Lexer::isNext(const Token &Tok) const {
   if (!hasNext())
     return false;
-  return tokens().back() == Tok;
+  return tokens()[numTokens() - 1] == Tok;
+}
+
+const Token *Lexer::consume(const Token &Tok) {
+  if (!hasNext() || !isNext(Tok))
+    return nullptr;
+
+  return &consume();
 }

@@ -25,13 +25,13 @@ TEST_CASE("Simple tokens", "[CD]") {
   REQUIRE(lex.hasNext());
   REQUIRE(lex.isNext(Token::Comma));
   auto t = lex.consume(Token::Comma);
-  REQUIRE(t.has_value());
+  REQUIRE(t != nullptr);
   REQUIRE(*t == Token::Comma);
 
   REQUIRE(lex.hasNext());
   REQUIRE(!lex.isNext(Token::Comma));
   REQUIRE(!lex.isNext(Token::Keyword()));
-  REQUIRE(!lex.consume(Token::Num()).has_value());
+  REQUIRE(lex.consume(Token::Num()) == nullptr);
   REQUIRE(lex.isNext(Token::Colon));
   REQUIRE(lex.consume() == Token::Colon);
 
@@ -98,7 +98,7 @@ TEST_CASE("Multiline", "[CD]") {
 
   REQUIRE(lex.hasNext());
   auto t = lex.consume(Token::Keyword());
-  REQUIRE(t.has_value());
+  REQUIRE(t != nullptr);
   REQUIRE(*t == Token::Keyword("bytecode"));
 
   REQUIRE(lex.hasNext());

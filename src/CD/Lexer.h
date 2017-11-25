@@ -33,62 +33,6 @@ public:
   static Token Id(std::string Data);
 
 public:
-  enum Type {
-    L_BRACE = 0,
-    R_BRACE,
-    COMMA,
-    COLON,
-    SHARP,
-    STRING,
-    KEYWORD,
-    NUM,
-    ID,
-
-    FIRST = L_BRACE,
-    LAST = ID + 1
-  };
-
-  static constexpr const char *getPattern(Type T) {
-    switch (T) {
-      case L_BRACE: return "\\{";
-      case R_BRACE: return "\\}";
-      case COMMA: return ",";
-      case COLON: return ":";
-      case SHARP: return "#";
-      case STRING: return "\"[a-zA-Z0-9_<>/()\\[\\];]+\"";
-      case KEYWORD: return "class|constant_pool|method|bytecode|auto";
-      case NUM: return "\\d+\\b";
-      case ID: return "[a-zA-Z0-9_]+\\b";
-
-      default: assert(false);
-    }
-
-    return "error";
-  }
-
-private:
-  // This is intended to be used only from the Lexer constructor
-  static Token create(Type T, const std::string &Data) {
-    switch (T) {
-      case L_BRACE: return LBrace;
-      case R_BRACE: return RBrace;
-      case COMMA: return Comma;
-      case COLON: return Colon;
-      case SHARP: return Sharp;
-      case STRING:
-        // Cut quotes from the match
-        return String(Data.substr(1, Data.length() - 2));
-      case KEYWORD: return Keyword(Data);
-      case NUM: return Num(Data);
-      case ID: return Id(Data);
-      case LAST: assert(false);
-    }
-
-    assert(false);
-    return Token(LAST);
-  }
-
-public:
   bool operator==(const Token &Rhs) const noexcept {
     if (T != Rhs.T)
       return false;
@@ -132,6 +76,61 @@ public:
   }
 
 private:
+  enum Type {
+    L_BRACE = 0,
+    R_BRACE,
+    COMMA,
+    COLON,
+    SHARP,
+    STRING,
+    KEYWORD,
+    NUM,
+    ID,
+
+    FIRST = L_BRACE,
+    LAST = ID + 1
+  };
+
+  static constexpr const char *getPattern(Type T) {
+    switch (T) {
+      case L_BRACE: return "\\{";
+      case R_BRACE: return "\\}";
+      case COMMA: return ",";
+      case COLON: return ":";
+      case SHARP: return "#";
+      case STRING: return "\"[a-zA-Z0-9_<>/()\\[\\];]+\"";
+      case KEYWORD: return "class|constant_pool|method|bytecode|auto";
+      case NUM: return "\\d+\\b";
+      case ID: return "[a-zA-Z0-9_]+\\b";
+
+      default: assert(false);
+    }
+
+    return "error";
+  }
+
+  // This is intended to be used only from the Lexer constructor
+  static Token create(Type T, const std::string &Data) {
+    switch (T) {
+      case L_BRACE: return LBrace;
+      case R_BRACE: return RBrace;
+      case COMMA: return Comma;
+      case COLON: return Colon;
+      case SHARP: return Sharp;
+      case STRING:
+        // Cut quotes from the match
+        return String(Data.substr(1, Data.length() - 2));
+      case KEYWORD: return Keyword(Data);
+      case NUM: return Num(Data);
+      case ID: return Id(Data);
+      case LAST: assert(false);
+    }
+
+    assert(false);
+    return Token(LAST);
+  }
+
+private:
   explicit constexpr Token(Type T) noexcept:
       T(T) {
     ;
@@ -152,6 +151,9 @@ private:
   friend class Lexer;
 };
 
+// Lexer returns references to tokens and owns them. Which means that user
+// should ensure that lifetime of the Lexer is greater than lifetime of it's
+// tokens.
 class Lexer final {
 public:
 
@@ -176,18 +178,21 @@ public:
   bool isNext(const Token &Tok) const;
 
   // Extracts next token from the stream.
-  Token consume();
+  const Token &consume();
 
   // If next token is equal to Tok - extracts it and returns.
-  // Otherwise return empty value.
-  std::optional<Token> consume(const Token &Tok);
+  // Otherwise return null.
+  const Token *consume(const Token &Tok);
 
 private:
   const auto &tokens() const { return Tokens; }
   auto &tokens() { return Tokens; }
 
+  auto numTokens() const { return NumTokens; }
+
 private:
   std::vector<Token> Tokens;
+  std::size_t NumTokens = 0;
 };
 
 }

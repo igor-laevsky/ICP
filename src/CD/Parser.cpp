@@ -23,7 +23,7 @@ using namespace JavaTypes;
 
 // Helper function to avoid repeating patters:
 //  if (!Lex.consume(Tok)) throw ...
-static Token consumeOrThrow(const Token &Tok, Lexer &Lex) {
+static const Token &consumeOrThrow(const Token &Tok, Lexer &Lex) {
   const auto &Res = Lex.consume(Tok);
   if (!Res)
     throw ParserError("Expected " + to_string(Tok));
@@ -53,8 +53,7 @@ static ConstantPool::IndexType parseCPIndex(Lexer &Lex) {
 // This is inefficient and should be replaced with the proper symbol table.
 // \returns Pointer to the cp record or null if nothing found.
 static const ConstantPoolRecords::Utf8 *findStringInCP(
-    const std::string &Target,
-    const ConstantPool &CP) {
+    const std::string &Target, const ConstantPool &CP) {
 
   for (ConstantPool::IndexType Idx = 1; Idx <= CP.numRecords(); ++Idx) {
     if (const auto *Rec = CP.getAsOrNull<ConstantPoolRecords::Utf8>(Idx)) {
@@ -83,7 +82,8 @@ static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
   struct Record {
     std::string Type = "";
 
-    using ArgType = std::variant<ConstantPool::IndexType, std::string>;
+    using ArgType =
+      std::variant<ConstantPool::IndexType, std::string>;
     std::vector<ArgType> Args;
   };
   std::map<ConstantPool::IndexType, Record> ParsedRecords;
@@ -131,9 +131,8 @@ static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
       // Parse "auto: <string>"
 
       consumeOrThrow(Token::Colon, Lex);
-      const std::string Str = consumeOrThrow(Token::String(), Lex).getData();
+      const auto &Str = consumeOrThrow(Token::String(), Lex).getData();
       StringToIdx[Str] = 0;
-
     } else {
       throw ParserError("Expected RBrace at the end of constant pool");
     }
@@ -225,12 +224,12 @@ static std::unique_ptr<JavaMethod> parseMethod(
   consumeOrThrow(Token::Keyword("method"), Lex);
 
   // Parse name and descriptor
-  const std::string Name = consumeOrThrow(Token::String(), Lex).getData();
+  const std::string &Name = consumeOrThrow(Token::String(), Lex).getData();
   Params.Name = findStringInCP(Name, CP);
   if (Params.Name == nullptr)
     throw ParserError("Method name was not found in constant pool");
 
-  const std::string Descr = consumeOrThrow(Token::String(), Lex).getData();
+  const std::string &Descr = consumeOrThrow(Token::String(), Lex).getData();
   Params.Descriptor = findStringInCP(Descr, CP);
   if (Params.Descriptor == nullptr)
     throw ParserError("Method descriptor was not found in constant pool");
