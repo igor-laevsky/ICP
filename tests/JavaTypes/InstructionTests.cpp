@@ -68,3 +68,19 @@ TEST_CASE("Empty bytecode", "[Bytecode]") {
   auto It = Bytes.begin();
   REQUIRE_THROWS_AS(parseInstruction(Bytes, It), BytecodeParsingError);
 }
+
+TEST_CASE("Parse from string") {
+  auto aload0 = parseFromString("aload_0");
+  REQUIRE(aload0);
+  REQUIRE(aload0->isA<aload_0>());
+
+  auto aloadInst = parseFromString("aload", 1);
+  REQUIRE(aloadInst);
+  REQUIRE(aloadInst->isA<aload>());
+  REQUIRE(aloadInst->getAs<aload>().getIdx() == 1);
+
+  auto invoke = parseFromString("invokespacial", 1);
+  REQUIRE(invoke);
+  REQUIRE(invoke->isA<invokespecial>());
+  REQUIRE(invoke->getAs<invokespecial>().getIdx() == 1);
+}

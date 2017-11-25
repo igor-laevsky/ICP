@@ -45,3 +45,22 @@ std::vector<std::unique_ptr<Instruction>> Bytecode::parseInstructions(
 
   return Ret;
 }
+
+std::unique_ptr<Instruction> Bytecode::parseFromString(
+    const std::string &OpCodeStr, IdxType Idx /*= 0*/) {
+
+#define PARSE_OP(OpType) \
+  if (OpCodeStr == OpType::Name) \
+    return Instruction::create<OpType>(Idx);
+
+  PARSE_OP(aload);
+  PARSE_OP(aload_0);
+  PARSE_OP(invokespecial);
+  PARSE_OP(java_return);
+  PARSE_OP(ireturn);
+  PARSE_OP(iconst_0);
+
+#undef PARSE_OP
+
+  throw UnknownBytecode(); // unable to find correct instruction for string
+}

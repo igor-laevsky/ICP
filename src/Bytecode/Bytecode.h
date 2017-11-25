@@ -40,6 +40,9 @@ public:
   // opcode.
   static constexpr uint8_t Length = 0;
 
+  // Human readable name of this instruction
+  static constexpr const char *Name = "";
+
 public:
   // No copies
   Instruction(const Instruction&) = delete;
@@ -175,6 +178,13 @@ std::vector<std::unique_ptr<Instruction>> parseInstructions(
 // instruction length.
 std::unique_ptr<Instruction> parseInstruction(
     const Container &Bytecodes, ContainerIterator &It);
+
+// Parses single instruction from it's string representation.
+// Receives string which names the opcode and it's indexes.
+// \returns New bytecode
+// \throws UndefinedBytecode if opcode was not recognized.
+std::unique_ptr<Instruction> parseFromString(
+    const std::string &OpCodeStr, IdxType Idx = 0);
 
 }
 

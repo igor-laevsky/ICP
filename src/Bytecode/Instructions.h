@@ -16,6 +16,10 @@ class NoIndex: public VisitableInstruction<ConcreteType> {
 
 public:
   static constexpr uint8_t Length = 1;
+
+  void print(std::ostream &Out) const override {
+    Out << ConcreteType::Name << "\n";
+  }
 };
 
 // Utility class for three byte instructions. First byte is opcode,
@@ -30,6 +34,10 @@ public:
     return Idx;
   }
 
+  void print(std::ostream &Out) const override {
+    Out << ConcreteType::Name << " #" << getIdx() << "\n";
+  }
+
 private:
   SingleIndex(ContainerIterator It, BciType bci):
       VisitableInstruction<ConcreteType>(It, bci),
@@ -37,7 +45,7 @@ private:
     ;
   }
 
-  // Allow calling constructor from the Instruction::create function
+  // Allow calling constructor from the Instruction::create functions
   friend class Instruction;
 
 private:
@@ -49,10 +57,7 @@ class aload_0 final: public NoIndex<aload_0> {
 
 public:
   static constexpr uint8_t OpCode = 0x2a;
-
-  void print(std::ostream &Out) const override {
-    Out << "aload_0\n";
-  }
+  static constexpr const char *Name = "aload_0";
 };
 
 class aload final: public SingleIndex<aload> {
@@ -60,10 +65,7 @@ class aload final: public SingleIndex<aload> {
 
 public:
   static constexpr uint8_t OpCode = 0x2b;
-
-  void print(std::ostream &Out) const override {
-    Out << "aload " << getIdx() << "\n";
-  }
+  static constexpr const char *Name = "aload";
 };
 
 class invokespecial final: public SingleIndex<invokespecial> {
@@ -71,10 +73,7 @@ class invokespecial final: public SingleIndex<invokespecial> {
 
 public:
   static constexpr uint8_t OpCode = 0xb7;
-
-  void print(std::ostream &Out) const override {
-    Out << "invokespecial #" << getIdx() << "\n";
-  }
+  static constexpr const char *Name = "invokespacial";
 };
 
 class java_return final: public NoIndex<java_return> {
@@ -82,10 +81,7 @@ class java_return final: public NoIndex<java_return> {
 
 public:
   static constexpr uint8_t OpCode = 0xb1;
-
-  void print(std::ostream &Out) const override {
-    Out << "return\n";
-  }
+  static constexpr const char *Name = "return";
 };
 
 class iconst_0 final: public NoIndex<iconst_0> {
@@ -93,21 +89,15 @@ class iconst_0 final: public NoIndex<iconst_0> {
 
 public:
   static constexpr uint8_t OpCode = 0x03;
-
-  void print(std::ostream &Out) const override {
-    Out << "iconst_0\n";
-  }
+  static constexpr const char *Name = "iconst_0";
 };
 
 class ireturn final: public NoIndex<ireturn> {
-  using NoIndex<ireturn>::NoIndex;
+  using NoIndex::NoIndex;
 
 public:
   static constexpr uint8_t OpCode = 0xac;
-
-  void print(std::ostream &Out) const override {
-    Out << "ireturn\n";
-  }
+  static constexpr const char *Name = "ireturn";
 };
 
 }
