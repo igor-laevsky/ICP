@@ -18,7 +18,7 @@ class JavaClass;
 class JavaMethod final {
 public:
   using CodeOwnerType =
-    std::vector<std::unique_ptr<const Bytecode::Instruction>>;
+    std::vector<std::unique_ptr<Bytecode::Instruction>>;
   using CodeIterator = Utils::SmartPtrIterator<CodeOwnerType::const_iterator>;
 
   using StackMapTableType =
@@ -65,7 +65,7 @@ public:
     uint16_t MaxStack = 0;
     uint16_t MaxLocals = 0;
 
-    std::vector<uint8_t> Code; // This is plain unparsed bytecode
+    CodeOwnerType Code; // This is plain unparsed bytecode
 
     StackMapTableType StackMapTable;
   };
@@ -111,8 +111,8 @@ public:
   const Bytecode::Instruction &getInstrAtBci(Bytecode::BciType Bci) const;
 
   // Support ranged-for iteration over instructions.
-  CodeIterator begin() const { return CodeIterator(Code.begin()); }
-  CodeIterator end() const { return CodeIterator(Code.end()); }
+  CodeIterator begin() const { return CodeIterator(Code.cbegin()); }
+  CodeIterator end() const { return CodeIterator(Code.cend()); }
 
   Bytecode::BciType numInstructions() const {
     return static_cast<Bytecode::BciType>(Code.size());

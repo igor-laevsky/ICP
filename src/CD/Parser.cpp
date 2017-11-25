@@ -264,7 +264,7 @@ static std::unique_ptr<JavaMethod> parseMethod(
   Params.MaxLocals = static_cast<uint16_t>(
       std::stoi(consumeOrThrow(Token::Num(), Lex).getData()));
 
-  // Only empty bytecode for now
+  // Parse bytecode
   consumeOrThrow(Token::Keyword("bytecode"), Lex);
   consumeOrThrow(Token::LBrace, Lex);
   consumeOrThrow(Token::RBrace, Lex);

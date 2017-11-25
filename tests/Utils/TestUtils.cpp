@@ -103,7 +103,7 @@ std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
 
   Params.MaxLocals = MaxLocals;
   Params.MaxStack = MaxStack;
-  Params.Code = Bytecode;
+  Params.Code = Bytecode::parseInstructions(Bytecode);
   Params.StackMapTable = std::move(StackMapTable);
 
   return std::make_unique<JavaMethod>(std::move(Params));

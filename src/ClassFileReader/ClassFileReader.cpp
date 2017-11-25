@@ -235,11 +235,13 @@ static void parseMethodCode(
   Params.MaxStack = BigEndianReading::readHalf(Input);
   Params.MaxLocals = BigEndianReading::readHalf(Input);
 
+  std::vector<uint8_t> Bytecode;
   const uint32_t code_length = BigEndianReading::readWord(Input);
-  Params.Code.resize(code_length);
-  Input.read(reinterpret_cast<char*>(Params.Code.data()), code_length);
+  Bytecode.resize(code_length);
+  Input.read(reinterpret_cast<char*>(Bytecode.data()), code_length);
   if (Input.fail())
     throw FormatError("Failed to read method code");
+  Params.Code = Bytecode::parseInstructions(Bytecode);
 
   // Skip exception table for now
   const uint16_t exception_table_length = BigEndianReading::readHalf(Input);

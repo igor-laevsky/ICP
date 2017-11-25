@@ -15,17 +15,16 @@ JavaMethod::JavaMethod(JavaMethod::MethodConstructorParameters &&Params) :
     Descriptor(Params.Descriptor),
     MaxStack(Params.MaxStack),
     MaxLocals(Params.MaxLocals),
+    Code(std::move(Params.Code)),
     StackMapTable(std::move(Params.StackMapTable))
 {
   assert(Name != nullptr);
   assert(Descriptor != nullptr);
 
-  auto CodeIt = Params.Code.cbegin();
-
-  while (CodeIt != Params.Code.end()) {
-    Code.push_back(Bytecode::parseInstruction(Params.Code, CodeIt));
-    assert(Code.back() != nullptr);
-  }
+  // Null check all instructions
+  assert(std::all_of(
+      Code.begin(), Code.end(),
+      [](const auto &Inst) { return Inst != nullptr; }));
 
   // Other flags are not supported currently
   assert(
