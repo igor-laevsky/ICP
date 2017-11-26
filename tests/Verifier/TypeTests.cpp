@@ -4,7 +4,7 @@
 
 #include "catch.hpp"
 
-#include "Verifier/Type.h"
+#include "JavaTypes/Type.h"
 
 using namespace Verifier;
 

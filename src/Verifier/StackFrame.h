@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include "Type.h"
+#include "JavaTypes/Type.h"
 
 namespace Verifier {
 

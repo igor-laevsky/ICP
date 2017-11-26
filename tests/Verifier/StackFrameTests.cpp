@@ -7,7 +7,7 @@
 #include <optional>
 
 #include "Verifier/StackFrame.h"
-#include "Verifier/Type.h"
+#include "JavaTypes/Type.h"
 
 using namespace Verifier;
 

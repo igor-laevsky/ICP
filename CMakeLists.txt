@@ -27,8 +27,8 @@ set(SOURCE_FILES
         src/Bytecode/Bytecode.cpp
         src/Bytecode/Bytecode.h
         src/Bytecode/Instructions.h
-        src/Verifier/Type.h
-        src/Verifier/Type.cpp
+        src/JavaTypes/Type.h
+        src/JavaTypes/Type.cpp
         src/Verifier/StackFrame.cpp
         src/Verifier/StackFrame.h
         src/Bytecode/InstructionVisitor.cpp
