@@ -2,16 +2,19 @@
 // Various verifier tests
 //
 
-#include <Bytecode/Instructions.h>
 #include "catch.hpp"
 
 #include "Utils/TestUtils.h"
 #include "Verifier/Verifier.h"
 #include "JavaTypes/ConstantPool.h"
 #include "CD/Parser.h"
+#include "Bytecode/Instructions.h"
+
+using Catch::Matchers::Equals;
 
 using namespace Verifier;
 using namespace JavaTypes;
+using namespace TestUtils;
 
 // Helper function which creates class with single method and virifies it.
 static void testWithMethod(
@@ -316,6 +319,11 @@ TEST_CASE("aload", "[Verifier]") {
 }
 
 TEST_CASE("too many locals", "[Verifier]") {
-  REQUIRE_THROWS_AS(
-      testWithMethodFile("to_many_locals.cd"), VerificationError);
+//  REQUIRE_THROWS_AS(
+//      testWithMethodFile("to_many_locals.cd"), VerificationError);
+
+  REQUIRE_THROWS_MATCHES(
+      testWithMethodFile("to_many_locals.cd"),
+      VerificationError, ExEquals("Exceeded maximum number of locals"));
+
 }

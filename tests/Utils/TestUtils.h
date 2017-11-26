@@ -7,13 +7,39 @@
 
 #include <memory>
 #include <vector>
+#include <exception>
+
+#include "catch.hpp"
 
 #include "Bytecode/Bytecode.h"
 #include "JavaTypes/JavaClass.h"
 #include "JavaTypes/JavaMethod.h"
 #include "JavaTypes/ConstantPool.h"
 
+#include <iostream>
+
 namespace TestUtils {
+
+// Matcher for the exceptions with description
+class ExEquals : public Catch::MatcherBase<std::runtime_error> {
+  const char *Target;
+
+public:
+    explicit ExEquals(const char *Target) noexcept:
+        Target(Target) {
+      ;
+    }
+
+    bool match (const std::runtime_error &Ex) const override {
+      return std::string(Ex.what()) == Target;
+    }
+
+    std::string describe() const override {
+        std::ostringstream ss;
+        ss << "is exuals " << Target;
+        return ss.str();
+    }
+};
 
 std::vector<std::unique_ptr<Bytecode::Instruction>> createTrivialBytecode();
 
