@@ -43,7 +43,8 @@ set(SOURCE_FILES
         src/CD/Lexer.cpp
         src/CD/Lexer.h
         src/CD/Parser.cpp
-        src/CD/Parser.h)
+        src/CD/Parser.h
+        )
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp

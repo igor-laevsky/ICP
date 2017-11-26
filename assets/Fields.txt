@@ -1,0 +1,71 @@
+Classfile /G:/Projects/ICP/assets/Fields.class
+  Last modified 26.11.2017; size 347 bytes
+  MD5 checksum 4b252a42d8852bae285a999d201ff10f
+  Compiled from "Fields.java"
+public class Fields
+  minor version: 0
+  major version: 52
+  flags: ACC_PUBLIC, ACC_SUPER
+Constant pool:
+   #1 = Methodref          #5.#20         // java/lang/Object."<init>":()V
+   #2 = Fieldref           #4.#21         // Fields.F2:D
+   #3 = Fieldref           #4.#22         // Fields.F1:I
+   #4 = Class              #23            // Fields
+   #5 = Class              #24            // java/lang/Object
+   #6 = Utf8               F1
+   #7 = Utf8               I
+   #8 = Utf8               F2
+   #9 = Utf8               D
+  #10 = Utf8               Ref
+  #11 = Utf8               LFields;
+  #12 = Utf8               <init>
+  #13 = Utf8               ()V
+  #14 = Utf8               Code
+  #15 = Utf8               LineNumberTable
+  #16 = Utf8               main
+  #17 = Utf8               ([Ljava/lang/String;)I
+  #18 = Utf8               SourceFile
+  #19 = Utf8               Fields.java
+  #20 = NameAndType        #12:#13        // "<init>":()V
+  #21 = NameAndType        #8:#9          // F2:D
+  #22 = NameAndType        #6:#7          // F1:I
+  #23 = Utf8               Fields
+  #24 = Utf8               java/lang/Object
+{
+  static int F1;
+    descriptor: I
+    flags: ACC_STATIC
+
+  static double F2;
+    descriptor: D
+    flags: ACC_STATIC
+
+  Fields Ref;
+    descriptor: LFields;
+    flags:
+
+  public Fields();
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+      LineNumberTable:
+        line 1: 0
+
+  public static int main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)I
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=2, locals=1, args_size=1
+         0: dconst_1
+         1: putstatic     #2                  // Field F2:D
+         4: getstatic     #3                  // Field F1:I
+         7: ireturn
+      LineNumberTable:
+        line 7: 0
+        line 8: 4
+}
+SourceFile: "Fields.java"
