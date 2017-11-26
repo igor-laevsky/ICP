@@ -8,6 +8,7 @@
 #include "Utils/TestUtils.h"
 #include "Verifier/Verifier.h"
 #include "JavaTypes/ConstantPool.h"
+#include "CD/Parser.h"
 
 using namespace Verifier;
 using namespace JavaTypes;
@@ -33,6 +34,11 @@ static void testWithMethod(
 
   auto TrivialClass = TestUtils::createClass(std::move(Methods));
   Verifier::verify(*TrivialClass);
+}
+
+static void testWithMethodFile(const std::string &FileName) {
+  auto NewClass = CD::parseFromFile("tests/Verifier/" + FileName);
+  Verifier::verify(*NewClass);
 }
 
 TEST_CASE("Basic verification", "[Verifier]") {
@@ -290,20 +296,7 @@ TEST_CASE("invokespecial", "[Verifier]") {
 }
 
 TEST_CASE("aload", "[Verifier]") {
-  REQUIRE_NOTHROW(testWithMethod(
-      JavaMethod::AccessFlags::ACC_PUBLIC,
-      1, // Max stack
-      1, // Max locals
-      11, // <init>
-      5, // ()V
-      {
-          Bytecode::aload::OpCode, 0x00, 0,
-          Bytecode::invokespecial::OpCode, 0x00,
-          14, // java/lang/Object."<init>":()V
-          Bytecode::java_return::OpCode,
-      },
-      {} // No stack map
-  ));
+  REQUIRE_NOTHROW(testWithMethodFile("aload.cd"));
 
   // Local index is out of bounds
   REQUIRE_THROWS_AS(testWithMethod(
@@ -323,19 +316,6 @@ TEST_CASE("aload", "[Verifier]") {
 }
 
 TEST_CASE("too many locals", "[Verifier]") {
-  REQUIRE_THROWS_AS(testWithMethod(
-      JavaMethod::AccessFlags::ACC_PUBLIC,
-      3, // Max stack
-      0, // Max locals
-      11, // <init>
-      8, // (Ljava/lang/Object;)V
-      {
-          Bytecode::aload_0::OpCode,
-          Bytecode::aload::OpCode, 0x00, 1,
-          Bytecode::iconst_0::OpCode,
-          Bytecode::invokespecial::OpCode, 0x00, 17, // java/lang/Object.<init>:(Ljava/lang/Object;I)V
-          Bytecode::java_return::OpCode,
-      },
-      {} // No stack map
-  ), VerificationError);
+  REQUIRE_THROWS_AS(
+      testWithMethodFile("to_many_locals.cd"), VerificationError);
 }

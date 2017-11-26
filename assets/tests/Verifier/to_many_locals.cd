@@ -1,0 +1,27 @@
+class {
+  constant_pool {
+    1: ClassInfo "Simple"
+    2: ClassInfo "java/lang/Object"
+    3: NameAndType "<init>" "(Ljava/lang/Object;I)V"
+    4: MethodRef #2 #3
+    auto: "main"
+    auto: "(Ljava/lang/Object;)V"
+  }
+
+  Name: #1
+  Super: #2
+
+  method "<init>" "(Ljava/lang/Object;)V" {
+    Flags: public
+    MaxStack: 3
+    MaxLocals: 0
+
+    bytecode {
+      aload_0
+      aload #1
+      iconst_0
+      invokespecial #4 // MethodRef java/lang/Object <init> ()V
+      return
+    }
+  }
+}

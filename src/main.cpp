@@ -29,7 +29,7 @@ int main() {
   // Interpret
   auto Method = NewClass->getMethod("main");
   assert(Method != nullptr);
-
+  
   auto Ret = SlowInterpreter::interpret(*Method, {}, true);
   assert(Ret.has_value());
 

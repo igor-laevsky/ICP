@@ -223,7 +223,9 @@ static JavaMethod::CodeOwnerType parseBytecode(Lexer &Lex) {
   JavaMethod::CodeOwnerType Ret;
   while (!Lex.isNext(Token::RBrace)) {
     const std::string &Name = consumeOrThrow(Token::Id(), Lex).getData();
-    // Only single indexed instructions for now
+    // Only single indexed instructions for now.
+    // Sometimes instructions have index but it's not a constant pool index.
+    // Treat them similarly since there is no practical difference.
     const auto &IdxOpt = tryParseCPIndex(Lex);
     const auto Idx = IdxOpt ? static_cast<Bytecode::IdxType>(*IdxOpt) : 0;
 

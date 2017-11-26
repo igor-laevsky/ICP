@@ -180,7 +180,7 @@ StackFrame::parseMethodDescriptor(const std::string &Desc) {
     ArgTypes.push_back(NewType);
     ArgsPos += ArgEnd;
   }
-
+  
   // Parse return type
   auto RetType = Types::Void;
   if (RetDesc != "V") {
