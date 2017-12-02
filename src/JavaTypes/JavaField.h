@@ -42,10 +42,10 @@ public:
       const ConstantPoolRecords::Utf8 &Name,
       AccessFlags Flags);
 
-  // No copies or moves
+  // This is expensive to copy so fobid it completely
   JavaField(const JavaField &) = delete;
   JavaField &operator=(const JavaField &) = delete;
-
+  
   const std::string &getName() const;
   const std::string &getDescriptor() const;
 

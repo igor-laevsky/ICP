@@ -11,6 +11,7 @@
 #include "ConstantPool.h"
 #include "ConstantPoolRecords.h"
 #include "JavaMethod.h"
+#include "JavaField.h"
 
 namespace JavaTypes {
 
@@ -45,6 +46,8 @@ public:
     std::unique_ptr<ConstantPool> CP = nullptr;
 
     std::vector<std::unique_ptr<JavaMethod>> Methods;
+
+    std::vector<JavaField> Fields;
   };
 
 public:
@@ -70,18 +73,20 @@ public:
     return ClassName->getName();
   }
 
-  const std::vector<std::unique_ptr<JavaMethod>> &getMethods() const {
-    return Methods;
-  }
-
-  // Finds method by name or return null if nothing found
-  // TODO: Support overloading
-  const JavaMethod *getMethod(const std::string &Name) const;
-
   // Checks if this class has a super class
   bool hasSuper() const {
     return SuperClass != nullptr;
   }
+
+  const std::vector<std::unique_ptr<JavaMethod>> &methods() const {
+    return Methods;
+  }
+
+  const auto &fields() const { return Fields; }
+
+  // Finds method by name or return null if nothing found
+  // TODO: Support overloading
+  const JavaMethod *getMethod(const std::string &Name) const;
 
   // Only valid to call when there is super class
   const Utf8String &getSuperClassName() const {
@@ -101,6 +106,8 @@ private:
   const std::unique_ptr<ConstantPool> CP;
 
   const std::vector<std::unique_ptr<JavaMethod>> Methods;
+
+  std::vector<JavaField> Fields;
 };
 
 }

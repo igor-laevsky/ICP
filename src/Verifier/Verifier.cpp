@@ -175,7 +175,7 @@ static void verifyMethod(const JavaMethod &Method) {
 void Verifier::verify(const JavaClass &Class) {
   // TODO: Add class level verification
 
-  for (const auto& Method: Class.getMethods()) {
+  for (const auto& Method: Class.methods()) {
     verifyMethod(*Method);
   }
 }

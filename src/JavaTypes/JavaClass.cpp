@@ -13,7 +13,8 @@ JavaClass::JavaClass(JavaClass::ClassParameters &&Params):
   SuperClass(Params.SuperClass),
   Flags(Params.Flags),
   CP(std::move(Params.CP)),
-  Methods(std::move(Params.Methods))
+  Methods(std::move(Params.Methods)),
+  Fields(std::move(Params.Fields))
 {
   assert(Params.ClassName != nullptr);
 
@@ -21,7 +22,7 @@ JavaClass::JavaClass(JavaClass::ClassParameters &&Params):
   assert(CP != nullptr && CP->verify());
 
   // Set up correct owner for the class methods
-  for (auto &Method: getMethods()) {
+  for (auto &Method: methods()) {
     assert(Method != nullptr);
     Method->setOwner(*this);
   }
@@ -40,12 +41,12 @@ void JavaClass::print(std::ostream &Out) const {
   getConstantPool().print(Out);
 
   Out << "Methods:\n";
-  for (const auto &Method: getMethods())
+  for (const auto &Method: methods())
     Method->print(Out);
 }
 
 const JavaMethod *JavaClass::getMethod(const std::string &Name) const {
-  for (const auto &Method: getMethods()) {
+  for (const auto &Method: methods()) {
     if (Method->getName() == Name)
       return Method.get();
   }
