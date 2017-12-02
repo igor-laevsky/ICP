@@ -26,6 +26,10 @@ std::unique_ptr<Instruction> Bytecode::parseInstruction(
     PARSE_OP(java_return);
     PARSE_OP(ireturn);
     PARSE_OP(iconst_0);
+    PARSE_OP(putstatic);
+    PARSE_OP(getstatic);
+    PARSE_OP(dconst_0);
+    PARSE_OP(dconst_1);
     default:
       throw UnknownBytecode();
   }
@@ -59,6 +63,10 @@ std::unique_ptr<Instruction> Bytecode::parseFromString(
   PARSE_OP(java_return);
   PARSE_OP(ireturn);
   PARSE_OP(iconst_0);
+  PARSE_OP(putstatic);
+  PARSE_OP(getstatic);
+  PARSE_OP(dconst_0);
+  PARSE_OP(dconst_1);
 
 #undef PARSE_OP
 

@@ -30,5 +30,4 @@ public:
 
 }
 
-
 #endif //ICP_INSTRUCTIONVISITOR_H
