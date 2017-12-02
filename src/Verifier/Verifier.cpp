@@ -50,6 +50,8 @@ public:
   void visit(const java_return &) override;
   void visit(const iconst_0 &) override;
   void visit(const ireturn &) override;
+  void visit(const putstatic &) override;
+  void visit(const getstatic &) override;
 
 
   // These two functions are called before or after processing an instruction.
@@ -149,6 +151,14 @@ void MethodVerifier::visit(const ireturn &) {
 
   if (!CurrentFrame.popMatchingList({Types::Int}))
     throw VerificationError("Expected integer type to be on the stack");
+}
+
+void MethodVerifier::visit(const putstatic &) {
+  assert(false); // Not implemented
+}
+
+void MethodVerifier::visit(const getstatic &) {
+  assert(false); // Not implemented
 }
 
 }

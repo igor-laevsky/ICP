@@ -100,6 +100,22 @@ public:
   static constexpr const char *Name = "ireturn";
 };
 
+class getstatic final: public SingleIndex<getstatic> {
+  using SingleIndex::SingleIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0xb2;
+  static constexpr const char *Name = "getstatic";
+};
+
+class putstatic final: public SingleIndex<putstatic> {
+  using SingleIndex::SingleIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0xb3;
+  static constexpr const char *Name = "putstatic";
+};
+
 }
 
 #endif //ICP_BYTECODEINSTRUCTIONS_H

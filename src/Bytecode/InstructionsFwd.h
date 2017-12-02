@@ -18,6 +18,8 @@ class invokespecial;
 class java_return;
 class iconst_0;
 class ireturn;
+class putstatic;
+class getstatic;
 
 }
 

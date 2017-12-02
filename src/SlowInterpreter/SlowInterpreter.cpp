@@ -183,6 +183,8 @@ public:
   void visit(const iconst_0 &) override;
   void visit(const ireturn &) override;
   void visit(const aload &) override;
+  void visit(const putstatic &) override;
+  void visit(const getstatic &) override;
 
 private:
   InterpreterStack &stack() { return Stack; }
@@ -218,6 +220,14 @@ void Interpreter::visit(const java_return &) {
 }
 
 void Interpreter::visit(const aload &) {
+  assert(false); // Not implemented
+}
+
+void Interpreter::visit(const putstatic &) {
+  assert(false); // Not implemented
+}
+
+void Interpreter::visit(const getstatic &) {
   assert(false); // Not implemented
 }
 

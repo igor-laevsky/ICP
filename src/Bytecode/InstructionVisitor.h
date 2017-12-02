@@ -16,6 +16,8 @@ public:
   virtual void visit(const java_return &) = 0;
   virtual void visit(const iconst_0 &) = 0;
   virtual void visit(const ireturn &) = 0;
+  virtual void visit(const putstatic &) = 0;
+  virtual void visit(const getstatic &) = 0;
 };
 
 }

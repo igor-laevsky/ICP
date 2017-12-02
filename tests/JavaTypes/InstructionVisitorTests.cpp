@@ -38,6 +38,14 @@ public:
    assert(false);
   }
 
+  void visit(const putstatic &) override {
+    assert(false);
+  }
+
+  void visit(const getstatic &) override {
+    assert(false);
+  }
+
   bool seenEverything() const {
     return seenAload && seenInvoke && seenRet;
   }
