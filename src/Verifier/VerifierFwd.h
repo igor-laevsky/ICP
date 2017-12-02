@@ -7,7 +7,6 @@
 
 namespace Verifier {
 
-class Type;
 class StackFrame;
 
 }

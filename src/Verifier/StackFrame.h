@@ -21,14 +21,9 @@ namespace Verifier {
 // regular form (i.e two-word types are stored as a single element)
 class StackFrame final {
 public:
-  // Used to indicate parsing error in parseFieldDescriptor and
-  // parseMethodDescriptor.
-  class ParsingError: public std::runtime_error {
-    using std::runtime_error::runtime_error;
-  };
-
-public:
-  StackFrame(const std::vector<Type> &Locals, const std::vector<Type> &Stack)
+  StackFrame(
+      const std::vector<JavaTypes::Type> &Locals,
+      const std::vector<JavaTypes::Type> &Stack)
   {
     this->Locals = expandTypes(Locals);
     this->Stack = expandTypes(Stack);
@@ -42,11 +37,11 @@ public:
 
   // Locals accessors
   const auto &locals() const { return Locals; }
-  Type getLocal(std::size_t Idx) const {
+  JavaTypes::Type getLocal(std::size_t Idx) const {
     assert(Idx < locals().size());
     return locals()[Idx];
   }
-  void setLocal(std::size_t Idx, Type T);
+  void setLocal(std::size_t Idx, JavaTypes::Type T);
 
   // Returns true if locals have uninitialized this flag
   bool flagThisUninit() const { return Flags; }
@@ -57,10 +52,10 @@ public:
   // First type in the list is popped first. No special encoding of two-word
   // types is expected (i.e they are stored as a single element).
   // \returns true if all types were popped, false otherwise.
-  bool popMatchingList(const std::vector<Type> &Types);
+  bool popMatchingList(const std::vector<JavaTypes::Type> &Types);
 
   // Push types onto the frame stack.
-  void pushList(const std::vector<Type> &Types);
+  void pushList(const std::vector<JavaTypes::Type> &Types);
 
   // Pops 'ToPop' types then pushes 'ToPush' type.
   // This is primitive for modeling instruction behaviour which takes some
@@ -68,29 +63,7 @@ public:
   // If some types are incompatible whole function is a no-op.
   // \returns true if type transition was successfull, false otherwise.
   bool doTypeTransition(
-      const std::vector<Type> &ToPop, Type ToPush);
-
-  // Parses field descriptor. Note that it returns pure non-verifier type, i.e
-  // short, byte, char and boolean are represented as themselves, not as integers.
-  // For the format info see:
-  // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.2
-  // \param LastPos If not null will contain index of the first not parsed
-  // character.
-  // \returns Parsed type.
-  // \throws ParsingError In case of any errors.
-  static Type parseFieldDescriptor(
-      const std::string &Desc, std::size_t *LastPos = nullptr);
-
-  // Parses method descriptor. Note that it returns pure non-verifier type, i.e
-  // short, byte, char and boolean are represented as themselves, not as integers.
-  // For the format info see:
-  // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3
-  // \returns Pair where first element is the return type and
-  // second element is vector of the argument types. For void functions return
-  // type is Types::Top.
-  // \throws ParsingError In case of any errors.
-  static std::pair<Type, std::vector<Type>>
-  parseMethodDescriptor(const std::string &Desc);
+      const std::vector<JavaTypes::Type> &ToPop, JavaTypes::Type ToPush);
 
 private:
   // Computes uninitializedThis flag
@@ -99,7 +72,8 @@ private:
   // Expands each TwoWord type into the two consequential slots:
   //   (Actual type, Types::Top)
   // \returns New vector with expanded types.
-  static std::vector<Type> expandTypes(const std::vector<Type> &Src);
+  static std::vector<JavaTypes::Type> expandTypes(
+      const std::vector<JavaTypes::Type> &Src);
 
   // There is no need for user to access the stack directly, hence it's a
   // private functions.
@@ -113,7 +87,7 @@ private:
     stack().pop_back();
   }
 
-  void push(const Type &T) {
+  void push(const JavaTypes::Type &T) {
     stack().push_back(T);
   }
 
@@ -124,8 +98,8 @@ private:
   bool verifyTypeEncoding();
 
 private:
-  std::vector<Type> Locals;
-  std::vector<Type> Stack;
+  std::vector<JavaTypes::Type> Locals;
+  std::vector<JavaTypes::Type> Stack;
   bool Flags; // true if any of the locals is uninitializedThis
 };
 

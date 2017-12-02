@@ -6,7 +6,7 @@
 
 #include "JavaTypes/Type.h"
 
-using namespace Verifier;
+using namespace JavaTypes;
 
 TEST_CASE("Exact relation", "[Verifier][Types]") {
   Type t1 = Types::Top;

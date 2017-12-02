@@ -28,7 +28,7 @@ public:
     // Set up initial frame
     std::vector<Type> LocalTypes;
     std::tie(ReturnType, LocalTypes) =
-      StackFrame::parseMethodDescriptor(Method.getDescriptor());
+      Type::parseMethodDescriptor(Method.getDescriptor());
 
     // Add 'this' argument type
     if (!(Method.getAccessFlags() & JavaMethod::AccessFlags::ACC_STATIC)) {
@@ -106,7 +106,7 @@ void MethodVerifier::visit(const invokespecial &Inst) {
   std::vector<Type> ArgTypes;
   Type CallRetType = Types::Void;
   std::tie(CallRetType, ArgTypes) =
-    StackFrame::parseMethodDescriptor(MRef->getDescriptor());
+    Type::parseMethodDescriptor(MRef->getDescriptor());
 
   if (CallRetType != Types::Void)
     throw VerificationError("<init> method should have void return type");

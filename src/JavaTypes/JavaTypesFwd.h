@@ -6,6 +6,7 @@
 #define ICP_JAVATYPESFWD_H
 
 namespace JavaTypes {
+class Type;
 
 class ConstantPool;
 namespace ConstantPoolRecords {
@@ -14,6 +15,7 @@ namespace ConstantPoolRecords {
 
 class JavaClass;
 class JavaMethod;
+class JavaField;
 
 }
 

@@ -10,6 +10,7 @@
 #include "JavaTypes/Type.h"
 
 using namespace Verifier;
+using namespace JavaTypes;
 
 TEST_CASE("Two word extension", "[Verifier][StackFrame]") {
   // It is responsibility of the StackMap to expand two-word data types
@@ -105,34 +106,34 @@ TEST_CASE("Uninitialized this", "[Verifier][StackFrame]") {
 }
 
 TEST_CASE("Parse field descriptor", "[Verifier][StackFrame]") {
-  REQUIRE(StackFrame::parseFieldDescriptor("B") == Types::Byte);
-  REQUIRE(StackFrame::parseFieldDescriptor("C") == Types::Char);
-  REQUIRE(StackFrame::parseFieldDescriptor("D") == Types::Double);
-  REQUIRE(StackFrame::parseFieldDescriptor("F") == Types::Float);
-  REQUIRE(StackFrame::parseFieldDescriptor("I") == Types::Int);
-  REQUIRE(StackFrame::parseFieldDescriptor("J") == Types::Long);
-  REQUIRE(StackFrame::parseFieldDescriptor("S") == Types::Short);
-  REQUIRE(StackFrame::parseFieldDescriptor("Z") == Types::Boolean);
+  REQUIRE(Type::parseFieldDescriptor("B") == Types::Byte);
+  REQUIRE(Type::parseFieldDescriptor("C") == Types::Char);
+  REQUIRE(Type::parseFieldDescriptor("D") == Types::Double);
+  REQUIRE(Type::parseFieldDescriptor("F") == Types::Float);
+  REQUIRE(Type::parseFieldDescriptor("I") == Types::Int);
+  REQUIRE(Type::parseFieldDescriptor("J") == Types::Long);
+  REQUIRE(Type::parseFieldDescriptor("S") == Types::Short);
+  REQUIRE(Type::parseFieldDescriptor("Z") == Types::Boolean);
 
-  REQUIRE(StackFrame::parseFieldDescriptor("Lclass;") == Types::Class);
-  REQUIRE(StackFrame::parseFieldDescriptor("[Lclass;") == Types::Array);
+  REQUIRE(Type::parseFieldDescriptor("Lclass;") == Types::Class);
+  REQUIRE(Type::parseFieldDescriptor("[Lclass;") == Types::Array);
 
   std::size_t Pos = 0;
-  REQUIRE(StackFrame::parseFieldDescriptor("[Lclass;asdfasdf", &Pos) == Types::Array);
+  REQUIRE(Type::parseFieldDescriptor("[Lclass;asdfasdf", &Pos) == Types::Array);
   REQUIRE(Pos == 8);
 
-  REQUIRE_THROWS_AS(StackFrame::parseFieldDescriptor("Lclass"),
-                    StackFrame::ParsingError);
-  REQUIRE_THROWS_AS(StackFrame::parseFieldDescriptor("["),
-                    StackFrame::ParsingError);
-  REQUIRE_THROWS_AS(StackFrame::parseFieldDescriptor("[wrong"),
-                    StackFrame::ParsingError);
-  REQUIRE_THROWS_AS(StackFrame::parseFieldDescriptor("[Lwrong"),
-                    StackFrame::ParsingError);
-  REQUIRE_THROWS_AS(StackFrame::parseFieldDescriptor(""),
-                    StackFrame::ParsingError);
-  REQUIRE_THROWS_AS(StackFrame::parseFieldDescriptor("U"),
-                    StackFrame::ParsingError);
+  REQUIRE_THROWS_AS(Type::parseFieldDescriptor("Lclass"),
+                    Type::ParsingError);
+  REQUIRE_THROWS_AS(Type::parseFieldDescriptor("["),
+                    Type::ParsingError);
+  REQUIRE_THROWS_AS(Type::parseFieldDescriptor("[wrong"),
+                    Type::ParsingError);
+  REQUIRE_THROWS_AS(Type::parseFieldDescriptor("[Lwrong"),
+                    Type::ParsingError);
+  REQUIRE_THROWS_AS(Type::parseFieldDescriptor(""),
+                    Type::ParsingError);
+  REQUIRE_THROWS_AS(Type::parseFieldDescriptor("U"),
+                    Type::ParsingError);
 }
 
 TEST_CASE("Parse method descriptor", "[Verifier][StackFrame]") {
@@ -141,7 +142,7 @@ TEST_CASE("Parse method descriptor", "[Verifier][StackFrame]") {
 
   {
     std::tie(RetT, RawTypes) =
-        StackFrame::parseMethodDescriptor("([Ljava/lang/String;)I");
+        Type::parseMethodDescriptor("([Ljava/lang/String;)I");
     const StackFrame t(RawTypes, {});
 
     REQUIRE(t.numLocals() == 1);
@@ -152,7 +153,7 @@ TEST_CASE("Parse method descriptor", "[Verifier][StackFrame]") {
 
   {
     std::tie(RetT, RawTypes) =
-        StackFrame::parseMethodDescriptor(
+        Type::parseMethodDescriptor(
             "(IDLjava/lang/Thread;)Ljava/lang/Object;");
     const StackFrame t1(RawTypes, {});
 
@@ -173,39 +174,39 @@ TEST_CASE("Parse method descriptor", "[Verifier][StackFrame]") {
 
   {
     std::tie(RetT, RawTypes) =
-        StackFrame::parseMethodDescriptor(
+        Type::parseMethodDescriptor(
             "()V");
     REQUIRE(RawTypes.empty());
     REQUIRE(RetT == Types::Void);
   }
 
   REQUIRE_THROWS_AS(
-      StackFrame::parseMethodDescriptor("wrong descriptor"),
-      StackFrame::ParsingError);
+      Type::parseMethodDescriptor("wrong descriptor"),
+      Type::ParsingError);
   REQUIRE_THROWS_AS(
-      StackFrame::parseMethodDescriptor(""),
-      StackFrame::ParsingError);
+      Type::parseMethodDescriptor(""),
+      Type::ParsingError);
   REQUIRE_THROWS_AS(
-      StackFrame::parseMethodDescriptor("(Lclass"),
-      StackFrame::ParsingError);
+      Type::parseMethodDescriptor("(Lclass"),
+      Type::ParsingError);
   REQUIRE_THROWS_AS(
-      StackFrame::parseMethodDescriptor("(I;"),
-      StackFrame::ParsingError);
+      Type::parseMethodDescriptor("(I;"),
+      Type::ParsingError);
   REQUIRE_THROWS_AS(
-      StackFrame::parseMethodDescriptor("(I"),
-      StackFrame::ParsingError);
+      Type::parseMethodDescriptor("(I"),
+      Type::ParsingError);
   REQUIRE_THROWS_AS(
-      StackFrame::parseMethodDescriptor("(I)"),
-      StackFrame::ParsingError);
+      Type::parseMethodDescriptor("(I)"),
+      Type::ParsingError);
   REQUIRE_THROWS_AS(
-      StackFrame::parseMethodDescriptor("(I)Vbla-bla"),
-      StackFrame::ParsingError);
+      Type::parseMethodDescriptor("(I)Vbla-bla"),
+      Type::ParsingError);
   REQUIRE_THROWS_AS(
-      StackFrame::parseMethodDescriptor("(I)Dbla-bla"),
-      StackFrame::ParsingError);
+      Type::parseMethodDescriptor("(I)Dbla-bla"),
+      Type::ParsingError);
   REQUIRE_THROWS_AS(
-      StackFrame::parseMethodDescriptor("(U)V"),
-      StackFrame::ParsingError);
+      Type::parseMethodDescriptor("(U)V"),
+      Type::ParsingError);
 }
 
 TEST_CASE("Set local", "[Verifier][StackFrame]") {

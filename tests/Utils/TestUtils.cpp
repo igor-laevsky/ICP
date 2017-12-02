@@ -16,7 +16,7 @@ static std::vector<uint8_t> trivialBytecodePlain() {
 }
 
 static std::unique_ptr<ConstantPool> createConstantPool() {
-  ConstantPoolBuilder Builder(20);
+  ConstantPoolBuilder Builder(27);
 
   Builder.set(1, std::make_unique<ConstantPoolRecords::Utf8>("trivial_method"));
   Builder.set(2, std::make_unique<ConstantPoolRecords::Utf8>("()I"));
@@ -64,6 +64,23 @@ static std::unique_ptr<ConstantPool> createConstantPool() {
   Builder.set(20, std::make_unique<ConstantPoolRecords::MethodRef>(
       Builder.getCellReference(12), Builder.getCellReference(19)));
 
+  Builder.set(21, std::make_unique<ConstantPoolRecords::Utf8>(
+      "I"));
+  Builder.set(22, std::make_unique<ConstantPoolRecords::Utf8>(
+      "F1"));
+
+  Builder.set(23, std::make_unique<ConstantPoolRecords::Utf8>(
+      "D"));
+  Builder.set(24, std::make_unique<ConstantPoolRecords::Utf8>(
+      "F2"));
+
+  Builder.set(25, std::make_unique<ConstantPoolRecords::Utf8>(
+      "LFields;"));
+  Builder.set(26, std::make_unique<ConstantPoolRecords::Utf8>(
+      "Ref"));
+
+  Builder.set(27, std::make_unique<ConstantPoolRecords::Utf8>(
+      "LFields"));
 
   auto CP = Builder.createConstantPool();
   assert(CP->verify());
@@ -71,14 +88,9 @@ static std::unique_ptr<ConstantPool> createConstantPool() {
 }
 
 // Eternal constant pool to simplify memory management
-static ConstantPool &getEternalConstantPool() {
+ConstantPool &TestUtils::getEternalConstantPool() {
   static auto Ret = createConstantPool();
   return *Ret;
-}
-
-std::vector<std::unique_ptr<Bytecode::Instruction>>
-TestUtils::createTrivialBytecode() {
-  return Bytecode::parseInstructions(trivialBytecodePlain());
 }
 
 std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
@@ -139,11 +151,4 @@ std::unique_ptr<JavaTypes::JavaClass> TestUtils::createClass(
 
   return std::make_unique<JavaClass>(std::move(Params));
 
-}
-
-std::unique_ptr<JavaClass> TestUtils::createTrivialClass() {
-  std::vector<std::unique_ptr<JavaTypes::JavaMethod>> Methods;
-
-  Methods.push_back(createTrivialMethod());
-  return createClass(std::move(Methods));
 }

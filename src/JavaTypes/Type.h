@@ -1,21 +1,32 @@
-//
-// Representation of the verification type system.
-//
+///
+/// Abstract representation of the java type system.
+/// This constructs are primary intended for the verifier and field descriptors.
+///
 
 #ifndef ICP_TYPE_H
 #define ICP_TYPE_H
 
 #include <optional>
 #include <cassert>
+#include <stack>
+#include <algorithm>
+#include <vector>
+#include <string>
 
-namespace Verifier {
+namespace JavaTypes {
 
-// Class representing verifier data type.
+// Class representing java data type.
 // Direct construction is forbidden. In order to refer to the specific types
 // user is supposed to use static variables from the 'Types' struct.
-// This is intended to be a small immutable value-like class
-// (i.e pass by value is fine).
+// This is intended to be a small immutable value-like class.
 class Type final {
+public:
+  // Used to indicate parsing error in parseFieldDescriptor and
+  // parseMethodDescriptor.
+  class ParsingError: public std::runtime_error {
+    using std::runtime_error::runtime_error;
+  };
+
 public:
   constexpr bool operator==(const Type &Rhs) const noexcept {
     if (Tag != Rhs.Tag)
@@ -37,6 +48,28 @@ public:
   Type &operator=(const Type &) = default;
   Type(Type&&) = default;
   Type &operator=(Type &&) = default;
+
+  // Parses field descriptor. Note that it returns pure non-verifier type, i.e
+  // short, byte, char and boolean are represented as themselves, not as integers.
+  // For the format info see:
+  // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.2
+  // \param LastPos If not null will contain index of the first not parsed
+  // character.
+  // \returns Parsed type.
+  // \throws ParsingError In case of any errors.
+  static Type parseFieldDescriptor(
+        const std::string &Desc, std::size_t *LastPos = nullptr);
+
+  // Parses method descriptor. Note that it returns pure non-verifier type, i.e
+  // short, byte, char and boolean are represented as themselves, not as integers.
+  // For the format info see:
+  // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3
+  // \returns Pair where first element is the return type and
+  // second element is vector of the argument types. For void functions return
+  // type is Types::Top.
+  // \throws ParsingError In case of any errors.
+  static std::pair<Type, std::vector<Type>>
+  parseMethodDescriptor(const std::string &Desc);
 
 private:
   enum class TagType {
@@ -101,8 +134,8 @@ private:
 //     to use incomplete types in a constexpr initializer, hence we first
 //     complete the 'Type', then define all the variables.
 //  2. 'struct' is used instead of 'namespace'. We want to keep 'Type'
-//      constructor private. However we need to somehow construct this objects
-//      out-of-line. Hence we used 'struct' which is a friend of 'Type' class.
+//     constructor private. However we need to somehow construct this objects
+//     out-of-line. Hence we used 'struct' which is a friend of 'Type' class.
 // TODO: Add parameters for the class and array types
 struct Types final {
   // This is a null object. It doesn't reflect any real world type and should

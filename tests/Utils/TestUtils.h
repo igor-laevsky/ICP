@@ -20,7 +20,7 @@
 
 namespace TestUtils {
 
-// Matcher for the exceptions with description
+/// Matcher for the exceptions with description
 class ExEquals : public Catch::MatcherBase<std::runtime_error> {
   const char *Target;
 
@@ -41,8 +41,12 @@ public:
     }
 };
 
-std::vector<std::unique_ptr<Bytecode::Instruction>> createTrivialBytecode();
+/// Return static constant pool with the variety of records suitable for
+/// testing. See sources for the list of avaliable records.
+JavaTypes::ConstantPool &getEternalConstantPool();
 
+/// Method and class creation utility functions.
+/// Prefer using CD description language.
 std::unique_ptr<JavaTypes::JavaMethod> createMethod(
     const std::vector<uint8_t> &Bytecode);
 
@@ -58,8 +62,6 @@ std::unique_ptr<JavaTypes::JavaMethod> createTrivialMethod();
 
 std::unique_ptr<JavaTypes::JavaClass> createClass(
     std::vector<std::unique_ptr<JavaTypes::JavaMethod>> &&Methods);
-
-std::unique_ptr<JavaTypes::JavaClass> createTrivialClass();
 
 // Vector with all available bytecode instructions with no specific order
 //std::vector<std::unique_ptr<Bytecode::Instruction>> allBytecodeInstructions();

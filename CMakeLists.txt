@@ -44,7 +44,8 @@ set(SOURCE_FILES
         src/CD/Lexer.h
         src/CD/Parser.cpp
         src/CD/Parser.h
-        )
+        src/JavaTypes/JavaField.cpp
+        src/JavaTypes/JavaField.h)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
@@ -60,7 +61,8 @@ set (TEST_FILES
         tests/Utils/TestUtils.h
         tests/SlowInterpreter/SlowInterpreterTests.cpp
         tests/CD/LexerTests.cpp
-        tests/CD/ParserTests.cpp)
+        tests/CD/ParserTests.cpp
+        tests/JavaTypes/JavaFieldTests.cpp)
 
 add_library(ICP_LIB ${SOURCE_FILES})
 
