@@ -26,6 +26,7 @@ public:
     ACC_SYNTHETIC = 0x1000,
     ACC_ENUM = 0x4000,
 
+    ACC_NONE = 0x0000,
     ACC_PUBLIC_STATIC = ACC_PUBLIC | ACC_STATIC
   };
 
@@ -42,12 +43,16 @@ public:
       const ConstantPoolRecords::Utf8 &Name,
       AccessFlags Flags);
 
-  // This is expensive to copy so fobid it completely
+  // No copies
   JavaField(const JavaField &) = delete;
   JavaField &operator=(const JavaField &) = delete;
-  
+  // Moves are fine though.
+  JavaField(JavaField &&) = default;
+  JavaField &operator=(JavaField &&) = default;
+
   const std::string &getName() const;
   const std::string &getDescriptor() const;
+  AccessFlags getFlags() const { return Flags; }
 
   Type getType() const;
 

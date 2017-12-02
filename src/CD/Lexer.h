@@ -99,7 +99,7 @@ private:
       case COLON: return ":";
       case SHARP: return "#";
       case STRING: return "\"[a-zA-Z0-9_<>/()\\[\\];]+\"";
-      case KEYWORD: return "class|constant_pool|method|bytecode|auto";
+      case KEYWORD: return "class|constant_pool|method|bytecode|auto|fields";
       case NUM: return "\\d+\\b";
       case ID: return "[a-zA-Z0-9_]+\\b";
 

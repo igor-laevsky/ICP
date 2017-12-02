@@ -17,6 +17,7 @@
 #include "JavaTypes/JavaMethod.h"
 #include "JavaTypes/ConstantPool.h"
 #include "JavaTypes/ConstantPoolRecords.h"
+#include "JavaTypes/JavaField.h"
 
 using namespace CD;
 using namespace JavaTypes;
@@ -299,6 +300,50 @@ static std::unique_ptr<JavaMethod> parseMethod(
   return std::make_unique<JavaMethod>(std::move(Params));
 }
 
+static std::vector<JavaField> parseClassFields(
+    Lexer &Lex, const ConstantPool &CP) {
+
+  consumeOrThrow(Token::Keyword("fields"), Lex);
+  consumeOrThrow(Token::LBrace, Lex);
+
+  std::vector<JavaField> Ret;
+
+  while (!Lex.isNext(Token::RBrace)) {
+    JavaField::AccessFlags Flags = JavaField::AccessFlags::ACC_NONE;
+    do {
+      const std::string &FlagName = consumeOrThrow(Token::Id(), Lex).getData();
+
+      if (FlagName == "public")
+        Flags = Flags | JavaField::AccessFlags::ACC_PUBLIC;
+      else if (FlagName == "private")
+        Flags = Flags | JavaField::AccessFlags::ACC_PRIVATE;
+      else if (FlagName == "final")
+        Flags = Flags | JavaField::AccessFlags::ACC_FINAL;
+      else if (FlagName == "static")
+        Flags = Flags | JavaField::AccessFlags::ACC_STATIC;
+      else
+        throw ParserError("Unknown field flag is specified");
+    } while (Lex.isNext(Token::Id()));
+
+    const std::string &Descr = consumeOrThrow(Token::String(), Lex).getData();
+    consumeOrThrow(Token::Colon, Lex);
+    const std::string &Name = consumeOrThrow(Token::String(), Lex).getData();
+
+    const auto *DescrCI = findStringInCP(Descr, CP);
+    if (!DescrCI)
+      throw ParserError("Unable to find field descriptor in constant pool");
+
+    const auto *NameCI = findStringInCP(Name, CP);
+    if (!NameCI)
+      throw ParserError("Unable to find field name in constant pool");
+
+    Ret.emplace_back(*DescrCI, *NameCI, Flags);
+  }
+
+  consumeOrThrow(Token::RBrace, Lex);
+  return Ret;
+}
+
 static void parseClass(JavaClass::ClassParameters &Params, Lexer &Lex) {
   consumeOrThrow(Token::Keyword("class"), Lex);
   consumeOrThrow(Token::LBrace, Lex);
@@ -327,6 +372,11 @@ static void parseClass(JavaClass::ClassParameters &Params, Lexer &Lex) {
   // TODO: Use real access flags
   Params.Flags =
       JavaClass::AccessFlags::ACC_PUBLIC | JavaClass::AccessFlags::ACC_SUPER;
+
+  // Parse fields if avaliable
+  if (Lex.isNext(Token::Keyword("fields"))) {
+    Params.Fields = parseClassFields(Lex, *Params.CP);
+  }
 
   // Parse methods
   while (Lex.isNext(Token::Keyword("method"))) {

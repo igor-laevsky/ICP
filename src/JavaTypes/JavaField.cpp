@@ -7,13 +7,15 @@
 using namespace JavaTypes;
 
 JavaField::JavaField(
-    const JavaTypes::ConstantPoolRecords::Utf8 &Descr,
-    const JavaTypes::ConstantPoolRecords::Utf8 &Name,
-    JavaTypes::JavaField::AccessFlags Flags):
+    const ConstantPoolRecords::Utf8 &Descr,
+    const ConstantPoolRecords::Utf8 &Name,
+    JavaField::AccessFlags Flags):
   Name(Name),
   Descr(Descr),
   Flags(Flags)
 {
+  assert(Flags != AccessFlags::ACC_NONE); // Flags should be specified
+
   T = Type::parseFieldDescriptor(Descr.getValue());
 }
 

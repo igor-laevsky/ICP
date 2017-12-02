@@ -85,3 +85,29 @@ TEST_CASE("Simple", "[CD][Parser]") {
   auto Res = SlowInterpreter::interpret(*C->getMethod("main"), {});
   REQUIRE(std::any_cast<SlowInterpreter::JavaInt>(Res) == 0);
 }
+
+TEST_CASE("Fields", "[CD][Parser]") {
+  auto C = parseFromFile("CD/Fields.cd");
+
+  REQUIRE(C);
+  REQUIRE(C->hasSuper());
+  REQUIRE(C->methods().empty());
+
+  // Check parsed fields
+  // Don't bother with full JavaField objects
+  std::vector<std::tuple<const char*, const char*, JavaField::AccessFlags>>
+      Fields =
+  {
+      {"I", "F1", JavaField::AccessFlags::ACC_PUBLIC_STATIC},
+      {"D", "F2",
+          JavaField::AccessFlags::ACC_PUBLIC | JavaField::AccessFlags::ACC_FINAL},
+      {"Ljava/lang/SomeClass;", "Ref", JavaField::AccessFlags::ACC_PRIVATE}
+  };
+
+  REQUIRE(C->fields().size() == 3);
+  for (std::size_t i = 0; i < C->fields().size(); ++i) {
+    REQUIRE(C->fields()[i].getDescriptor() == std::get<0>(Fields[i]));
+    REQUIRE(C->fields()[i].getName() == std::get<1>(Fields[i]));
+    REQUIRE(C->fields()[i].getFlags() == std::get<2>(Fields[i]));
+  }
+}
