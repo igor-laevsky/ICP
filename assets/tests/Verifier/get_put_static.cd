@@ -8,6 +8,11 @@ class {
     6: FieldRef #1 #4
 
     auto: "main"
+    auto: "ok"
+    auto: "wrong_type"
+    auto: "wrong_type2"
+    auto: "wrong_idx"
+    auto: "wrong_idx2"
     auto: "([Ljava/lang/String;)I"
     auto: "F2"
     auto: "D"
@@ -23,16 +28,65 @@ class {
     public static "D": "F2"
   }
 
-  method "main" "([Ljava/lang/String;)I" {
+  // Should pass verification
+  method "ok" "([Ljava/lang/String;)I" {
     Flags: public, static
-    MaxStack: 1
-    MaxLocals: 1    
+    MaxStack: 2
+    MaxLocals: 1
 
     bytecode {
       dconst_1
       putstatic #5 // Field F2:D
       getstatic #6 // Field F1:I
       ireturn
+    }
+  }
+
+  // Putstatic tries to save the wrong type
+  method "wrong_type" "([Ljava/lang/String;)I" {
+    Flags: public, static
+    MaxStack: 2
+    MaxLocals: 1
+
+    bytecode {
+      dconst_1
+      putstatic #6 // Field F1:I
+      getstatic #6 // Field F1:I
+      ireturn
+    }
+  }
+
+  // Getstatic pushes the wrong type
+  method "wrong_type2" "([Ljava/lang/String;)I" {
+    Flags: public, static
+    MaxStack: 2
+    MaxLocals: 1
+
+    bytecode {
+      getstatic #5 // Field F2:D
+      ireturn
+    }
+  }
+
+  // Wrong cp index
+  method "wrong_idx" "([Ljava/lang/String;)I" {
+    Flags: public, static
+    MaxStack: 1
+    MaxLocals: 1
+
+    bytecode {
+      putstatic #3
+    }
+  }
+
+  // Wrong cp index
+  method "wrong_idx2" "([Ljava/lang/String;)I" {
+    Flags: public, static
+    MaxStack: 1
+    MaxLocals: 1
+
+    bytecode {
+      getstatic #3
     }
   }
 }

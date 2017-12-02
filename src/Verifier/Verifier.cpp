@@ -52,6 +52,7 @@ public:
   void visit(const ireturn &) override;
   void visit(const putstatic &) override;
   void visit(const getstatic &) override;
+  void visit(const dconst_1 &) override;
 
 
   // These two functions are called before or after processing an instruction.
@@ -153,23 +154,46 @@ void MethodVerifier::visit(const ireturn &) {
     throw VerificationError("Expected integer type to be on the stack");
 }
 
-void MethodVerifier::visit(const putstatic &) {
-  assert(false); // Not implemented
+void MethodVerifier::visit(const dconst_1 &) {
+  CurrentFrame.pushList({Types::Double});
 }
 
-void MethodVerifier::visit(const getstatic &) {
-  assert(false); // Not implemented
+// Helper with common parts of the get and put static bytecodes
+Type getFieldType(ConstantPool::IndexType Idx, const ConstantPool &CP) {
+  const auto *CPRef = CP.getAsOrNull<ConstantPoolRecords::FieldRef>(Idx);
+  if (!CPRef)
+    throw VerificationError("Incorrect CP index");
+
+  Type FieldType = Types::Void;
+  try {
+    FieldType = Type::parseFieldDescriptor(CPRef->getDescriptor());
+  } catch (Type::ParsingError &) {
+    throw VerificationError("Unable to parse field descriptor");
+  }
+  assert(FieldType != Types::Void);
+
+  return FieldType;
+}
+
+void MethodVerifier::visit(const putstatic &Inst) {
+  auto FieldType = getFieldType(Inst.getIdx(), CP);
+  if (!CurrentFrame.popMatchingList({FieldType}))
+    throw VerificationError("Incompatible type in put static instruction");
+}
+
+void MethodVerifier::visit(const getstatic &Inst) {
+  auto FieldType = getFieldType(Inst.getIdx(), CP);
+  CurrentFrame.pushList({FieldType});
 }
 
 }
-
-static void verifyMethod(const JavaMethod &Method) {
+#include <iostream>
+void Verifier::verifyMethod(const JavaMethod &Method) {
   // TODO: Add method level verification
 
   MethodVerifier V(Method);
   for (const auto &Instr: Method) {
     // TODO: Set up StackMap if method has it specified for the current bci
-
     if (!V.checkPreConditions())
       throw VerificationError(
           "Failed pre conditions at the bci " + std::to_string(Instr.getBci()));

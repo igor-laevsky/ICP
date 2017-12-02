@@ -319,11 +319,44 @@ TEST_CASE("aload", "[Verifier]") {
 }
 
 TEST_CASE("too many locals", "[Verifier]") {
-//  REQUIRE_THROWS_AS(
-//      testWithMethodFile("to_many_locals.cd"), VerificationError);
-
   REQUIRE_THROWS_MATCHES(
       testWithMethodFile("to_many_locals.cd"),
       VerificationError, ExEquals("Exceeded maximum number of locals"));
 
+}
+
+TEST_CASE("get_put_static", "[Verifier][getput]") {
+  auto C = CD::parseFromFile("tests/Verifier/get_put_static.cd");
+
+  const auto *m = C->getMethod("ok");
+  REQUIRE(m);
+  REQUIRE_NOTHROW(verifyMethod(*m));
+
+  m = C->getMethod("wrong_type");
+  REQUIRE(m);
+  REQUIRE_THROWS_MATCHES(
+      verifyMethod(*m),
+      VerificationError,
+      ExEquals("Incompatible type in put static instruction"));
+
+  m = C->getMethod("wrong_type2");
+  REQUIRE(m);
+  REQUIRE_THROWS_MATCHES(
+      verifyMethod(*m),
+      VerificationError,
+      ExEquals("Expected integer type to be on the stack"));
+
+  m = C->getMethod("wrong_idx");
+  REQUIRE(m);
+  REQUIRE_THROWS_MATCHES(
+      verifyMethod(*m),
+      VerificationError,
+      ExEquals("Incorrect CP index"));
+
+  m = C->getMethod("wrong_idx2");
+  REQUIRE(m);
+  REQUIRE_THROWS_MATCHES(
+      verifyMethod(*m),
+      VerificationError,
+      ExEquals("Incorrect CP index"));
 }

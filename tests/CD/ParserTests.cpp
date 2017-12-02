@@ -112,6 +112,6 @@ TEST_CASE("Fields", "[CD][Parser]") {
   }
 }
 
-TEST_CASE("GetPutStatic", "[CD][Parser]") {
-  REQUIRE(parseFromFile("CD/PutGetStatic.cd"));
+TEST_CASE("FieldRef", "[CD][Parser]") {
+  REQUIRE(parseFromFile("CD/FieldRef.cd"));
 }
