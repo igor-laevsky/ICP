@@ -92,6 +92,22 @@ public:
   static constexpr const char *Name = "iconst_0";
 };
 
+class dconst_0 final: public NoIndex<dconst_0> {
+  using NoIndex::NoIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0x0e;
+  static constexpr const char *Name = "dconst_0";
+};
+
+class dconst_1 final: public NoIndex<dconst_1> {
+  using NoIndex::NoIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0x0f;
+  static constexpr const char *Name = "dconst_1";
+};
+
 class ireturn final: public NoIndex<ireturn> {
   using NoIndex::NoIndex;
 

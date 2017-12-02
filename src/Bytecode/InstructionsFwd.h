@@ -17,6 +17,8 @@ class aload_0;
 class invokespecial;
 class java_return;
 class iconst_0;
+class dconst_0;
+class dconst_1;
 class ireturn;
 class putstatic;
 class getstatic;

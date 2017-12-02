@@ -18,6 +18,14 @@ public:
   virtual void visit(const ireturn &) = 0;
   virtual void visit(const putstatic &) = 0;
   virtual void visit(const getstatic &) = 0;
+
+  virtual void visit(const dconst_0 &) {
+    assert(false); // unimplemented
+  }
+
+  virtual void visit(const dconst_1 &) {
+    assert(false); // unimplemented
+  }
 };
 
 }
