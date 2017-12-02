@@ -191,6 +191,13 @@ static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
       NewCPRec = std::make_unique<ConstantPoolRecords::MethodRef>(
           Builder.getCellReference(GetIdxForArg(Rec.Args[0])),
           Builder.getCellReference(GetIdxForArg(Rec.Args[1])));
+    } else if (Rec.Type == "FieldRef") {
+      if (Rec.Args.size() != 2)
+        throw ParserError("FieldRef record should have exactly two arguments");
+
+      NewCPRec = std::make_unique<ConstantPoolRecords::FieldRef>(
+          Builder.getCellReference(GetIdxForArg(Rec.Args[0])),
+          Builder.getCellReference(GetIdxForArg(Rec.Args[1])));
     }
 
     assert(Idx > 0); // all indexes should have been assigned

@@ -111,3 +111,7 @@ TEST_CASE("Fields", "[CD][Parser]") {
     REQUIRE(C->fields()[i].getFlags() == std::get<2>(Fields[i]));
   }
 }
+
+TEST_CASE("GetPutStatic", "[CD][Parser]") {
+  REQUIRE(parseFromFile("CD/PutGetStatic.cd"));
+}

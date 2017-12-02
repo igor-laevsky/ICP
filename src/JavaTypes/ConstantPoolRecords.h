@@ -101,22 +101,23 @@ private:
   const ConstantPool::CellReference Name;
 };
 
-class MethodRef final: public Record {
+// Common implementation of the field, method and interface ref fields
+class RefRecord : public Record {
 public:
-  MethodRef(ConstantPool::CellReference NewClassRef,
-            ConstantPool::CellReference NewNameAndTypeRef):
+  RefRecord(ConstantPool::CellReference NewClassRef,
+            ConstantPool::CellReference NewNameAndTypeRef) :
       ClassRef(NewClassRef), NameAndTypeRef(NewNameAndTypeRef) {
     ;
   }
 
   const ClassInfo &getClass() const {
     assert(isValid());
-    return *static_cast<ClassInfo*>(ClassRef.get());
+    return *static_cast<ClassInfo *>(ClassRef.get());
   }
 
   const NameAndType &getNameAndType() const {
     assert(isValid());
-    return *static_cast<NameAndType*>(NameAndTypeRef.get());
+    return *static_cast<NameAndType *>(NameAndTypeRef.get());
   }
 
   const Utf8String &getClassName() const {
@@ -132,17 +133,47 @@ public:
   }
 
   bool isValid() const override {
-    return ClassRef != nullptr && dynamic_cast<ClassInfo*>(ClassRef.get()) &&
-      NameAndTypeRef != nullptr && dynamic_cast<NameAndType*>(NameAndTypeRef.get());
-  }
-
-  void print(std::ostream &Out) const override {
-    Out << "MethodRef\t" << getClass().getName() << " " <<
-      getNameAndType().getName() << " " << getNameAndType().getDescriptor() << "\n";
+    return ClassRef != nullptr && dynamic_cast<ClassInfo *>(ClassRef.get()) &&
+           NameAndTypeRef != nullptr &&
+           dynamic_cast<NameAndType *>(NameAndTypeRef.get());
   }
 
 private:
   const ConstantPool::CellReference ClassRef, NameAndTypeRef;
+};
+
+class MethodRef final: public RefRecord {
+public:
+  MethodRef(ConstantPool::CellReference ClassRef,
+            ConstantPool::CellReference NameAndTypeRef) :
+      RefRecord(ClassRef, NameAndTypeRef) {
+    ;
+  }
+
+  void print(std::ostream &Out) const override {
+    Out << "MethodRef\t" << getClass().getName() << " " <<
+        getNameAndType().getName() << " " << getNameAndType().getDescriptor()
+        << "\n";
+  }
+
+  // TODO: Add descriptor verification
+};
+
+class FieldRef final: public RefRecord {
+public:
+  FieldRef(ConstantPool::CellReference ClassRef,
+           ConstantPool::CellReference NameAndTypeRef) :
+      RefRecord(ClassRef, NameAndTypeRef) {
+    ;
+  }
+
+  void print(std::ostream &Out) const override {
+    Out << "FieldRef\t" << getClass().getName() << " " <<
+        getNameAndType().getName() << " " << getNameAndType().getDescriptor()
+        << "\n";
+  }
+
+  // TODO: Add descriptor verification
 };
 
 }
