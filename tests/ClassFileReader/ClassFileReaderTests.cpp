@@ -5,6 +5,7 @@
 #include "catch.hpp"
 
 #include "SlowInterpreter/SlowInterpreter.h"
+#include "SlowInterpreter/Value.h"
 #include "ClassFileReader/ClassFileReader.h"
 #include "Verifier/Verifier.h"
 

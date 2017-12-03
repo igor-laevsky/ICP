@@ -14,6 +14,7 @@
 
 #include "Bytecode/InstructionVisitor.h"
 #include "JavaTypes/JavaMethod.h"
+#include "Value.h"
 
 using namespace Bytecode;
 using namespace SlowInterpreter;

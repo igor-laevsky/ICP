@@ -92,10 +92,10 @@ TEST_CASE("Type size", "[Verifier][Types]") {
 }
 
 TEST_CASE("Convert to verifier type", "[Verifier][Types]") {
-  REQUIRE(Types::toVerificationType(Types::Int) == Types::Int);
-  REQUIRE(Types::toVerificationType(Types::Float) == Types::Float);
-  REQUIRE(Types::toVerificationType(Types::Byte) == Types::Int);
-  REQUIRE(Types::toVerificationType(Types::Char) == Types::Int);
-  REQUIRE(Types::toVerificationType(Types::Boolean) == Types::Int);
-  REQUIRE(Types::toVerificationType(Types::Short) == Types::Int);
+  REQUIRE(Types::toStackType(Types::Int) == Types::Int);
+  REQUIRE(Types::toStackType(Types::Float) == Types::Float);
+  REQUIRE(Types::toStackType(Types::Byte) == Types::Int);
+  REQUIRE(Types::toStackType(Types::Char) == Types::Int);
+  REQUIRE(Types::toStackType(Types::Boolean) == Types::Int);
+  REQUIRE(Types::toStackType(Types::Short) == Types::Int);
 }

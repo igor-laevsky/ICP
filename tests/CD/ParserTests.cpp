@@ -7,6 +7,7 @@
 #include "CD/Parser.h"
 #include "Verifier/Verifier.h"
 #include "SlowInterpreter/SlowInterpreter.h"
+#include "SlowInterpreter/Value.h"
 #include "JavaTypes/JavaClass.h"
 #include "JavaTypes/JavaMethod.h"
 

@@ -21,7 +21,7 @@ namespace JavaTypes {
 // This is intended to be a small immutable value-like class.
 class Type final {
 public:
-  // Used to indicate parsing error in parseFieldDescriptor and
+  // Indicates parsing error in parseFieldDescriptor and
   // parseMethodDescriptor.
   class ParsingError: public std::runtime_error {
     using std::runtime_error::runtime_error;
@@ -176,6 +176,9 @@ struct Types final {
   //  Returns 1 for OneWord types and 2 for TwoWord types.
   static constexpr std::size_t sizeOf(const Type &T) noexcept;
 
+  // Returns minimal size of this type in bytes
+  static constexpr std::size_t sizeInBytes(const Type &T) noexcept;
+
   // This function mirrors same function from the JVm specification.
   // Essentially it represents subtyping relation on the verifier types.
   // See jvms 4.10.1.2 for clear visualization of the type system.
@@ -183,7 +186,7 @@ struct Types final {
 
   // Convert type to verification type.
   // This means converting  byte, char, short, and boolean into integer type.
-  static constexpr Type toVerificationType(const Type &From) noexcept;
+  static constexpr Type toStackType(const Type &From) noexcept;
 
 
   // This struct is used as a namespace, it's not allowed to construct it.
@@ -253,7 +256,20 @@ constexpr std::size_t Types::sizeOf(const Type &T) noexcept {
   return 0;
 }
 
-constexpr Type Types::toVerificationType(const Type &From) noexcept {
+constexpr std::size_t Types::sizeInBytes(const Type &T) noexcept {
+  if (T == Types::Byte)
+    return 1;
+  if (T == Types::Boolean)
+    return 1;
+  if (T == Types::Short)
+    return 2;
+  if (T == Types::Char)
+    return 2;
+
+  return Types::sizeOf(T) * sizeof(uint32_t);
+}
+
+constexpr Type Types::toStackType(const Type &From) noexcept {
   assert(From != Types::Void);
 
   if (From == Types::Char || From == Types::Short ||

@@ -13,8 +13,6 @@
 
 namespace SlowInterpreter {
 
-using JavaInt = uint32_t;
-
 // Expects verified method and returns it's result if it's specified.
 std::any interpret(
     const JavaTypes::JavaMethod &Method,

@@ -32,5 +32,5 @@ JavaTypes::Type JavaField::getType() const {
 }
 
 std::size_t JavaField::getSize() const {
-  return Types::sizeOf(T) * sizeof(uint32_t);
+  return Types::sizeInBytes(T);
 }

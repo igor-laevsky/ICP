@@ -7,6 +7,7 @@
 #include <any>
 
 #include "SlowInterpreter/SlowInterpreter.h"
+#include "SlowInterpreter/Value.h"
 #include "JavaTypes/ConstantPool.h"
 #include "Utils/TestUtils.h"
 #include "Bytecode/Instructions.h"

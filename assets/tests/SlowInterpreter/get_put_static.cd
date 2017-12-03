@@ -1,0 +1,43 @@
+class {
+  constant_pool {
+    1: ClassInfo "PutGetStatic"
+    2: ClassInfo "java/lang/Object"
+    3: NameAndType "F2" "D"
+    4: NameAndType "F1" "I"
+    5: FieldRef #1 #3
+    6: FieldRef #1 #4
+
+    auto: "main"
+    auto: "([Ljava/lang/String;)I"
+    auto: "F2"
+    auto: "D"
+    auto: "F1"
+    auto: "I"
+    auto: "F3"
+    auto: "S"
+  }
+
+  Name: #1
+  Super: #2
+
+  fields {
+    public static "I": "F1"
+    public static "D": "F2"
+    public static "S": "F3"
+    public static "LPutGetStatic;": "Ref"
+  }
+
+  // Should pass verification
+  method "main" "([Ljava/lang/String;)I" {
+    Flags: public, static
+    MaxStack: 2
+    MaxLocals: 1
+
+    bytecode {
+      dconst_1
+      putstatic #5 // Field F2:D
+      getstatic #6 // Field F1:I
+      ireturn
+    }
+  }
+}
