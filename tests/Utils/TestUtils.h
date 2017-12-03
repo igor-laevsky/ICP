@@ -46,7 +46,7 @@ public:
 JavaTypes::ConstantPool &getEternalConstantPool();
 
 /// Method and class creation utility functions.
-/// Prefer using CD description language.
+/// Deprecated. Prefer using CD description language.
 std::unique_ptr<JavaTypes::JavaMethod> createMethod(
     const std::vector<uint8_t> &Bytecode);
 

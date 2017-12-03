@@ -41,7 +41,7 @@ TEST_CASE("Values for pods", "[Interpreter][Value]") {
 
   // Compile errors. For the reference. No idea how to check in the test.
   //Stack[3] = Value::create(10); // type deduction should be disabled
-  Stack[3] = Value::create<bool>(10); // only allow java types
+  //Stack[3] = Value::create<bool>(false); // only allow java types
 }
 
 TEST_CASE("Construct value from memory", "[Interpreter][Value]") {
@@ -96,6 +96,10 @@ TEST_CASE("Save value to memory", "[Interpreter][Value]") {
   REQUIRE(T1 == NewT1);
   REQUIRE(T2 == NewT2);
   REQUIRE(T3 == NewT3);
+
+  // Copy constructor should also work
+  Value A(NewT3);
+  REQUIRE(A == NewT3);
 }
 
 //TEST_CASE("Class objects static fields", "[Interpreter][Value]") {

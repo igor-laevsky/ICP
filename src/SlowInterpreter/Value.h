@@ -36,7 +36,7 @@ using JavaDouble = double;
 // Someday this will become GC managed pointer.
 using JavaRef = Object*;
 
-// Metaprogramming magic to determine stack type from the given type
+// Determine stack type from the given type
 template<class T> struct promote_to_stack {};
 template<> struct promote_to_stack<JavaByte>   { using Result = JavaInt;    };
 template<> struct promote_to_stack<JavaChar>   { using Result = JavaInt;    };
@@ -66,11 +66,13 @@ public:
   /// move semantics.
   template<class T>
   static constexpr Value create(const std::remove_reference_t<T>& Val) {
-    return Value(Val);
+    using PromotedT = promote_to_stack_t<T>;
+    return Value(static_cast<PromotedT>(Val));
   }
   template<class T>
   static constexpr Value create(std::remove_reference_t<T>&& Val) {
-    return Value(std::move(Val));
+    using PromotedT = promote_to_stack_t<T>;
+    return Value(std::move(static_cast<PromotedT>(Val)));
   }
 
   /// Creates value from plain collection of bytes. Should be used to
@@ -123,7 +125,10 @@ public:
 
 private:
   // Some trickery to not overload copy and move constructors
-  template<class T, class X = std::enable_if_t<!std::is_base_of_v<Value, T>>>
+  template<class T, class X =
+      std::enable_if_t<
+          !std::is_base_of_v<Value,
+              std::remove_reference_t<T>>>>
   explicit constexpr Value(T&& Data): Data(Data) {}
 
   constexpr const auto &data() const { return Data; }

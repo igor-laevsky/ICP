@@ -1,5 +1,6 @@
 //
-// Various verifier tests
+// Various verifier tests. Earlier tests should be ported to the new CD
+// description language.
 //
 
 #include "catch.hpp"
