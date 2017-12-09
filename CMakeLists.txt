@@ -45,7 +45,11 @@ set(SOURCE_FILES
         src/CD/Parser.cpp
         src/CD/Parser.h
         src/JavaTypes/JavaField.cpp
-        src/JavaTypes/JavaField.h src/SlowInterpreter/Value.h src/SlowInterpreter/Value.cpp)
+        src/JavaTypes/JavaField.h
+        src/SlowInterpreter/Value.h
+        src/SlowInterpreter/Value.cpp
+        src/SlowInterpreter/Objects.cpp
+        src/SlowInterpreter/Objects.h)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
@@ -62,7 +66,9 @@ set (TEST_FILES
         tests/SlowInterpreter/SlowInterpreterTests.cpp
         tests/CD/LexerTests.cpp
         tests/CD/ParserTests.cpp
-        tests/JavaTypes/JavaFieldTests.cpp tests/SlowInterpreter/ValueTests.cpp)
+        tests/JavaTypes/JavaFieldTests.cpp
+        tests/SlowInterpreter/ValueTests.cpp
+        tests/SlowInterpreter/ObjectsTests.cpp)
 
 add_library(ICP_LIB ${SOURCE_FILES})
 

@@ -266,6 +266,9 @@ constexpr std::size_t Types::sizeInBytes(const Type &T) noexcept {
   if (T == Types::Char)
     return 2;
 
+  if (Types::isAssignable(T, Types::Reference))
+    return 8;
+
   return Types::sizeOf(T) * sizeof(uint32_t);
 }
 

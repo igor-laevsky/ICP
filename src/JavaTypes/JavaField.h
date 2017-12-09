@@ -10,12 +10,13 @@
 #include "Type.h"
 #include "ConstantPool.h"
 #include "ConstantPoolRecords.h"
+#include "Utils/Utf8String.h"
 
 namespace JavaTypes {
 
 class JavaField final {
 public:
-  enum class AccessFlags: uint16_t {
+  enum AccessFlags: uint16_t {
     ACC_PUBLIC = 0x0001,
     ACC_PRIVATE = 0x0002,
     ACC_PROTECTED = 0x0004,
@@ -50,11 +51,13 @@ public:
   JavaField(JavaField &&) = default;
   JavaField &operator=(JavaField &&) = default;
 
-  const std::string &getName() const;
-  const std::string &getDescriptor() const;
+  const Utf8String &getName() const;
+  const Utf8String &getDescriptor() const;
   AccessFlags getFlags() const { return Flags; }
 
   Type getType() const;
+
+  bool isStatic() const { return Flags & ACC_STATIC; }
 
   // Return size of this fields in bytes
   std::size_t getSize() const;

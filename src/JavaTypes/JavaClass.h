@@ -82,11 +82,11 @@ public:
     return Methods;
   }
 
-  const auto &fields() const { return Fields; }
+  const std::vector<JavaField> &fields() const { return Fields; }
 
   // Finds method by name or return null if nothing found
   // TODO: Support overloading
-  const JavaMethod *getMethod(const std::string &Name) const;
+  const JavaMethod *getMethod(const Utf8String &Name) const;
 
   // Only valid to call when there is super class
   const Utf8String &getSuperClassName() const {

@@ -9,7 +9,7 @@
 using namespace SlowInterpreter;
 using namespace JavaTypes;
 
-// Static types ans runtime types are tightly coupled. Good or bad, but we need
+// Static types and runtime types are tightly coupled. Good or bad, but we need
 // them to have the same size.
 static_assert(Types::sizeInBytes(Types::Int) == sizeof(JavaInt));
 static_assert(Types::sizeInBytes(Types::Byte) == sizeof(JavaByte));
@@ -19,6 +19,7 @@ static_assert(Types::sizeInBytes(Types::Boolean) == sizeof(JavaBool));
 static_assert(Types::sizeInBytes(Types::Float) == sizeof(JavaFloat));
 static_assert(Types::sizeInBytes(Types::Long) == sizeof(JavaLong));
 static_assert(Types::sizeInBytes(Types::Double) == sizeof(JavaDouble));
+static_assert(Types::sizeInBytes(Types::Reference) == sizeof(JavaRef));
 
 Value Value::fromMemory(const Type &T, const uint8_t *Mem) {
 

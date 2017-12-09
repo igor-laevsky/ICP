@@ -316,18 +316,18 @@ static std::vector<JavaField> parseClassFields(
   std::vector<JavaField> Ret;
 
   while (!Lex.isNext(Token::RBrace)) {
-    JavaField::AccessFlags Flags = JavaField::AccessFlags::ACC_NONE;
+    JavaField::AccessFlags Flags = JavaField::ACC_NONE;
     do {
       const std::string &FlagName = consumeOrThrow(Token::Id(), Lex).getData();
 
       if (FlagName == "public")
-        Flags = Flags | JavaField::AccessFlags::ACC_PUBLIC;
+        Flags = Flags | JavaField::ACC_PUBLIC;
       else if (FlagName == "private")
-        Flags = Flags | JavaField::AccessFlags::ACC_PRIVATE;
+        Flags = Flags | JavaField::ACC_PRIVATE;
       else if (FlagName == "final")
-        Flags = Flags | JavaField::AccessFlags::ACC_FINAL;
+        Flags = Flags | JavaField::ACC_FINAL;
       else if (FlagName == "static")
-        Flags = Flags | JavaField::AccessFlags::ACC_STATIC;
+        Flags = Flags | JavaField::ACC_STATIC;
       else
         throw ParserError("Unknown field flag is specified");
     } while (Lex.isNext(Token::Id()));
@@ -338,11 +338,11 @@ static std::vector<JavaField> parseClassFields(
 
     const auto *DescrCI = findStringInCP(Descr, CP);
     if (!DescrCI)
-      throw ParserError("Unable to find field descriptor in constant pool");
+      throw ParserError("Unable to find field descriptor in the constant pool");
 
     const auto *NameCI = findStringInCP(Name, CP);
     if (!NameCI)
-      throw ParserError("Unable to find field name in constant pool");
+      throw ParserError("Unable to find field name in the constant pool");
 
     Ret.emplace_back(*DescrCI, *NameCI, Flags);
   }

@@ -51,8 +51,8 @@ template<class T>
 using promote_to_stack_t = typename promote_to_stack<T>::Result;
 
 /// Type erased representation for one of the runtime data types.
-/// Internaly it promotes all types shorter than 4 bytes into integer. This is
-/// to better aprozimate JVM specification.
+/// Internally it promotes all types shorter than 4 bytes into integer. This is
+/// to better approximate JVM specification.
 class Value final {
 public:
   class BadAccess: public std::exception { };

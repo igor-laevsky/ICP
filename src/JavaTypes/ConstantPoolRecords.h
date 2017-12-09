@@ -7,11 +7,7 @@
 
 #include "ConstantPool.h"
 
-#include <string>
-
 #include "Utils/Utf8String.h"
-
-using namespace Utils;
 
 namespace JavaTypes {
 namespace ConstantPoolRecords {

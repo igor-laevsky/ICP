@@ -44,6 +44,8 @@ public:
   static constexpr const char *Name = "";
 
 public:
+  virtual ~Instruction() = default;
+
   // No copies
   Instruction(const Instruction&) = delete;
   Instruction &operator=(const Instruction &) = delete;

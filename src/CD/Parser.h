@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "JavaTypes/JavaTypesFwd.h"
+#include "JavaTypes/JavaClass.h"
 
 namespace CD {
 

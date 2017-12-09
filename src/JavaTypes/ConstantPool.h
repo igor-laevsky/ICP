@@ -22,6 +22,8 @@ namespace ConstantPoolRecords {
 // Base abstract class for all constant pool records
 class Record {
 public:
+  virtual ~Record() = default;
+
   Record() = default;
 
   // No copying

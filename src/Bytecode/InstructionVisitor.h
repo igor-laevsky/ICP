@@ -26,6 +26,9 @@ public:
   virtual void visit(const dconst_1 &) {
     assert(false); // unimplemented
   }
+
+  // Just to be safe
+  virtual ~InstructionVisitor() = default;
 };
 
 }

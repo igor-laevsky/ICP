@@ -50,7 +50,7 @@ TEST_CASE("Reference field", "[JavaField]") {
   REQUIRE(f.getName() == "Ref");
   REQUIRE(f.getDescriptor() == "LFields;");
   REQUIRE(f.getType() == Types::Class);
-  REQUIRE(f.getSize() == 4);
+  REQUIRE(f.getSize() == Types::sizeInBytes(Types::Class));
 }
 
 TEST_CASE("Incorrect descriptor", "[JavaField]") {

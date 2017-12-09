@@ -81,57 +81,29 @@ TEST_CASE("Save value to memory", "[Interpreter][Value]") {
   Value T2 = Value::create<JavaInt>(20);
   Value T3 = Value::create<JavaDouble>(20);
 
+  Value Ref = Value::create<JavaRef>(reinterpret_cast<JavaRef>(10));
+
   uint8_t T1Mem[2] = {0};
   uint8_t T2Mem[4] = {0};
   uint8_t T3Mem[8] = {0};
+  uint8_t RefMem[sizeof(JavaRef)] = {0};
 
   T1.toMemory(T1Mem, T1, Types::Char);
   T2.toMemory(T2Mem, T2, Types::Int);
   T3.toMemory(T3Mem, T3, Types::Double);
+  Ref.toMemory(RefMem, Ref, Types::Reference);
 
   Value NewT1 = Value::fromMemory(Types::Char, T1Mem);
   Value NewT2 = Value::fromMemory(Types::Int, T2Mem);
   Value NewT3 = Value::fromMemory(Types::Double, T3Mem);
+  Value NewRef = Value::fromMemory(Types::Reference, RefMem);
 
   REQUIRE(T1 == NewT1);
   REQUIRE(T2 == NewT2);
   REQUIRE(T3 == NewT3);
+  REQUIRE(Ref == NewRef);
 
   // Copy constructor should also work
   Value A(NewT3);
   REQUIRE(A == NewT3);
 }
-
-//TEST_CASE("Class objects static fields", "[Interpreter][Value]") {
-//  auto C = CD::parseFromFile("tests/SlowInterpreter/get_put_static.cd");
-//
-//  JavaRef Class = ClassObject::create(*C);
-//
-//  Value F1 = Class->getField("F1");
-//  Value F2 = Class->getField("F2");
-//  Value F3 = Class->getField("F3");
-//  Value Ref = Class->getField("Ref");
-//  REQUIRE_THROWS(Class->getField("asd"), ClassObject::UnrecognizedField);
-//
-//  REQUIRE(F1.isA<JavaInt>());
-//  REQUIRE(F1.getAs<JavaInt>() == 0);
-//
-//  REQUIRE(F2.isA<JavaDouble>());
-//  REQUIRE(F2.getAs<JavaDouble>() == 0);
-//
-//  REQUIRE(F3.isA<JavaInt>());
-//  REQUIRE(F3.getAs<JavaInt>() == 0);
-//
-//  REQUIRE(Ref.isA<JavaRef>());
-//  REQUIRE(Ref.getAs<JavaRef>() == nullptr);
-//
-//  // Store value to the field. Everything decays into JavaInt.
-//  Class->setField("F1", Value::create<JavaChar>(10));
-//  Class->setField("F2", Value::create<JavaDouble>(20));
-//  Class->setField("F3", Value::create<JavaShort>(20));
-//
-//  // Check that we stored correct values
-//  REQUIRE(Class->getField("F1").getAs<JavaInt> == 10);
-//  REQUIRE(Class->getField("F2").getAs<JavaDouble> == 20);
-//  REQUIRE(Class->getField("F3").getAs<JavaInt> == 30);
-//}
