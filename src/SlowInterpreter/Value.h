@@ -10,6 +10,7 @@
 #include <memory>
 #include <optional>
 #include <variant>
+#include <sstream>
 
 #include "JavaTypes/Type.h"
 
@@ -125,7 +126,27 @@ public:
     return Data == Other.Data;
   }
 
+  /// Converts this value to it's string representation.
+  /// This is intended for the debug purposes, don't use it in any correctness
+  /// related applications, i.e tests.
+  friend std::string to_string(const Value &V) {
+    std::stringstream Ret;
+
+    std::visit([&](auto&& Arg) {
+      Ret << Arg;
+    }, V.data());
+    return Ret.str();
+  }
+
+  friend std::ostream& operator<<(std::ostream &Out, const Value &V) {
+    Out << to_string(V);
+    return Out;
+  }
+
 private:
+  using DataType =
+    std::variant<JavaInt, JavaLong, JavaFloat, JavaDouble, JavaRef>;
+
   // Some trickery to not overload copy and move constructors
   template<class T, class X =
       std::enable_if_t<
@@ -133,11 +154,12 @@ private:
               std::remove_reference_t<T>>>>
   explicit constexpr Value(T&& Data): Data(Data) {}
 
-  constexpr const auto &data() const { return Data; }
+  constexpr const DataType &data() const { return Data; }
 
 private:
-  std::variant<JavaInt, JavaLong, JavaFloat, JavaDouble, JavaRef> Data;
+  DataType Data;
 };
+
 
 }
 

@@ -7,6 +7,7 @@
 #include "Value.h"
 
 #include <cstring>
+#include <sstream>
 
 using namespace SlowInterpreter;
 using namespace JavaTypes;
@@ -26,7 +27,7 @@ static_assert(Types::sizeInBytes(Types::Reference) == sizeof(JavaRef));
 // Helper for the 'fromMemory' function
 template<class RuntimeT>
 static Value CreateAndCopy(const Type &T, const uint8_t *Mem) {
-  RuntimeT Ret;
+  RuntimeT Ret{};
   assert(sizeof(Ret) == Types::sizeInBytes(T));
   std::memcpy(&Ret, Mem, sizeof(Ret));
   return Value::create<RuntimeT>(Ret);
@@ -70,8 +71,8 @@ static void TypedCopy(uint8_t *Mem, const Value &V, const JavaTypes::Type &T) {
 void Value::toMemory(
     uint8_t *Mem, const Value &V, const JavaTypes::Type &T) {
 
-  // This can be done simpler with variant visitor, but we will need to
-  // sacrifice type safety.
+  // This can be done simpler with variant visitor but we will sacrifice
+  // type safety.
 
   if (T == Types::Int)
     TypedCopy<JavaInt>(Mem, V, T);

@@ -13,12 +13,13 @@
 #include "Bytecode/Instructions.h"
 
 using namespace JavaTypes;
+using namespace SlowInterpreter;
 
 // Returns true if interpreter interpreted given method and returned 'ExpectedResult'
 template<typename ResT>
 static bool testWithMethod(
     ResT ExpectedResult,
-    const std::vector<std::any>& InputArgs,
+    const std::vector<Value>& InputArgs,
     JavaMethod::AccessFlags Flags,
     uint16_t MaxStack, uint16_t MaxLocals,
     ConstantPool::IndexType NameIdx, ConstantPool::IndexType DescriptorIdx,
@@ -34,8 +35,8 @@ static bool testWithMethod(
       std::move(StackMapTable),
       Flags);
 
-  std::any Res = SlowInterpreter::interpret(*Method, InputArgs);
-  return std::any_cast<ResT>(Res) == ExpectedResult;
+  auto Res = SlowInterpreter::interpret(*Method, InputArgs);
+  return Res.getAs<ResT>() == ExpectedResult;
 }
 
 TEST_CASE("iconst with ireturn", "[SlowInterpreter]") {

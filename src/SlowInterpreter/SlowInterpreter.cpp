@@ -19,18 +19,6 @@
 using namespace Bytecode;
 using namespace SlowInterpreter;
 
-// This is helper function to print std::any using knowledge that it is only
-// going to contain java types.
-static std::ostream& operator<<(std::ostream &Out, const std::any &Data) {
-  if (!Data.has_value()) {
-    Out << "empty";
-    return Out;
-  }
-
-  Out << std::any_cast<JavaInt>(Data);
-  return Out;
-}
-
 namespace {
 
 // Represents single interpreter frame.
@@ -40,7 +28,7 @@ class InterpreterFrame final {
 public:
   explicit InterpreterFrame(
       std::string FunctionName,
-      std::vector<std::any> Locals) noexcept:
+      std::vector<Value> Locals) noexcept:
     FunctionName(std::move(FunctionName)),
     Locals(std::move(Locals)) {
     ;
@@ -49,29 +37,32 @@ public:
   template<class T>
   T getLocal(uint32_t Idx) const {
     assert(Idx < locals().size());
-    return std::any_cast<T>(locals()[Idx]);
+    return locals()[Idx].getAs<T>();
   }
 
   template<class T>
-  void setLocal(uint32_t Idx, T NewVal) {
+  void setLocal(uint32_t Idx, const std::remove_reference_t<T>& NewVal) {
     assert(Idx < locals().size());
-    locals()[Idx] = std::any(std::move(NewVal));
+    locals()[Idx] = Value::create<T>(NewVal);
   }
 
-  template<class T>
-  T pop() {
+  Value popValue() {
     assert(!stack().empty());
 
-    auto Ret = std::any_cast<T>(stack().back());
+    auto Ret = stack().back();
     stack().pop_back();
     return Ret;
   }
 
-  // Note: Disable template type deduction. User should explicitly think
-  // what type is going to be pushed to stack.
   template<class T>
-  void push(std::common_type_t<T> Val) {
-    stack().emplace_back(std::move(Val));
+  T pop() {
+    auto Ret = popValue();
+    return Ret.getAs<T>();
+  }
+
+  template<class T>
+  void push(const std::remove_reference_t<T>& Val) {
+    stack().push_back(Value::create<T>(Val));
   }
 
   void print(std::ostream &Out = std::cout) {
@@ -93,16 +84,16 @@ public:
   }
 
 private:
-  auto &locals() { return Locals; }
-  const auto &locals() const { return Locals; }
+  std::vector<Value> &locals() { return Locals; }
+  const std::vector<Value> &locals() const { return Locals; }
 
-  auto &stack() { return Stack; }
-  const auto &stack() const { return Stack; }
+  std::vector<Value> &stack() { return Stack; }
+  const std::vector<Value> &stack() const { return Stack; }
 
 private:
   std::string FunctionName;
-  std::vector<std::any> Locals;
-  std::vector<std::any> Stack;
+  std::vector<Value> Locals;
+  std::vector<Value> Stack;
 };
 
 // Represents stack of InterpreterFrames.
@@ -112,7 +103,7 @@ class InterpreterStack final {
 public:
   void enter_function(
       std::string FunctionName,
-      std::vector<std::any> Arguments) {
+      std::vector<Value> Arguments) {
     stack().emplace_back(std::move(FunctionName), std::move(Arguments));
   }
 
@@ -169,11 +160,11 @@ private:
 class Interpreter final: public Bytecode::InstructionVisitor {
 public:
   Interpreter(std::string InitialFuncName,
-              std::vector<std::any> Arguments) {
+              std::vector<Value> Arguments) {
     stack().enter_function(std::move(InitialFuncName), std::move(Arguments));
   }
 
-  std::any getRetVal() { return RetVal; }
+  Value getRetVal() { return RetVal; }
   bool emptyStack() { return stack().empty(); }
 
   void print(std::ostream &Out = std::cout) { Stack.print(Out); }
@@ -193,7 +184,7 @@ private:
 
 private:
   InterpreterStack Stack;
-  std::any RetVal;
+  Value RetVal;
 };
 
 void Interpreter::visit(const iconst_0 &) {
@@ -204,7 +195,7 @@ void Interpreter::visit(const ireturn &) {
   // TODO: pop frame and push result to stack
   assert(stack().numFrames() == 1); // function calls are not supported
 
-  RetVal = stack().curentFrame().pop<JavaInt>();
+  RetVal = stack().curentFrame().popValue();
   stack().exit_function();
 }
 
@@ -234,9 +225,9 @@ void Interpreter::visit(const getstatic &) {
 
 }
 
-std::any SlowInterpreter::interpret(
+Value SlowInterpreter::interpret(
     const JavaTypes::JavaMethod &Method,
-    const std::vector<std::any> &InputArguments,
+    const std::vector<Value> &InputArguments,
     bool Debug /*= false*/) {
 
   Interpreter I(Method.getName(), InputArguments);

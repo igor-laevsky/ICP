@@ -69,7 +69,7 @@ TEST_CASE("EmptyMethods", "[CD][Parser]") {
   REQUIRE(C->getMethod("<init>"));
 }
 
-TEST_CASE("Simple", "[CD][Parser]") {
+TEST_CASE("CD parser for the simple case", "[CD][Parser]") {
   auto C = parseFromFile("CD/Simple.cd");
 
   REQUIRE(C);
@@ -84,7 +84,7 @@ TEST_CASE("Simple", "[CD][Parser]") {
   REQUIRE_NOTHROW(Verifier::verify(*C));
 
   auto Res = SlowInterpreter::interpret(*C->getMethod("main"), {});
-  REQUIRE(std::any_cast<SlowInterpreter::JavaInt>(Res) == 0);
+  REQUIRE(Res.getAs<SlowInterpreter::JavaInt>() == 0);
 }
 
 TEST_CASE("Fields", "[CD][Parser]") {

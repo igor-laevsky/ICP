@@ -10,13 +10,14 @@
 #include <cstdint>
 
 #include "JavaTypes/JavaTypesFwd.h"
+#include "SlowInterpreter/Value.h"
 
 namespace SlowInterpreter {
 
 // Expects verified method and returns it's result if it's specified.
-std::any interpret(
+Value interpret(
     const JavaTypes::JavaMethod &Method,
-    const std::vector<std::any> &InputArguments,
+    const std::vector<Value> &InputArguments,
     bool Debug = false);
 
 }
