@@ -6,8 +6,6 @@
 
 #include "JavaTypes/JavaClass.h"
 
-#include <array>
-
 using namespace Runtime;
 using namespace JavaTypes;
 

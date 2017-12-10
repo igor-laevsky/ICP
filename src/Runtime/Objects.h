@@ -70,10 +70,10 @@ public:
   /// \throws UnrecognizedField If no field was found.
   void setField(const Utf8String &Name, const Value &V);
 
+  const JavaTypes::JavaClass &getClass() const { return Class; }
+
 private:
   explicit ClassObject(const JavaTypes::JavaClass &Class);
-
-  const JavaTypes::JavaClass &getClass() const { return Class; }
 
   const std::vector<uint8_t> &fields() const { return Fields; }
   std::vector<uint8_t> &fields() { return Fields; }

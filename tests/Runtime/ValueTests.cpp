@@ -11,7 +11,7 @@
 using namespace Runtime;
 using namespace JavaTypes;
 
-TEST_CASE("Values for pods", "[Interpreter][Value]") {
+TEST_CASE("Values for pods", "[Runtime][Value]") {
   // Stack values decay into JavaInt
   std::vector<Value> Stack(3);
 
@@ -44,7 +44,7 @@ TEST_CASE("Values for pods", "[Interpreter][Value]") {
   //Stack[3] = Value::create<bool>(false); // only allow java types
 }
 
-TEST_CASE("Construct value from memory", "[Interpreter][Value]") {
+TEST_CASE("Construct value from memory", "[Runtime][Value]") {
   const uint8_t PlainMemory[8] = {0};
 
   Value T1 = Value::fromMemory(Types::Char, PlainMemory);
@@ -67,7 +67,7 @@ TEST_CASE("Construct value from memory", "[Interpreter][Value]") {
   REQUIRE_THROWS_AS(T4.getAs<JavaInt>(), Value::BadAccess);
 }
 
-TEST_CASE("Value copy", "[Interpreter][Value]") {
+TEST_CASE("Value copy", "[Runtime][Value]") {
   Value T1 = Value::create<JavaInt>(10);
   Value T2 = Value::create<JavaInt>(20);
 
@@ -79,7 +79,7 @@ TEST_CASE("Value copy", "[Interpreter][Value]") {
   REQUIRE(A == T2);
 }
 
-TEST_CASE("Save value to memory", "[Interpreter][Value]") {
+TEST_CASE("Save value to memory", "[Runtime][Value]") {
   Value T1 = Value::create<JavaChar>(10);
   Value T2 = Value::create<JavaInt>(20);
   Value T3 = Value::create<JavaDouble>(20);
