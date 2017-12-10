@@ -67,20 +67,22 @@ TEST_CASE("Construct value from memory", "[Interpreter][Value]") {
   REQUIRE_THROWS_AS(T4.getAs<JavaInt>(), Value::BadAccess);
 }
 
-TEST_CASE("Value assignment", "[Interpreter][Value]") {
+TEST_CASE("Value copy", "[Interpreter][Value]") {
   Value T1 = Value::create<JavaInt>(10);
   Value T2 = Value::create<JavaInt>(20);
 
   T1 = T2;
-
   REQUIRE(T1 == T2);
+
+  // Copy constructor should also work
+  Value A(T2);
+  REQUIRE(A == T2);
 }
 
 TEST_CASE("Save value to memory", "[Interpreter][Value]") {
   Value T1 = Value::create<JavaChar>(10);
   Value T2 = Value::create<JavaInt>(20);
   Value T3 = Value::create<JavaDouble>(20);
-
   Value Ref = Value::create<JavaRef>(reinterpret_cast<JavaRef>(10));
 
   uint8_t T1Mem[2] = {0};
@@ -102,8 +104,4 @@ TEST_CASE("Save value to memory", "[Interpreter][Value]") {
   REQUIRE(T2 == NewT2);
   REQUIRE(T3 == NewT3);
   REQUIRE(Ref == NewRef);
-
-  // Copy constructor should also work
-  Value A(NewT3);
-  REQUIRE(A == NewT3);
 }

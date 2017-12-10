@@ -6,6 +6,8 @@
 
 #include "Value.h"
 
+#include <cstring>
+
 using namespace SlowInterpreter;
 using namespace JavaTypes;
 
@@ -21,58 +23,76 @@ static_assert(Types::sizeInBytes(Types::Long) == sizeof(JavaLong));
 static_assert(Types::sizeInBytes(Types::Double) == sizeof(JavaDouble));
 static_assert(Types::sizeInBytes(Types::Reference) == sizeof(JavaRef));
 
+// Helper for the 'fromMemory' function
+template<class RuntimeT>
+static Value CreateAndCopy(const Type &T, const uint8_t *Mem) {
+  RuntimeT Ret;
+  assert(sizeof(Ret) == Types::sizeInBytes(T));
+  std::memcpy(&Ret, Mem, sizeof(Ret));
+  return Value::create<RuntimeT>(Ret);
+}
+
 Value Value::fromMemory(const Type &T, const uint8_t *Mem) {
 
-  // Clumsy
   if (T == Types::Int)
-    return Value::create<JavaInt>(*(reinterpret_cast<const JavaInt *>(Mem)));
+    return CreateAndCopy<JavaInt>(T, Mem);
   if (T == Types::Byte)
-    return Value::create<JavaByte>(*(reinterpret_cast<const JavaByte *>(Mem)));
+    return CreateAndCopy<JavaByte>(T, Mem);
   if (T == Types::Char)
-    return Value::create<JavaChar>(*(reinterpret_cast<const JavaChar *>(Mem)));
+    return CreateAndCopy<JavaChar>(T, Mem);
   if (T == Types::Short)
-    return Value::create<JavaShort>(*(reinterpret_cast<const JavaShort *>(Mem)));
+    return CreateAndCopy<JavaShort>(T, Mem);
   if (T == Types::Boolean)
-    return Value::create<JavaBool>(*(reinterpret_cast<const JavaBool *>(Mem)));
+    return CreateAndCopy<JavaBool>(T, Mem);
 
   if (T == Types::Float)
-    return Value::create<JavaFloat>(*(reinterpret_cast<const JavaFloat *>(Mem)));
+    return CreateAndCopy<JavaFloat>(T, Mem);
   if (T == Types::Long)
-    return Value::create<JavaLong>(*(reinterpret_cast<const JavaLong *>(Mem)));
+    return CreateAndCopy<JavaLong>(T, Mem);
   if (T == Types::Double)
-    return Value::create<JavaDouble>(*(reinterpret_cast<const JavaDouble *>(Mem)));
+    return CreateAndCopy<JavaDouble>(T, Mem);
 
   if (Types::isAssignable(T, Types::Reference))
-    return Value::create<JavaRef>(*(reinterpret_cast<const JavaRef *>(Mem)));
+    return CreateAndCopy<JavaRef>(T, Mem);
 
   assert(false); // Unrecognized type
   return {};
 }
 
+// Helper for the 'toMemory' function
+template<class RuntimeT>
+static void TypedCopy(uint8_t *Mem, const Value &V, const JavaTypes::Type &T) {
+  auto TypedVal = V.getAs<RuntimeT>();
+  assert(sizeof(TypedVal) == Types::sizeInBytes(T));
+  std::memcpy(Mem, &TypedVal, sizeof(TypedVal));
+}
+
 void Value::toMemory(
     uint8_t *Mem, const Value &V, const JavaTypes::Type &T) {
 
-  // Clumsy
+  // This can be done simpler with variant visitor, but we will need to
+  // sacrifice type safety.
+
   if (T == Types::Int)
-    *(reinterpret_cast<JavaInt*>(Mem)) = V.getAs<JavaInt>();
+    TypedCopy<JavaInt>(Mem, V, T);
   else if (T == Types::Byte)
-    *(reinterpret_cast<JavaByte*>(Mem)) = V.getAs<JavaByte>();
+    TypedCopy<JavaByte>(Mem, V, T);
   else if (T == Types::Char)
-    *(reinterpret_cast<JavaChar*>(Mem)) = V.getAs<JavaChar>();
+    TypedCopy<JavaChar>(Mem, V, T);
   else if (T == Types::Short)
-    *(reinterpret_cast<JavaShort*>(Mem)) = V.getAs<JavaShort>();
+    TypedCopy<JavaShort>(Mem, V, T);
   else if (T == Types::Boolean)
-    *(reinterpret_cast<JavaBool*>(Mem)) = V.getAs<JavaBool>();
+    TypedCopy<JavaBool>(Mem, V, T);
 
   else if (T == Types::Float)
-    *(reinterpret_cast<JavaFloat*>(Mem)) = V.getAs<JavaFloat>();
+    TypedCopy<JavaFloat>(Mem, V, T);
   else if (T == Types::Long)
-    *(reinterpret_cast<JavaLong*>(Mem)) = V.getAs<JavaLong>();
+    TypedCopy<JavaLong>(Mem, V, T);
   else if (T == Types::Double)
-    *(reinterpret_cast<JavaDouble*>(Mem)) = V.getAs<JavaDouble>();
+    TypedCopy<JavaDouble>(Mem, V, T);
 
   else if (Types::isAssignable(T, Types::Reference))
-    *(reinterpret_cast<JavaRef*>(Mem)) = V.getAs<JavaRef>();
+    TypedCopy<JavaRef>(Mem, V, T);
 
   else
     assert(false); // Unrecognized type

@@ -77,7 +77,8 @@ public:
 
   /// Creates value from plain collection of bytes. Should be used to
   /// efficiently store arrays and class fields.
-  /// Caller is responsible for Mem having enough space!
+  /// Reads no more than T's size in bytes.
+  /// Caller is responsible for the Mem having enough space.
   /// \param T Type which is stored in the memory. Will be promoted into int.
   /// \param Mem Pointer to the array of bytes
   static Value fromMemory(
@@ -85,7 +86,8 @@ public:
 
   /// Saves this value to memory. Should be used to effeciently store arrays
   /// and class fields.
-  /// Caller is responsible for Mem having enough space!
+  /// Writes no more than T's size in bytes.
+  /// Caller is responsible for the Mem having enough space.
   /// \throws BadAccess if trying to save a value of the wrong type
   static void toMemory(
       uint8_t *Mem, const Value &V, const JavaTypes::Type &T);
