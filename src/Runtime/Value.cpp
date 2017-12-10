@@ -9,7 +9,7 @@
 #include <cstring>
 #include <sstream>
 
-using namespace SlowInterpreter;
+using namespace Runtime;
 using namespace JavaTypes;
 
 // Static types and runtime types are tightly coupled. Good or bad, but we need

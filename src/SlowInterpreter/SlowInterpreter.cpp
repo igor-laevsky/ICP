@@ -4,6 +4,10 @@
 
 #include "SlowInterpreter.h"
 
+#include "Bytecode/InstructionVisitor.h"
+#include "JavaTypes/JavaMethod.h"
+#include "Runtime/Value.h"
+
 #include <cassert>
 #include <vector>
 #include <string>
@@ -12,12 +16,9 @@
 #include <ostream>
 #include <iostream>
 
-#include "Bytecode/InstructionVisitor.h"
-#include "JavaTypes/JavaMethod.h"
-#include "Value.h"
-
 using namespace Bytecode;
 using namespace SlowInterpreter;
+using namespace Runtime;
 
 namespace {
 

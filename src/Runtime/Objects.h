@@ -7,10 +7,10 @@
 #define ICP_OBJECTS_H
 
 #include "JavaTypes/JavaTypesFwd.h"
-#include "SlowInterpreter/Value.h"
+#include "Value.h"
 #include "Utils/Utf8String.h"
 
-namespace SlowInterpreter {
+namespace Runtime {
 
 /// Base abstract class for any type of the runtime object.
 class Object {

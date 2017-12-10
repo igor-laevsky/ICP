@@ -5,7 +5,7 @@
 #include "ClassFileReader/ClassFileReader.h"
 #include "Verifier/Verifier.h"
 #include "SlowInterpreter/SlowInterpreter.h"
-#include "SlowInterpreter/Value.h"
+#include "Runtime/Value.h"
 
 int main() {
   std::unique_ptr<JavaTypes::JavaClass> NewClass;

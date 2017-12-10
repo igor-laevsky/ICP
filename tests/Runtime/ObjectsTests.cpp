@@ -4,11 +4,11 @@
 
 #include "catch.hpp"
 
-#include "SlowInterpreter/Objects.h"
-#include "SlowInterpreter/Value.h"
+#include "Runtime/Objects.h"
+#include "Runtime/Value.h"
 #include "CD/Parser.h"
 
-using namespace SlowInterpreter;
+using namespace Runtime;
 
 TEST_CASE("Class objects static fields", "[Interpreter][Value]") {
   auto C = CD::parseFromFile("tests/SlowInterpreter/get_put_static.cd");

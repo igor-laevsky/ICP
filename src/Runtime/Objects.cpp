@@ -8,7 +8,7 @@
 
 #include <array>
 
-using namespace SlowInterpreter;
+using namespace Runtime;
 using namespace JavaTypes;
 
 JavaRef ClassObject::create(const JavaTypes::JavaClass &Class) {

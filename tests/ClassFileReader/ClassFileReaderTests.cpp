@@ -5,7 +5,7 @@
 #include "catch.hpp"
 
 #include "SlowInterpreter/SlowInterpreter.h"
-#include "SlowInterpreter/Value.h"
+#include "Runtime/Value.h"
 #include "ClassFileReader/ClassFileReader.h"
 #include "Verifier/Verifier.h"
 
@@ -25,5 +25,5 @@ TEST_CASE("Read verify and interpret simple class", "[ClassFileReader]") {
 
   auto Ret = SlowInterpreter::interpret(*Method, {});
 
-  REQUIRE_NOTHROW(Ret.getAs<SlowInterpreter::JavaInt>());
+  REQUIRE_NOTHROW(Ret.getAs<Runtime::JavaInt>());
 }

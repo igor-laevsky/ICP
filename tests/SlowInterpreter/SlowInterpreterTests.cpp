@@ -7,13 +7,15 @@
 #include <any>
 
 #include "SlowInterpreter/SlowInterpreter.h"
-#include "SlowInterpreter/Value.h"
+#include "Runtime/Value.h"
 #include "JavaTypes/ConstantPool.h"
 #include "Utils/TestUtils.h"
 #include "Bytecode/Instructions.h"
+#include "CD/Parser.h"
 
 using namespace JavaTypes;
 using namespace SlowInterpreter;
+using namespace Runtime;
 
 // Returns true if interpreter interpreted given method and returned 'ExpectedResult'
 template<typename ResT>
@@ -39,8 +41,22 @@ static bool testWithMethod(
   return Res.getAs<ResT>() == ExpectedResult;
 }
 
+template<typename ResT>
+static bool testWithMethod(
+    const JavaClass &Class,
+    const Utf8String &Name,
+    const std::vector<Value>& InputArgs,
+    ResT ExpectedResult) {
+
+  auto Method = Class.getMethod(Name);
+  assert(Method != nullptr);
+
+  auto Res = SlowInterpreter::interpret(*Method, InputArgs);
+  return Res.getAs<ResT>() == ExpectedResult;
+}
+
 TEST_CASE("iconst with ireturn", "[SlowInterpreter]") {
-  REQUIRE(testWithMethod<SlowInterpreter::JavaInt>(
+  REQUIRE(testWithMethod<Runtime::JavaInt>(
       0, // Expected result
       {},// Input args
       JavaMethod::AccessFlags::ACC_PUBLIC,
@@ -55,7 +71,7 @@ TEST_CASE("iconst with ireturn", "[SlowInterpreter]") {
       {} // No stack map
   ));
 
-  REQUIRE(testWithMethod<SlowInterpreter::JavaInt>(
+  REQUIRE(testWithMethod<Runtime::JavaInt>(
       0, // Expected result
       {},// Input args
       JavaMethod::AccessFlags::ACC_PUBLIC,

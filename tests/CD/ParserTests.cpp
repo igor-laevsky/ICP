@@ -7,7 +7,7 @@
 #include "CD/Parser.h"
 #include "Verifier/Verifier.h"
 #include "SlowInterpreter/SlowInterpreter.h"
-#include "SlowInterpreter/Value.h"
+#include "Runtime/Value.h"
 #include "JavaTypes/JavaClass.h"
 #include "JavaTypes/JavaMethod.h"
 
@@ -84,7 +84,7 @@ TEST_CASE("CD parser for the simple case", "[CD][Parser]") {
   REQUIRE_NOTHROW(Verifier::verify(*C));
 
   auto Res = SlowInterpreter::interpret(*C->getMethod("main"), {});
-  REQUIRE(Res.getAs<SlowInterpreter::JavaInt>() == 0);
+  REQUIRE(Res.getAs<Runtime::JavaInt>() == 0);
 }
 
 TEST_CASE("Fields", "[CD][Parser]") {

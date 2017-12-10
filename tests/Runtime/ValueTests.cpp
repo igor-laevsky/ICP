@@ -4,11 +4,11 @@
 
 #include "catch.hpp"
 
-#include "SlowInterpreter/Value.h"
+#include "Runtime/Value.h"
 #include "CD/Parser.h"
 #include "JavaTypes/Type.h"
 
-using namespace SlowInterpreter;
+using namespace Runtime;
 using namespace JavaTypes;
 
 TEST_CASE("Values for pods", "[Interpreter][Value]") {

@@ -6,15 +6,15 @@
 #ifndef ICP_VALUE_H
 #define ICP_VALUE_H
 
+#include "JavaTypes/Type.h"
+
 #include <cstdint>
 #include <memory>
 #include <optional>
 #include <variant>
 #include <sstream>
 
-#include "JavaTypes/Type.h"
-
-namespace SlowInterpreter {
+namespace Runtime {
 
 /// Forward declarations of the entities managed by the GC
 ///
