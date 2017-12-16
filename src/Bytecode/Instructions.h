@@ -22,6 +22,35 @@ public:
   }
 };
 
+// Utility class which wraps number of instructions with values encoded into
+// their opcodes and provides uniform access to them.
+template<class... Ts>
+class ValueInstWrapper {
+private:
+  // Better move this into utility module but so far it's the only place
+  // where it's needed.
+  template<class Arg, class... Args>
+  static constexpr bool is_valid_inst =
+    std::disjunction<std::is_same<Arg, Args>...>::value;
+
+public:
+  template<
+      class InstT,
+      class X = std::enable_if_t<is_valid_inst<InstT, Ts...>>>
+  constexpr ValueInstWrapper(const InstT& Inst) noexcept:
+      Inst(Inst),
+      Val(InstT::Val) {
+    ;
+  }
+
+  constexpr int8_t getVal() const { return Val; }
+  constexpr const Instruction &getInst() const { return Inst; }
+
+private:
+  const Instruction &Inst;
+  int8_t Val = 0;
+};
+
 // Utility class for three byte instructions. First byte is opcode,
 // second two represent constant pool index.
 template<class ConcreteType>
@@ -90,6 +119,20 @@ class iconst_0 final: public NoIndex<iconst_0> {
 public:
   static constexpr uint8_t OpCode = 0x03;
   static constexpr const char *Name = "iconst_0";
+  static constexpr const uint8_t Val = 0;
+};
+
+class iconst_1 final: public NoIndex<iconst_1> {
+  using NoIndex::NoIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0x04;
+  static constexpr const char *Name = "iconst_1";
+  static constexpr const uint8_t Val = 1;
+};
+
+class iconst_val final: public ValueInstWrapper<iconst_0, iconst_1> {
+  using ValueInstWrapper::ValueInstWrapper;
 };
 
 class dconst_0 final: public NoIndex<dconst_0> {
@@ -98,6 +141,7 @@ class dconst_0 final: public NoIndex<dconst_0> {
 public:
   static constexpr uint8_t OpCode = 0x0e;
   static constexpr const char *Name = "dconst_0";
+  static constexpr const uint8_t Val = 0;
 };
 
 class dconst_1 final: public NoIndex<dconst_1> {
@@ -106,6 +150,11 @@ class dconst_1 final: public NoIndex<dconst_1> {
 public:
   static constexpr uint8_t OpCode = 0x0f;
   static constexpr const char *Name = "dconst_1";
+  static constexpr const uint8_t Val = 1;
+};
+
+class dconst_val final: public ValueInstWrapper<dconst_0, dconst_1> {
+  using ValueInstWrapper::ValueInstWrapper;
 };
 
 class ireturn final: public NoIndex<ireturn> {

@@ -26,10 +26,6 @@ public:
     seenRet = true;
   }
 
-  void visit(const iconst_0 &) override {
-    assert(false);
-  }
-
   void visit(const ireturn &) override {
     assert(false);
   }
@@ -46,14 +42,34 @@ public:
     assert(false);
   }
 
+  void visit(const iconst_val &) override {
+    seenIconstVal = true;
+  }
+  void visit(const iconst_1 &) override {
+    seenIconst1 = true;
+  }
+
+  void visit(const dconst_val &) override {
+    seenDconstVal = true;
+  }
+  void visit(const dconst_0 &) override {
+    seenDconst0 = true;
+  }
+
   bool seenEverything() const {
-    return seenAload && seenInvoke && seenRet;
+    return seenAload && seenInvoke && seenRet &&
+        seenIconstVal && seenIconst1 &&
+        seenDconstVal && !seenDconst0;
   }
 
 private:
   bool seenAload = false;
   bool seenInvoke = false;
   bool seenRet = false;
+  bool seenIconstVal = false;
+  bool seenIconst1 = false;
+  bool seenDconstVal = false;
+  bool seenDconst0 = false;
 };
 
 }
@@ -62,6 +78,9 @@ TEST_CASE("Basic bytecode visitor", "[Bytecode][Visitor]") {
   const std::vector<uint8_t> Bytes =
       {0x2a,             // aload_0
        0xb7, 0x00, 0x01, // invokespecial #1
+       iconst_0::OpCode,
+       iconst_1::OpCode,
+       dconst_1::OpCode,
        0xb1 };           // return
 
   auto Insts = parseInstructions(Bytes);

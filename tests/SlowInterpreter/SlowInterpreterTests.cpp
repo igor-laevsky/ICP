@@ -34,4 +34,7 @@ TEST_CASE("iconst with ireturn", "[SlowInterpreter]") {
 
   REQUIRE(testWithMethod<Runtime::JavaInt>(
       *Class, "test2", {}) == 0);
+
+  REQUIRE(testWithMethod<Runtime::JavaInt>(
+      *Class, "test3", {}) == 1);
 }

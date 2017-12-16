@@ -84,3 +84,20 @@ TEST_CASE("Parse from string") {
   REQUIRE(invoke->isA<invokespecial>());
   REQUIRE(invoke->getAs<invokespecial>().getIdx() == 1);
 }
+
+TEST_CASE("iconst value wrapper", "[Bytecode]") {
+  auto iconst0 = parseFromString("iconst_0");
+  auto iconst1 = parseFromString("iconst_1");
+
+  // Implicit conversions are supported.
+  iconst_val wrapper0 = iconst0->getAs<iconst_0>();
+  iconst_val wrapper1 = iconst1->getAs<iconst_1>();
+
+  REQUIRE(wrapper0.getVal() == 0);
+  REQUIRE(wrapper1.getVal() == 1);
+
+  // This should fail to compile
+  auto dconst1 = parseFromString("dconst_1");
+  dconst_val wrapper = dconst1->getAs<dconst_1>();
+  (void)wrapper;
+}

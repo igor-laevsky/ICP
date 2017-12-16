@@ -48,11 +48,11 @@ public:
   void visit(const aload &Inst) override;
   void visit(const invokespecial &Inst) override;
   void visit(const java_return &) override;
-  void visit(const iconst_0 &) override;
+  void visit(const iconst_val &) override;
   void visit(const ireturn &) override;
   void visit(const putstatic &) override;
   void visit(const getstatic &) override;
-  void visit(const dconst_1 &) override;
+  void visit(const dconst_val &) override;
 
 
   // These two functions are called before or after processing an instruction.
@@ -142,7 +142,7 @@ void MethodVerifier::visit(const java_return &) {
     throw VerificationError("Exiting <init> method before complete initialization");
 }
 
-void MethodVerifier::visit(const iconst_0 &) {
+void MethodVerifier::visit(const iconst_val &) {
   CurrentFrame.pushList({Types::Int});
 }
 
@@ -154,7 +154,7 @@ void MethodVerifier::visit(const ireturn &) {
     throw VerificationError("Expected integer type to be on the stack");
 }
 
-void MethodVerifier::visit(const dconst_1 &) {
+void MethodVerifier::visit(const dconst_val &) {
   CurrentFrame.pushList({Types::Double});
 }
 

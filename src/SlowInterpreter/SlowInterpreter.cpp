@@ -5,6 +5,7 @@
 #include "SlowInterpreter.h"
 
 #include "Bytecode/InstructionVisitor.h"
+#include "Bytecode/Instructions.h"
 #include "JavaTypes/JavaMethod.h"
 #include "Runtime/Value.h"
 
@@ -173,7 +174,7 @@ public:
   void visit(const aload_0 &) override;
   void visit(const invokespecial &) override;
   void visit(const java_return &) override;
-  void visit(const iconst_0 &) override;
+  void visit(const iconst_val &) override;
   void visit(const ireturn &) override;
   void visit(const aload &) override;
   void visit(const putstatic &) override;
@@ -188,8 +189,8 @@ private:
   Value RetVal;
 };
 
-void Interpreter::visit(const iconst_0 &) {
-  stack().curentFrame().push<JavaInt>(0);
+void Interpreter::visit(const iconst_val &Inst) {
+  stack().curentFrame().push<JavaInt>(Inst.getVal());
 }
 
 void Interpreter::visit(const ireturn &) {
