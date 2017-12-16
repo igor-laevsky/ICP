@@ -1,0 +1,21 @@
+class {
+  constant_pool {
+    1: ClassInfo "Fields"
+    2: ClassInfo "java/lang/Object"
+    auto: "I"
+    auto: "F1"
+    auto: "D"
+    auto: "F2"
+    auto: "Ljava/lang/SomeClass;"
+    auto: "Ref"
+  }
+
+  Name: #1
+  Super: #2
+
+  fields {
+    public static "I": "F1"
+	public final "D": "F2"
+    private "Ljava/lang/SomeClass;": "Ref"
+  }
+}

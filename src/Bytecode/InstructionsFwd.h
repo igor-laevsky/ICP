@@ -23,6 +23,7 @@ class dconst_0;
 class dconst_1;
 class dconst_val;
 class ireturn;
+class dreturn;
 class putstatic;
 class getstatic;
 

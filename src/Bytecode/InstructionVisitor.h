@@ -30,6 +30,10 @@ public:
   virtual void visit(const dconst_0 &I);
   virtual void visit(const dconst_1 &I);
 
+  virtual void visit(const dreturn &) {
+    assert(false); // unimplemented
+  }
+
   // Just to be safe
   virtual ~InstructionVisitor() = default;
 };

@@ -165,6 +165,14 @@ public:
   static constexpr const char *Name = "ireturn";
 };
 
+class dreturn final: public NoIndex<dreturn> {
+  using NoIndex::NoIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0xaf;
+  static constexpr const char *Name = "dreturn";
+};
+
 class getstatic final: public SingleIndex<getstatic> {
   using SingleIndex::SingleIndex;
 

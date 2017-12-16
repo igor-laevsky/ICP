@@ -361,3 +361,33 @@ TEST_CASE("get_put_static", "[Verifier][getput]") {
       VerificationError,
       ExEquals("Incorrect CP index"));
 }
+
+TEST_CASE("verifier dconst_dreturn", "[Verifier][dconst_dreturn]") {
+  auto C = CD::parseFromFile("tests/Verifier/dconst_dreturn.cd");
+
+  const auto *m = C->getMethod("test1");
+  REQUIRE(m);
+  REQUIRE_NOTHROW(verifyMethod(*m));
+
+  m = C->getMethod("test2");
+  REQUIRE(m);
+  REQUIRE_THROWS_MATCHES(
+      verifyMethod(*m),
+      VerificationError,
+      ExEquals("Expected double type to be on the stack"));
+
+  m = C->getMethod("test3");
+  REQUIRE(m);
+  REQUIRE_THROWS_MATCHES(
+      verifyMethod(*m),
+      VerificationError,
+      ExEquals("Return type should be double"));
+
+  m = C->getMethod("test4");
+  REQUIRE(m);
+  REQUIRE_NOTHROW(verifyMethod(*m));
+
+  m = C->getMethod("test5");
+  REQUIRE(m);
+  REQUIRE_NOTHROW(verifyMethod(*m));
+}

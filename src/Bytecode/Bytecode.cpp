@@ -25,6 +25,7 @@ std::unique_ptr<Instruction> Bytecode::parseInstruction(
     PARSE_OP(invokespecial);
     PARSE_OP(java_return);
     PARSE_OP(ireturn);
+    PARSE_OP(dreturn);
     PARSE_OP(iconst_0);
     PARSE_OP(iconst_1);
     PARSE_OP(putstatic);
@@ -63,6 +64,7 @@ std::unique_ptr<Instruction> Bytecode::parseFromString(
   PARSE_OP(invokespecial);
   PARSE_OP(java_return);
   PARSE_OP(ireturn);
+  PARSE_OP(dreturn);
   PARSE_OP(iconst_0);
   PARSE_OP(iconst_1);
   PARSE_OP(putstatic);

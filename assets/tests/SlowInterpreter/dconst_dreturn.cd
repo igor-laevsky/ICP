@@ -1,0 +1,67 @@
+class {
+  constant_pool {
+    1: ClassInfo "DconstDreturn"
+    2: ClassInfo "java/lang/Object"
+
+    auto: "test1"
+    auto: "test2"
+    auto: "test3"
+    auto: "test4"
+    auto: "()I"
+    auto: "()D"
+  }
+
+  Name: #1
+  Super: #2
+
+  // Expect to return 0
+  method "test1" "()D" {
+    Flags: public, static
+    MaxStack: 2
+    MaxLocals: 2
+
+    bytecode {
+      dconst_0
+      dreturn
+    }
+  }
+
+  // Expect to return 1
+  method "test2" "()D" {
+    Flags: public, static
+    MaxStack: 3
+    MaxLocals: 2
+
+    bytecode {
+      iconst_0
+      dconst_1
+      dreturn
+    }
+  }
+
+  // Expect to return 1
+  method "test3" "()D" {
+    Flags: public, static
+    MaxStack: 4
+    MaxLocals: 2
+
+    bytecode {
+      dconst_0
+      dconst_1
+      dreturn
+    }
+  }
+
+  // Expect to return 1
+  method "test4" "()I" {
+    Flags: public, static
+    MaxStack: 3
+    MaxLocals: 2
+
+    bytecode {
+      dconst_0
+      iconst_1
+      ireturn
+    }
+  }
+}

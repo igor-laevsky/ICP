@@ -173,9 +173,11 @@ public:
 
   void visit(const aload_0 &) override;
   void visit(const invokespecial &) override;
-  void visit(const java_return &) override;
   void visit(const iconst_val &) override;
+  void visit(const dconst_val &) override;
   void visit(const ireturn &) override;
+  void visit(const dreturn &) override;
+  void visit(const java_return &) override;
   void visit(const aload &) override;
   void visit(const putstatic &) override;
   void visit(const getstatic &) override;
@@ -183,6 +185,8 @@ public:
 private:
   InterpreterStack &stack() { return Stack; }
   const InterpreterStack &stack() const { return Stack; }
+
+  void returnFromFunction();
 
 private:
   InterpreterStack Stack;
@@ -193,7 +197,11 @@ void Interpreter::visit(const iconst_val &Inst) {
   stack().curentFrame().push<JavaInt>(Inst.getVal());
 }
 
-void Interpreter::visit(const ireturn &) {
+void Interpreter::visit(const dconst_val &Inst) {
+  stack().curentFrame().push<JavaDouble>(Inst.getVal());
+}
+
+void Interpreter::returnFromFunction() {
   // TODO: pop frame and push result to stack
   assert(stack().numFrames() == 1); // function calls are not supported
 
@@ -201,15 +209,23 @@ void Interpreter::visit(const ireturn &) {
   stack().exit_function();
 }
 
+void Interpreter::visit(const ireturn &) {
+  returnFromFunction();
+}
+
+void Interpreter::visit(const dreturn &) {
+  returnFromFunction();
+}
+
+void Interpreter::visit(const java_return &) {
+  returnFromFunction();
+}
+
 void Interpreter::visit(const aload_0 &) {
   assert(false); // Not implemented
 }
 
 void Interpreter::visit(const invokespecial &) {
-  assert(false); // Not implemented
-}
-
-void Interpreter::visit(const java_return &) {
   assert(false); // Not implemented
 }
 

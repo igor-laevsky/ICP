@@ -5,8 +5,11 @@
 #include "catch.hpp"
 
 #include "SlowInterpreter/SlowInterpreter.h"
+#include "Verifier/Verifier.h"
 #include "Runtime/Value.h"
 #include "CD/Parser.h"
+
+#include <iostream>
 
 using namespace JavaTypes;
 using namespace SlowInterpreter;
@@ -21,11 +24,15 @@ static ResT testWithMethod(
   auto Method = Class.getMethod(Name);
   assert(Method != nullptr);
 
+#ifndef NDEBUG
+  Verifier::verifyMethod(*Method);
+#endif
+
   auto Res = SlowInterpreter::interpret(*Method, InputArgs);
   return Res.getAs<ResT>();
 }
 
-TEST_CASE("iconst with ireturn", "[SlowInterpreter]") {
+TEST_CASE("interpret iconst with ireturn", "[SlowInterpreter]") {
   auto Class =
       CD::parseFromFile("tests/SlowInterpreter/iconst_ireturn.cd");
 
@@ -37,4 +44,21 @@ TEST_CASE("iconst with ireturn", "[SlowInterpreter]") {
 
   REQUIRE(testWithMethod<Runtime::JavaInt>(
       *Class, "test3", {}) == 1);
+}
+
+TEST_CASE("interpret dconst with dreturn", "[SlowInterpreter]") {
+  auto Class =
+      CD::parseFromFile("tests/SlowInterpreter/dconst_dreturn.cd");
+
+  REQUIRE(testWithMethod<Runtime::JavaDouble>(
+      *Class, "test1", {}) == 0);
+
+  REQUIRE(testWithMethod<Runtime::JavaDouble>(
+      *Class, "test2", {}) == 1);
+
+  REQUIRE(testWithMethod<Runtime::JavaDouble>(
+      *Class, "test3", {}) == 1);
+
+  REQUIRE(testWithMethod<Runtime::JavaInt>(
+      *Class, "test4", {}) == 1);
 }

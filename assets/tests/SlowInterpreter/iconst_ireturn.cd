@@ -1,0 +1,52 @@
+class {
+  constant_pool {
+    1: ClassInfo "IconstIreturn"
+    2: ClassInfo "java/lang/Object"
+
+    auto: "test1"
+    auto: "test2"
+    auto: "test3"
+    auto: "()I"
+  }
+
+  Name: #1
+  Super: #2
+
+  // Expect to return 0
+  method "test1" "()I" {
+    Flags: public, static
+    MaxStack: 2
+    MaxLocals: 2
+
+    bytecode {
+      iconst_0
+      ireturn
+    }
+  }
+
+  // Expect to return 0
+  method "test2" "()I" {
+    Flags: public, static
+    MaxStack: 2
+    MaxLocals: 2
+
+    bytecode {
+      iconst_0
+      iconst_0
+      ireturn
+    }
+  }
+
+  // Expect to return 1
+  method "test3" "()I" {
+    Flags: public, static
+    MaxStack: 2
+    MaxLocals: 2
+
+    bytecode {
+      iconst_0
+      iconst_1
+      ireturn
+    }
+  }
+}

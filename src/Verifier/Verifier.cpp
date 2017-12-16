@@ -50,6 +50,7 @@ public:
   void visit(const java_return &) override;
   void visit(const iconst_val &) override;
   void visit(const ireturn &) override;
+  void visit(const dreturn &) override;
   void visit(const putstatic &) override;
   void visit(const getstatic &) override;
   void visit(const dconst_val &) override;
@@ -156,6 +157,14 @@ void MethodVerifier::visit(const ireturn &) {
 
 void MethodVerifier::visit(const dconst_val &) {
   CurrentFrame.pushList({Types::Double});
+}
+
+void MethodVerifier::visit(const dreturn &) {
+  if (ReturnType != Types::Double)
+    throw VerificationError("Return type should be double");
+
+  if (!CurrentFrame.popMatchingList({Types::Double}))
+    throw VerificationError("Expected double type to be on the stack");
 }
 
 // Helper with common parts of the get and put static bytecodes
