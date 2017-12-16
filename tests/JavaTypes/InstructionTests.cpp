@@ -97,7 +97,7 @@ TEST_CASE("iconst value wrapper", "[Bytecode]") {
   REQUIRE(wrapper1.getVal() == 1);
 
   // This should fail to compile
-  auto dconst1 = parseFromString("dconst_1");
-  dconst_val wrapper = dconst1->getAs<dconst_1>();
-  (void)wrapper;
+//  auto dconst1 = parseFromString("dconst_1");
+//  iconst_val wrapper = dconst1->getAs<dconst_1>();
+//  (void)wrapper;
 }
