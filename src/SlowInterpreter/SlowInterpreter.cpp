@@ -200,8 +200,8 @@ public:
 
 private:
   InterpreterStack &stack() { return Stack; }
-  InterpreterFrame &cur_frame() { return stack().curentFrame(); }
-  const JavaMethod &curMethod() { return cur_frame().method(); }
+  InterpreterFrame &curFrame() { return stack().curentFrame(); }
+  const JavaMethod &curMethod() { return curFrame().method(); }
   const ConstantPool &CP() {
     return curMethod().getOwner().getConstantPool();
   }
@@ -214,18 +214,18 @@ private:
 };
 
 void Interpreter::visit(const iconst_val &Inst) {
-  cur_frame().push<JavaInt>(Inst.getVal());
+  curFrame().push<JavaInt>(Inst.getVal());
 }
 
 void Interpreter::visit(const dconst_val &Inst) {
-  cur_frame().push<JavaDouble>(Inst.getVal());
+  curFrame().push<JavaDouble>(Inst.getVal());
 }
 
 void Interpreter::returnFromFunction() {
   // TODO: pop frame and push result to stack
   assert(stack().numFrames() == 1); // function calls are not supported
 
-  RetVal = cur_frame().pop();
+  RetVal = curFrame().pop();
   stack().exit_function();
 }
 
@@ -257,14 +257,14 @@ void Interpreter::visit(const putstatic &Inst) {
   const auto &FRef = CP().getAs<ConstantPoolRecords::FieldRef>(Inst.getIdx());
   auto &class_obj = getClassManager().getClassObject(FRef.getClassName());
 
-  class_obj.setField(FRef.getName(), cur_frame().pop());
+  class_obj.setField(FRef.getName(), curFrame().pop());
 }
 
 void Interpreter::visit(const getstatic &Inst) {
   const auto &FRef = CP().getAs<ConstantPoolRecords::FieldRef>(Inst.getIdx());
   auto &class_obj = getClassManager().getClassObject(FRef.getClassName());
 
-  cur_frame().push(class_obj.getField(FRef.getName()));
+  curFrame().push(class_obj.getField(FRef.getName()));
 }
 
 }
