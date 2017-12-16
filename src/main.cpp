@@ -1,11 +1,11 @@
-#include <iostream>
-#include <memory>
-
 #include "JavaTypes/JavaClass.h"
 #include "ClassFileReader/ClassFileReader.h"
 #include "Verifier/Verifier.h"
 #include "SlowInterpreter/SlowInterpreter.h"
 #include "Runtime/Value.h"
+
+#include <iostream>
+#include <memory>
 
 int main() {
   std::unique_ptr<JavaTypes::JavaClass> NewClass;
@@ -34,7 +34,7 @@ int main() {
   auto Ret = SlowInterpreter::interpret(*Method, {}, true);
 
   std::cout << "Interpreter returned: " <<
-      Ret.getAs<SlowInterpreter::JavaInt>();
+      Ret.getAs<Runtime::JavaInt>();
 
   return 0;
 }

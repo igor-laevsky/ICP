@@ -35,9 +35,9 @@ namespace {
 class InterpreterFrame final {
 public:
   explicit InterpreterFrame(
-      std::string FunctionName,
+      const JavaMethod &Method,
       std::vector<Value> Locals) noexcept:
-    FunctionName(std::move(FunctionName)),
+    Method(Method),
     Locals(std::move(Locals)) {
     ;
   }
@@ -80,8 +80,10 @@ public:
   }
 
 
+  const JavaMethod &method() const { return Method; }
+
   void print(std::ostream &Out = std::cout) {
-    Out << "Frame for: " << FunctionName << "\n";
+    Out << "Frame for: " << method().getName() << "\n";
 
     Out << "  Locals:\n";
     int Idx = 0;
@@ -106,7 +108,7 @@ private:
   const std::vector<Value> &stack() const { return Stack; }
 
 private:
-  std::string FunctionName;
+  const JavaMethod &Method;
   std::vector<Value> Locals;
   std::vector<Value> Stack;
 };
@@ -117,9 +119,9 @@ private:
 class InterpreterStack final {
 public:
   void enter_function(
-      std::string FunctionName,
+      const JavaMethod &Method,
       std::vector<Value> Arguments) {
-    stack().emplace_back(std::move(FunctionName), std::move(Arguments));
+    stack().emplace_back(Method, std::move(Arguments));
   }
 
   void exit_function() {
@@ -175,10 +177,9 @@ private:
 class Interpreter final: public Bytecode::InstructionVisitor {
 public:
   Interpreter(
-      const ConstantPool &CP,
-      std::string InitialFuncName,
-      std::vector<Value> Arguments): CP(CP) {
-    stack().enter_function(std::move(InitialFuncName), std::move(Arguments));
+      const JavaMethod &Method,
+      std::vector<Value> Arguments) {
+    stack().enter_function(Method, std::move(Arguments));
   }
 
   Value getRetVal() { return RetVal; }
@@ -200,12 +201,14 @@ public:
 private:
   InterpreterStack &stack() { return Stack; }
   InterpreterFrame &cur_frame() { return stack().curentFrame(); }
+  const JavaMethod &curMethod() { return cur_frame().method(); }
+  const ConstantPool &CP() {
+    return curMethod().getOwner().getConstantPool();
+  }
 
   void returnFromFunction();
 
 private:
-  const ConstantPool &CP;
-
   InterpreterStack Stack;
   Value RetVal;
 };
@@ -251,14 +254,14 @@ void Interpreter::visit(const aload &) {
 }
 
 void Interpreter::visit(const putstatic &Inst) {
-  const auto &FRef = CP.getAs<ConstantPoolRecords::FieldRef>(Inst.getIdx());
+  const auto &FRef = CP().getAs<ConstantPoolRecords::FieldRef>(Inst.getIdx());
   auto &class_obj = getClassManager().getClassObject(FRef.getClassName());
 
   class_obj.setField(FRef.getName(), cur_frame().pop());
 }
 
 void Interpreter::visit(const getstatic &Inst) {
-  const auto &FRef = CP.getAs<ConstantPoolRecords::FieldRef>(Inst.getIdx());
+  const auto &FRef = CP().getAs<ConstantPoolRecords::FieldRef>(Inst.getIdx());
   auto &class_obj = getClassManager().getClassObject(FRef.getClassName());
 
   cur_frame().push(class_obj.getField(FRef.getName()));
@@ -271,8 +274,7 @@ Value SlowInterpreter::interpret(
     const std::vector<Value> &InputArguments,
     bool Debug /*= false*/) {
 
-  Interpreter I(
-      Method.getOwner().getConstantPool(), Method.getName(), InputArguments);
+  Interpreter I(Method, InputArguments);
 
   // TODO: assert that all required arguments are specified
 
