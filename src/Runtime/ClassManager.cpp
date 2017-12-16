@@ -23,3 +23,7 @@ ClassObject &ClassManager::getClassObject(const Utf8String &Name) {
 
   return *Classes.at(Name);
 }
+
+void ClassManager::reset() {
+  Classes.clear();
+}

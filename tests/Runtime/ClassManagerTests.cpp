@@ -33,4 +33,6 @@ TEST_CASE("Class manager static class", "[Runtime][ClassManager]") {
   // Single static instance everywhere
   CObj.setField("F1", Value::create<JavaInt>(0));
   REQUIRE(CObj_.getField("F1").getAs<JavaInt>() == 0);
+
+  getClassManager().reset();
 }

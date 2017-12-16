@@ -8,6 +8,11 @@
 #include "Bytecode/Instructions.h"
 #include "JavaTypes/JavaMethod.h"
 #include "Runtime/Value.h"
+#include "Runtime/ClassManager.h"
+#include "JavaTypes/JavaClass.h"
+#include "JavaTypes/ConstantPool.h"
+#include "JavaTypes/ConstantPoolRecords.h"
+#include "Bytecode/Instructions.h"
 
 #include <cassert>
 #include <vector>
@@ -20,6 +25,7 @@
 using namespace Bytecode;
 using namespace SlowInterpreter;
 using namespace Runtime;
+using namespace JavaTypes;
 
 namespace {
 
@@ -36,6 +42,7 @@ public:
     ;
   }
 
+
   template<class T>
   T getLocal(uint32_t Idx) const {
     assert(Idx < locals().size());
@@ -48,7 +55,8 @@ public:
     locals()[Idx] = Value::create<T>(NewVal);
   }
 
-  Value popValue() {
+
+  Value pop() {
     assert(!stack().empty());
 
     auto Ret = stack().back();
@@ -58,14 +66,19 @@ public:
 
   template<class T>
   T pop() {
-    auto Ret = popValue();
+    auto Ret = pop();
     return Ret.getAs<T>();
+  }
+
+  void push(const Value& Val) {
+    stack().push_back(Val);
   }
 
   template<class T>
   void push(const std::remove_reference_t<T>& Val) {
     stack().push_back(Value::create<T>(Val));
   }
+
 
   void print(std::ostream &Out = std::cout) {
     Out << "Frame for: " << FunctionName << "\n";
@@ -161,8 +174,10 @@ private:
 
 class Interpreter final: public Bytecode::InstructionVisitor {
 public:
-  Interpreter(std::string InitialFuncName,
-              std::vector<Value> Arguments) {
+  Interpreter(
+      const ConstantPool &CP,
+      std::string InitialFuncName,
+      std::vector<Value> Arguments): CP(CP) {
     stack().enter_function(std::move(InitialFuncName), std::move(Arguments));
   }
 
@@ -184,28 +199,30 @@ public:
 
 private:
   InterpreterStack &stack() { return Stack; }
-  const InterpreterStack &stack() const { return Stack; }
+  InterpreterFrame &cur_frame() { return stack().curentFrame(); }
 
   void returnFromFunction();
 
 private:
+  const ConstantPool &CP;
+
   InterpreterStack Stack;
   Value RetVal;
 };
 
 void Interpreter::visit(const iconst_val &Inst) {
-  stack().curentFrame().push<JavaInt>(Inst.getVal());
+  cur_frame().push<JavaInt>(Inst.getVal());
 }
 
 void Interpreter::visit(const dconst_val &Inst) {
-  stack().curentFrame().push<JavaDouble>(Inst.getVal());
+  cur_frame().push<JavaDouble>(Inst.getVal());
 }
 
 void Interpreter::returnFromFunction() {
   // TODO: pop frame and push result to stack
   assert(stack().numFrames() == 1); // function calls are not supported
 
-  RetVal = stack().curentFrame().popValue();
+  RetVal = cur_frame().pop();
   stack().exit_function();
 }
 
@@ -233,12 +250,18 @@ void Interpreter::visit(const aload &) {
   assert(false); // Not implemented
 }
 
-void Interpreter::visit(const putstatic &) {
-  assert(false); // Not implemented
+void Interpreter::visit(const putstatic &Inst) {
+  const auto &FRef = CP.getAs<ConstantPoolRecords::FieldRef>(Inst.getIdx());
+  auto &class_obj = getClassManager().getClassObject(FRef.getClassName());
+
+  class_obj.setField(FRef.getName(), cur_frame().pop());
 }
 
-void Interpreter::visit(const getstatic &) {
-  assert(false); // Not implemented
+void Interpreter::visit(const getstatic &Inst) {
+  const auto &FRef = CP.getAs<ConstantPoolRecords::FieldRef>(Inst.getIdx());
+  auto &class_obj = getClassManager().getClassObject(FRef.getClassName());
+
+  cur_frame().push(class_obj.getField(FRef.getName()));
 }
 
 }
@@ -248,7 +271,8 @@ Value SlowInterpreter::interpret(
     const std::vector<Value> &InputArguments,
     bool Debug /*= false*/) {
 
-  Interpreter I(Method.getName(), InputArguments);
+  Interpreter I(
+      Method.getOwner().getConstantPool(), Method.getName(), InputArguments);
 
   // TODO: assert that all required arguments are specified
 

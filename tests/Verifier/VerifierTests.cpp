@@ -326,7 +326,7 @@ TEST_CASE("too many locals", "[Verifier]") {
 
 }
 
-TEST_CASE("get_put_static", "[Verifier][getput]") {
+TEST_CASE("verify get_put_static", "[Verifier][getput]") {
   auto C = CD::parseFromFile("tests/Verifier/get_put_static.cd");
 
   const auto *m = C->getMethod("ok");

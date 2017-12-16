@@ -23,12 +23,15 @@ public:
 
   ClassObject &getClassObject(const Utf8String &Name);
 
+  // Mainly required for the sane testing. Need to avoid it once this class
+  // becomes more advanced.
+  void reset();
+
 private:
   ClassManager() = default;
 
 private:
   std::map<Utf8String, ClassObject*> Classes;
-
 };
 
 ClassManager &getClassManager();

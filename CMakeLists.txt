@@ -70,7 +70,8 @@ set (TEST_FILES
         tests/CD/ParserTests.cpp
         tests/JavaTypes/JavaFieldTests.cpp
         tests/Runtime/ValueTests.cpp
-        tests/Runtime/ObjectsTests.cpp tests/Runtime/ClassManagerTests.cpp)
+        tests/Runtime/ObjectsTests.cpp
+        tests/Runtime/ClassManagerTests.cpp)
 
 add_library(ICP_LIB ${SOURCE_FILES})
 

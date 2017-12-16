@@ -12,7 +12,6 @@
 #include <memory>
 #include <optional>
 #include <variant>
-#include <sstream>
 
 namespace Runtime {
 
@@ -129,19 +128,8 @@ public:
   /// Converts this value to it's string representation.
   /// This is intended for the debug purposes, don't use it in any correctness
   /// related applications, i.e tests.
-  friend std::string to_string(const Value &V) {
-    std::stringstream Ret;
-
-    std::visit([&](auto&& Arg) {
-      Ret << Arg;
-    }, V.data());
-    return Ret.str();
-  }
-
-  friend std::ostream& operator<<(std::ostream &Out, const Value &V) {
-    Out << to_string(V);
-    return Out;
-  }
+  friend std::string to_string(const Value &V);
+  friend std::ostream& operator<<(std::ostream &Out, const Value &V);
 
 private:
   using DataType =
@@ -160,6 +148,8 @@ private:
   DataType Data;
 };
 
+std::string to_string(const Value &V);
+std::ostream& operator<<(std::ostream &Out, const Value &V);
 
 }
 

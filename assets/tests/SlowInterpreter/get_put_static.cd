@@ -1,3 +1,5 @@
+// Note: This is also used from the ObjectTests.cpp to test static fields.
+
 class {
   constant_pool {
     1: ClassInfo "PutGetStatic"
@@ -8,7 +10,12 @@ class {
     6: FieldRef #1 #4
 
     auto: "main"
-    auto: "([Ljava/lang/String;)I"
+    auto: "test1"
+    auto: "test2"
+    auto: "test3"
+    auto: "test4"
+    auto: "()I"
+    auto: "()D"
     auto: "F2"
     auto: "D"
     auto: "F1"
@@ -29,8 +36,50 @@ class {
     public static "LPutGetStatic;": "Ref"
   }
 
-  // Should pass verification
-  method "main" "([Ljava/lang/String;)I" {
+  // Check that static variable is zero initialized
+  // Expect result: 0
+  method "test1" "()I" {
+    Flags: public, static
+    MaxStack: 2
+    MaxLocals: 1
+
+    bytecode {
+      getstatic #6 // Field F1:I
+      ireturn
+    }
+  }
+
+  // Check that static variable is zero initialized
+  // Expect result: 0
+  method "test2" "()D" {
+    Flags: public, static
+    MaxStack: 2
+    MaxLocals: 1
+
+    bytecode {
+      getstatic #5 // Field F2:D
+      dreturn
+    }
+  }
+
+  // Check that we can correctly store and load value
+  // Expect result: 1
+  method "test3" "()I" {
+    Flags: public, static
+    MaxStack: 2
+    MaxLocals: 1
+
+    bytecode {
+      iconst_1
+      putstatic #6 // Field F1:I
+      getstatic #6 // Field F1:I
+      ireturn
+    }
+  }
+
+  // Check that we can correctly store and load value
+  // Expect result: 1
+  method "test4" "()D" {
     Flags: public, static
     MaxStack: 2
     MaxLocals: 1
@@ -38,8 +87,9 @@ class {
     bytecode {
       dconst_1
       putstatic #5 // Field F2:D
-      getstatic #6 // Field F1:I
-      ireturn
+      getstatic #5 // Field F2:D
+      dreturn
     }
   }
+
 }

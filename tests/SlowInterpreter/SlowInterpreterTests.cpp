@@ -7,6 +7,7 @@
 #include "SlowInterpreter/SlowInterpreter.h"
 #include "Verifier/Verifier.h"
 #include "Runtime/Value.h"
+#include "Runtime/ClassManager.h"
 #include "CD/Parser.h"
 
 #include <iostream>
@@ -60,5 +61,25 @@ TEST_CASE("interpret dconst with dreturn", "[SlowInterpreter]") {
       *Class, "test3", {}) == 1);
 
   REQUIRE(testWithMethod<Runtime::JavaInt>(
+      *Class, "test4", {}) == 1);
+}
+
+TEST_CASE("interpret get put static", "[SlowInterpreter]") {
+  auto Class =
+      CD::parseFromFile("tests/SlowInterpreter/get_put_static.cd");
+
+  getClassManager().registerClass(
+      ClassObject::create(*Class)->getAs<ClassObject>());
+
+  REQUIRE(testWithMethod<Runtime::JavaInt>(
+      *Class, "test1", {}) == 0);
+
+  REQUIRE(testWithMethod<Runtime::JavaDouble>(
+      *Class, "test2", {}) == 0);
+
+  REQUIRE(testWithMethod<Runtime::JavaInt>(
+      *Class, "test3", {}) == 1);
+
+  REQUIRE(testWithMethod<Runtime::JavaDouble>(
       *Class, "test4", {}) == 1);
 }

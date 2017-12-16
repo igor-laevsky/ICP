@@ -98,3 +98,17 @@ void Value::toMemory(
   else
     assert(false); // Unrecognized type
 }
+
+std::string Runtime::to_string(const Value &V) {
+    std::stringstream Ret;
+
+    std::visit([&](auto&& Arg) {
+      Ret << Arg;
+    }, V.data());
+    return Ret.str();
+  }
+
+std::ostream& Runtime::operator<<(std::ostream &Out, const Value &V) {
+    Out << to_string(V);
+    return Out;
+}
