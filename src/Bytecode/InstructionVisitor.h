@@ -10,29 +10,31 @@ namespace Bytecode {
 
 class InstructionVisitor {
 public:
-  virtual void visit(const aload &) = 0;
-  virtual void visit(const aload_0 &) = 0;
-  virtual void visit(const invokespecial &) = 0;
-  virtual void visit(const java_return &) = 0;
-  virtual void visit(const ireturn &) = 0;
-  virtual void visit(const putstatic &) = 0;
-  virtual void visit(const getstatic &) = 0;
-
-  virtual void visit(const iconst_val &) {
-    assert(false); // unimplemented
+#define DEF_VISIT(Instr) \
+  virtual void visit(const Instr &) {\
+    assert(false && "unimplemented"); \
   }
-  virtual void visit(const iconst_0 &I);
-  virtual void visit(const iconst_1 &I);
+#define DECL_VISIT(Instr) virtual void visit(const Instr &)
 
-  virtual void visit(const dconst_val &) {
-    assert(false); // unimplemented
-  }
-  virtual void visit(const dconst_0 &I);
-  virtual void visit(const dconst_1 &I);
+  DEF_VISIT(aload);
+  DEF_VISIT(aload_0);
+  DEF_VISIT(invokespecial);
+  DEF_VISIT(java_return);
+  DEF_VISIT(ireturn);
+  DEF_VISIT(dreturn);
+  DEF_VISIT(putstatic);
+  DEF_VISIT(getstatic);
 
-  virtual void visit(const dreturn &) {
-    assert(false); // unimplemented
-  }
+  DEF_VISIT(iconst_val);
+  DECL_VISIT(iconst_0);
+  DECL_VISIT(iconst_1);
+
+  DEF_VISIT(dconst_val);
+  DECL_VISIT(dconst_0);
+  DECL_VISIT(dconst_1);
+
+#undef DEF_VISIT
+#undef DECL_VISIT
 
   // Just to be safe
   virtual ~InstructionVisitor() = default;
