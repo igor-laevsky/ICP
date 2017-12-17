@@ -59,7 +59,7 @@ set (TEST_FILES
         tests/JavaTypes/InstructionTests.cpp
         tests/JavaTypes/JavaMethodTests.cpp
         tests/Utils/IteratorsTests.cpp
-        tests/Verifier/TypeTests.cpp
+        tests/JavaTypes/TypeTests.cpp
         tests/Verifier/StackFrameTests.cpp
         tests/JavaTypes/InstructionVisitorTests.cpp
         tests/Verifier/VerifierTests.cpp
