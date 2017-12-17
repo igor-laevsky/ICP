@@ -45,6 +45,12 @@ TEST_CASE("interpret iconst with ireturn", "[SlowInterpreter]") {
 
   REQUIRE(testWithMethod<Runtime::JavaInt>(
       *Class, "test3", {}) == 1);
+
+  REQUIRE(testWithMethod<Runtime::JavaInt>(
+      *Class, "test4", {}) == 5);
+
+  REQUIRE(testWithMethod<Runtime::JavaInt>(
+      *Class, "test5", {}) == -1);
 }
 
 TEST_CASE("interpret dconst with dreturn", "[SlowInterpreter]") {

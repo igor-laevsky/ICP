@@ -6,6 +6,8 @@ class {
     auto: "test1"
     auto: "test2"
     auto: "test3"
+    auto: "test4"
+    auto: "test5"
     auto: "()I"
   }
 
@@ -46,6 +48,35 @@ class {
     bytecode {
       iconst_0
       iconst_1
+      ireturn
+    }
+  }
+
+  // Expect to return 5
+  method "test4" "()I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 2
+
+    bytecode {
+      iconst_0
+      iconst_1
+      iconst_2
+      iconst_3
+      iconst_4
+      iconst_5
+      ireturn
+    }
+  }
+
+  // Expect to return -1
+  method "test5" "()I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 2
+
+    bytecode {
+      iconst_m1
       ireturn
     }
   }

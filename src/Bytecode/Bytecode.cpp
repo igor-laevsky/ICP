@@ -26,8 +26,13 @@ std::unique_ptr<Instruction> Bytecode::parseInstruction(
     PARSE_OP(java_return);
     PARSE_OP(ireturn);
     PARSE_OP(dreturn);
+    PARSE_OP(iconst_m1);
     PARSE_OP(iconst_0);
     PARSE_OP(iconst_1);
+    PARSE_OP(iconst_2);
+    PARSE_OP(iconst_3);
+    PARSE_OP(iconst_4);
+    PARSE_OP(iconst_5);
     PARSE_OP(putstatic);
     PARSE_OP(getstatic);
     PARSE_OP(dconst_0);
@@ -65,8 +70,13 @@ std::unique_ptr<Instruction> Bytecode::parseFromString(
   PARSE_OP(java_return);
   PARSE_OP(ireturn);
   PARSE_OP(dreturn);
+  PARSE_OP(iconst_m1);
   PARSE_OP(iconst_0);
   PARSE_OP(iconst_1);
+  PARSE_OP(iconst_2);
+  PARSE_OP(iconst_3);
+  PARSE_OP(iconst_4);
+  PARSE_OP(iconst_5);
   PARSE_OP(putstatic);
   PARSE_OP(getstatic);
   PARSE_OP(dconst_0);

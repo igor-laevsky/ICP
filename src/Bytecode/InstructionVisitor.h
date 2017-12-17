@@ -26,8 +26,13 @@ public:
   DEF_VISIT(getstatic);
 
   DEF_VISIT(iconst_val);
+  DECL_VISIT(iconst_m1);
   DECL_VISIT(iconst_0);
   DECL_VISIT(iconst_1);
+  DECL_VISIT(iconst_2);
+  DECL_VISIT(iconst_3);
+  DECL_VISIT(iconst_4);
+  DECL_VISIT(iconst_5);
 
   DEF_VISIT(dconst_val);
   DECL_VISIT(dconst_0);

@@ -113,25 +113,30 @@ public:
   static constexpr const char *Name = "return";
 };
 
-class iconst_0 final: public NoIndex<iconst_0> {
-  using NoIndex::NoIndex;
+#define DEF_ICONST(Num, Value, OpCodeVal) \
+class iconst_##Num final: public NoIndex<iconst_##Num> { \
+  using NoIndex::NoIndex; \
+\
+public:\
+  static constexpr uint8_t OpCode = OpCodeVal;\
+  static constexpr const char *Name = "iconst_"#Num;\
+  static constexpr const uint8_t Val = Value;\
+}
 
-public:
-  static constexpr uint8_t OpCode = 0x03;
-  static constexpr const char *Name = "iconst_0";
-  static constexpr const uint8_t Val = 0;
-};
+DEF_ICONST(m1, -1, 0x02);
+DEF_ICONST(0, 0, 0x03);
+DEF_ICONST(1, 1, 0x04);
+DEF_ICONST(2, 2, 0x05);
+DEF_ICONST(3, 3, 0x06);
+DEF_ICONST(4, 4, 0x07);
+DEF_ICONST(5, 5, 0x08);
 
-class iconst_1 final: public NoIndex<iconst_1> {
-  using NoIndex::NoIndex;
+#undef DEF_ICONST
 
-public:
-  static constexpr uint8_t OpCode = 0x04;
-  static constexpr const char *Name = "iconst_1";
-  static constexpr const uint8_t Val = 1;
-};
-
-class iconst_val final: public ValueInstWrapper<iconst_0, iconst_1> {
+class iconst_val final:
+    public ValueInstWrapper<
+        iconst_m1, iconst_0, iconst_1,
+        iconst_2, iconst_3, iconst_4, iconst_5> {
   using ValueInstWrapper::ValueInstWrapper;
 };
 
