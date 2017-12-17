@@ -3,6 +3,8 @@
 #include "Verifier/Verifier.h"
 #include "SlowInterpreter/SlowInterpreter.h"
 #include "Runtime/Value.h"
+#include "Runtime/ClassManager.h"
+#include "Runtime/Objects.h"
 
 #include <iostream>
 #include <memory>
@@ -12,7 +14,7 @@ int main() {
 
   // Load class
   try {
-    NewClass = ClassFileReader::loadClassFromFile("./assets/Simple.class");
+    NewClass = ClassFileReader::loadClassFromFile("./assets/Fields.class");
   } catch (ClassFileReader::FileNotFound &) {
     std::cout << "Couldn't open class file." << "\n";
     return 1;
@@ -21,6 +23,9 @@ int main() {
     return 1;
   }
   assert(NewClass != nullptr);
+
+  Runtime::getClassManager().registerClass(
+      Runtime::ClassObject::create(*NewClass)->getAs<Runtime::ClassObject>());
 
   // Verify class
   Verifier::verify(*NewClass);

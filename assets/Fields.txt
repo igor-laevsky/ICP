@@ -1,6 +1,6 @@
 Classfile /G:/Projects/ICP/assets/Fields.class
-  Last modified 26.11.2017; size 347 bytes
-  MD5 checksum 4b252a42d8852bae285a999d201ff10f
+  Last modified 17.12.2017; size 355 bytes
+  MD5 checksum 0df4d416539af6876b0907aed851eab6
   Compiled from "Fields.java"
 public class Fields
   minor version: 0
@@ -62,10 +62,13 @@ Constant pool:
       stack=2, locals=1, args_size=1
          0: dconst_1
          1: putstatic     #2                  // Field F2:D
-         4: getstatic     #3                  // Field F1:I
-         7: ireturn
+         4: iconst_1
+         5: putstatic     #3                  // Field F1:I
+         8: getstatic     #3                  // Field F1:I
+        11: ireturn
       LineNumberTable:
         line 7: 0
         line 8: 4
+        line 9: 8
 }
 SourceFile: "Fields.java"

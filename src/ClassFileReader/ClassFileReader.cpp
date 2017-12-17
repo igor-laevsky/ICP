@@ -120,6 +120,22 @@ parseConstantPool(std::istream& Input) {
         break;
       }
 
+      case ConstantPoolTags::CONSTANT_Fieldref: {
+        uint16_t class_index = BigEndianReading::readHalf(Input);
+        CheckIndex(class_index, i);
+
+        uint16_t name_and_type_index = BigEndianReading::readHalf(Input);
+        CheckIndex(name_and_type_index, i);
+
+        ConstantPool::CellReference
+            ClassRef = Builder.getCellReference(class_index),
+            NameAndTypeRef = Builder.getCellReference(name_and_type_index);
+        Builder.set(i,
+                    std::make_unique<ConstantPoolRecords::FieldRef>(
+                        ClassRef, NameAndTypeRef));
+        break;
+      }
+
       case ConstantPoolTags::CONSTANT_Utf8: {
         uint16_t length = BigEndianReading::readHalf(Input);
         std::string name;
@@ -161,7 +177,7 @@ parseConstantPool(std::istream& Input) {
       }
 
       default:
-        throw FormatError("Unsupported constant pull tag " +
+        throw FormatError("Unsupported constant pool tag " +
                               std::to_string(tag));
     }
   }
@@ -258,6 +274,34 @@ static void parseMethodCode(
 
   // TODO: Check that attribute_length is consistent with the actual
   // amount of data.
+}
+
+// Parse single field description.
+// \returns JavaField by value with the hope that it's going to be moved to
+// the fields vector.
+// \throws FormatError or ReadError accordingly.
+static JavaField parseField(
+    std::istream &Input, const ConstantPool &CP) {
+  const uint16_t access_flags = BigEndianReading::readHalf(Input);
+  auto Flags = static_cast<JavaField::AccessFlags>(access_flags);
+  // This doesn't follow JVM specification but this is what javac
+  // generates on practice.
+  if (Flags == JavaField::ACC_NONE)
+    Flags = JavaField::ACC_PUBLIC;
+
+  const auto &Name =
+      readConstantPoolRecord<ConstantPoolRecords::Utf8>(
+          Input, CP, "field_name_index");
+  const auto &Descriptor =
+      readConstantPoolRecord<ConstantPoolRecords::Utf8>(
+          Input, CP, "field_descriptor_index");
+
+  // Skip all the attributes for now
+  const uint16_t attributes_count = BigEndianReading::readHalf(Input);
+  for (uint16_t idx = 0; idx < attributes_count; ++idx)
+    skipAttribute(Input);
+
+  return JavaField(Descriptor, Name, Flags);
 }
 
 // Helper function for the class file parser. Parses single method.
@@ -382,8 +426,11 @@ std::unique_ptr<JavaTypes::JavaClass> ClassFileReader::loadClassFromStream(
   //
   try {
     const uint16_t fields_count = BigEndianReading::readHalf(Input);
-    if (fields_count != 0)
-      throw FormatError("Fields are not supported yet");
+
+    ClassParams.Fields.reserve(fields_count);
+    for (uint16_t idx = 0; idx < fields_count; ++idx) {
+      ClassParams.Fields.push_back(parseField(Input, *ClassParams.CP));
+    }
   } catch (ReadError &) {
     throw FormatError("Can't read fields_count");
   }

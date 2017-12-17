@@ -4,7 +4,8 @@ public class Fields {
   Fields Ref;
 
   public static int main(String[] args) {
-    F2 = 15.0;
+    F2 = 1.0;
+    F1 = 1;
     return F1;
   }
 }
