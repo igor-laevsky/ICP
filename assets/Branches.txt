@@ -1,0 +1,94 @@
+Classfile /G:/Projects/ICP/assets/Branches.class
+  Last modified 17.12.2017; size 440 bytes
+  MD5 checksum 1614ebaed9810c9435b58d26cb1f7585
+  Compiled from "Branches.java"
+public class Branches
+  minor version: 0
+  major version: 52
+  flags: ACC_PUBLIC, ACC_SUPER
+Constant pool:
+   #1 = Methodref          #6.#21         // java/lang/Object."<init>":()V
+   #2 = Fieldref           #5.#22         // Branches.c:I
+   #3 = Fieldref           #5.#23         // Branches.b:I
+   #4 = Fieldref           #5.#24         // Branches.a:I
+   #5 = Class              #25            // Branches
+   #6 = Class              #26            // java/lang/Object
+   #7 = Utf8               a
+   #8 = Utf8               I
+   #9 = Utf8               b
+  #10 = Utf8               c
+  #11 = Utf8               <init>
+  #12 = Utf8               ()V
+  #13 = Utf8               Code
+  #14 = Utf8               LineNumberTable
+  #15 = Utf8               main
+  #16 = Utf8               ([Ljava/lang/String;)I
+  #17 = Utf8               StackMapTable
+  #18 = Utf8               <clinit>
+  #19 = Utf8               SourceFile
+  #20 = Utf8               Branches.java
+  #21 = NameAndType        #11:#12        // "<init>":()V
+  #22 = NameAndType        #10:#8         // c:I
+  #23 = NameAndType        #9:#8          // b:I
+  #24 = NameAndType        #7:#8          // a:I
+  #25 = Utf8               Branches
+  #26 = Utf8               java/lang/Object
+{
+  public static int a;
+    descriptor: I
+    flags: ACC_PUBLIC, ACC_STATIC
+
+  public static int b;
+    descriptor: I
+    flags: ACC_PUBLIC, ACC_STATIC
+
+  public static int c;
+    descriptor: I
+    flags: ACC_PUBLIC, ACC_STATIC
+
+  public Branches();
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+      LineNumberTable:
+        line 1: 0
+
+  public static int main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)I
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=2, locals=1, args_size=1
+         0: getstatic     #2                  // Field c:I
+         3: iconst_5
+         4: if_icmpne     11
+         7: getstatic     #3                  // Field b:I
+        10: ireturn
+        11: getstatic     #4                  // Field a:I
+        14: ireturn
+      LineNumberTable:
+        line 5: 0
+        line 6: 7
+        line 7: 11
+      StackMapTable: number_of_entries = 1
+        frame_type = 11 /* same */
+
+  static {};
+    descriptor: ()V
+    flags: ACC_STATIC
+    Code:
+      stack=1, locals=0, args_size=0
+         0: iconst_1
+         1: putstatic     #4                  // Field a:I
+         4: iconst_2
+         5: putstatic     #3                  // Field b:I
+         8: iconst_3
+         9: putstatic     #2                  // Field c:I
+        12: return
+      LineNumberTable:
+        line 2: 0
+}
+SourceFile: "Branches.java"

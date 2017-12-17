@@ -1,0 +1,46 @@
+Classfile /G:/Projects/ICP/assets/Simple.class
+  Last modified 15.09.2017; size 258 bytes
+  MD5 checksum 81cf06e7554dfae0c4f6e6706c2bd780
+  Compiled from "simple.java"
+public class Simple
+  minor version: 0
+  major version: 52
+  flags: ACC_PUBLIC, ACC_SUPER
+Constant pool:
+   #1 = Methodref          #3.#12         // java/lang/Object."<init>":()V
+   #2 = Class              #13            // Simple
+   #3 = Class              #14            // java/lang/Object
+   #4 = Utf8               <init>
+   #5 = Utf8               ()V
+   #6 = Utf8               Code
+   #7 = Utf8               LineNumberTable
+   #8 = Utf8               main
+   #9 = Utf8               ([Ljava/lang/String;)I
+  #10 = Utf8               SourceFile
+  #11 = Utf8               simple.java
+  #12 = NameAndType        #4:#5          // "<init>":()V
+  #13 = Utf8               Simple
+  #14 = Utf8               java/lang/Object
+{
+  public Simple();
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+      LineNumberTable:
+        line 1: 0
+
+  public static int main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)I
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: iconst_0
+         1: ireturn
+      LineNumberTable:
+        line 3: 0
+}
+SourceFile: "simple.java"
