@@ -37,6 +37,13 @@ std::unique_ptr<Instruction> Bytecode::parseInstruction(
     PARSE_OP(getstatic);
     PARSE_OP(dconst_0);
     PARSE_OP(dconst_1);
+
+    PARSE_OP(if_icmpeq);
+    PARSE_OP(if_icmpne);
+    PARSE_OP(if_icmplt);
+    PARSE_OP(if_icmpge);
+    PARSE_OP(if_icmpgt);
+    PARSE_OP(if_icmple);
     default:
       throw UnknownBytecode();
   }
@@ -81,6 +88,13 @@ std::unique_ptr<Instruction> Bytecode::parseFromString(
   PARSE_OP(getstatic);
   PARSE_OP(dconst_0);
   PARSE_OP(dconst_1);
+
+  PARSE_OP(if_icmpeq);
+  PARSE_OP(if_icmpne);
+  PARSE_OP(if_icmplt);
+  PARSE_OP(if_icmpge);
+  PARSE_OP(if_icmpgt);
+  PARSE_OP(if_icmple);
 
 #undef PARSE_OP
 

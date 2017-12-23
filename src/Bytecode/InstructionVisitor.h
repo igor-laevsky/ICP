@@ -38,6 +38,14 @@ public:
   DECL_VISIT(dconst_0);
   DECL_VISIT(dconst_1);
 
+  DEF_VISIT(if_icmp_op);
+  DECL_VISIT(if_icmpeq);
+  DECL_VISIT(if_icmpne);
+  DECL_VISIT(if_icmplt);
+  DECL_VISIT(if_icmpge);
+  DECL_VISIT(if_icmpgt);
+  DECL_VISIT(if_icmple);
+
 #undef DEF_VISIT
 #undef DECL_VISIT
 

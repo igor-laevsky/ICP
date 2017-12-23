@@ -32,6 +32,14 @@ class dreturn;
 class putstatic;
 class getstatic;
 
+class if_icmp_op;
+class if_icmpeq;
+class if_icmpne;
+class if_icmplt;
+class if_icmpge;
+class if_icmpgt;
+class if_icmple;
+
 }
 
 #endif //ICP_BYTECODEINSTRUCTIONSFWD_H

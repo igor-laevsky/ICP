@@ -120,7 +120,7 @@ class iconst_##Num final: public NoIndex<iconst_##Num> { \
 public:\
   static constexpr uint8_t OpCode = OpCodeVal;\
   static constexpr const char *Name = "iconst_"#Num;\
-  static constexpr const uint8_t Val = Value;\
+  static constexpr uint8_t Val = Value;\
 }
 
 DEF_ICONST(m1, -1, 0x02);
@@ -192,6 +192,44 @@ class putstatic final: public SingleIndex<putstatic> {
 public:
   static constexpr uint8_t OpCode = 0xb3;
   static constexpr const char *Name = "putstatic";
+};
+
+///
+/// Comparisons
+///
+enum ComparisonOp: uint8_t {
+  COMP_EQ = 0,
+  COMP_NE,
+  COMP_LT,
+  COMP_GE,
+  COMP_GT,
+  COMP_LE
+};
+
+#define IF_ICMP(Suffix, OpCodeNum, OpCodeName) \
+class if_icmp##Suffix: public SingleIndex<if_icmp##Suffix> { \
+  using SingleIndex::SingleIndex; \
+\
+public:\
+  static constexpr uint8_t OpCode = OpCodeNum;\
+  static constexpr const char *Name = "if_icmp"#Suffix;\
+  static constexpr uint8_t Val = OpCodeName;\
+}
+
+IF_ICMP(eq, 0x9f, COMP_EQ);
+IF_ICMP(ne, 0xa0, COMP_NE);
+IF_ICMP(lt, 0xa1, COMP_LT);
+IF_ICMP(ge, 0xa2, COMP_GE);
+IF_ICMP(gt, 0xa3, COMP_GT);
+IF_ICMP(le, 0xa4, COMP_LE);
+
+#undef IF_ICMP
+
+class if_icmp_op:
+    public ValueInstWrapper<
+      if_icmpeq, if_icmpne, if_icmplt,
+      if_icmpge, if_icmpgt, if_icmple> {
+  using ValueInstWrapper::ValueInstWrapper;
 };
 
 }

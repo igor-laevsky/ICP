@@ -8,31 +8,27 @@
 
 using namespace Bytecode;
 
-void InstructionVisitor::visit(const iconst_m1 &I) {
-  visit(iconst_val(I));
-}
-void InstructionVisitor::visit(const iconst_0 &I)  {
-  visit(iconst_val(I));
-}
-void InstructionVisitor::visit(const iconst_1 &I) {
-  visit(iconst_val(I));
-}
-void InstructionVisitor::visit(const iconst_2 &I) {
-  visit(iconst_val(I));
-}
-void InstructionVisitor::visit(const iconst_3 &I) {
-  visit(iconst_val(I));
-}
-void InstructionVisitor::visit(const iconst_4 &I) {
-  visit(iconst_val(I));
-}
-void InstructionVisitor::visit(const iconst_5 &I) {
-  visit(iconst_val(I));
+#define DEF_FWD_VISIT(TargetType, SourceType) \
+void InstructionVisitor::visit(const SourceType &I) {\
+  visit(TargetType(I));\
 }
 
-void InstructionVisitor::visit(const dconst_0 &I) {
-  visit(dconst_val(I));
-}
-void InstructionVisitor::visit(const dconst_1 &I) {
-  visit(dconst_val(I));
-}
+DEF_FWD_VISIT(iconst_val, iconst_m1)
+DEF_FWD_VISIT(iconst_val, iconst_0)
+DEF_FWD_VISIT(iconst_val, iconst_1)
+DEF_FWD_VISIT(iconst_val, iconst_2)
+DEF_FWD_VISIT(iconst_val, iconst_3)
+DEF_FWD_VISIT(iconst_val, iconst_4)
+DEF_FWD_VISIT(iconst_val, iconst_5)
+
+DEF_FWD_VISIT(dconst_val, dconst_0)
+DEF_FWD_VISIT(dconst_val, dconst_1)
+
+DEF_FWD_VISIT(if_icmp_op, if_icmpeq)
+DEF_FWD_VISIT(if_icmp_op, if_icmpne)
+DEF_FWD_VISIT(if_icmp_op, if_icmplt)
+DEF_FWD_VISIT(if_icmp_op, if_icmpge)
+DEF_FWD_VISIT(if_icmp_op, if_icmpgt)
+DEF_FWD_VISIT(if_icmp_op, if_icmple)
+
+#undef DEF_VISIT
