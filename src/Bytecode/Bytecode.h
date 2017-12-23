@@ -93,9 +93,8 @@ public:
   static std::unique_ptr<Instruction> create(
       const Container &Bytecodes, ContainerIterator &It);
 
-  // Convenience wrapper for the 'create' function.
-  // Simply creates instruction of the 'InstructionType' and assigns it's
-  // arguments when applicable.
+  // Directly create an instruction. Arg1 is unused for single index
+  // instructions.
   template<class InstructionType>
   static std::unique_ptr<Instruction> create(IdxType Arg1 = 0);
 
@@ -158,8 +157,8 @@ std::unique_ptr<Instruction> Instruction::create(IdxType Arg1/* = 0*/) {
     assert(false); // Unhandled instruction length
   }
 
-  auto It = Bytecode.cbegin();
-  return Instruction::create<InstructionType>(Bytecode, It);
+  return
+      std::unique_ptr<InstructionType>(new InstructionType(Bytecode.cbegin()));
 }
 
 // Parses all instructions from the specified container.
