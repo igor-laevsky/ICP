@@ -12,14 +12,21 @@ namespace Bytecode {
 // Utility class for instruction consisting of a single byte.
 template<class ConcreteType>
 class NoIndex: public VisitableInstruction<ConcreteType> {
-  using VisitableInstruction<ConcreteType>::VisitableInstruction;
-
 public:
   static constexpr uint8_t Length = 1;
 
   void print(std::ostream &Out) const override {
     Out << ConcreteType::Name << "\n";
   }
+
+private:
+  // Adhere to the common interface used in the create functions.
+  explicit NoIndex(ContainerIterator It) {
+    (void)It;
+  }
+
+  // Allow calling constructor from the create functions.
+  friend class Instruction;
 };
 
 // Utility class which wraps number of instructions with values encoded into
@@ -68,8 +75,7 @@ public:
   }
 
 private:
-  SingleIndex(ContainerIterator It, BciType bci):
-      VisitableInstruction<ConcreteType>(It, bci),
+  explicit SingleIndex(ContainerIterator It):
       Idx((*(It + 1) << 8) | *(It + 2)) {
     ;
   }

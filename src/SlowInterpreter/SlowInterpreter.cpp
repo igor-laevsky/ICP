@@ -282,7 +282,7 @@ Value SlowInterpreter::interpret(
     Instr.accept(I);
 
     if (Debug) {
-      std::cout << "#" << Instr.getBci() << " ";
+      std::cout << "#" << Method.getBciForInst(Instr) << " ";
       Instr.print(std::cout);
       I.print();
     }

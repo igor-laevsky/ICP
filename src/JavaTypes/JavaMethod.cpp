@@ -7,6 +7,7 @@
 #include <ostream>
 
 using namespace JavaTypes;
+using namespace Bytecode;
 
 JavaMethod::JavaMethod(JavaMethod::MethodConstructorParameters &&Params) :
     Owner(nullptr),
@@ -38,18 +39,36 @@ void JavaMethod::print(std::ostream &Out) const {
   Out << "Code:\n";
 
   for (const auto &Instr: *this) {
-    Out << "  " << Instr.getBci() << ": ";
+    Out << "  " << getBciForInst(Instr) << ": ";
     Instr.print(Out);
   }
 }
 
-const Bytecode::Instruction &
-JavaMethod::getInstrAtBci(Bytecode::BciType Bci) const {
-  // This is can be more efficient, but it doesn't matter for now
-  for (const auto &Instr: *this) {
-    if (Instr.getBci() == Bci)
-      return Instr;
+BciType JavaMethod::getBciForInst(const Instruction &Inst) const {
+  BciType cur_bci = 0;
+
+  // This should be optimized
+  for (const auto &CurInst: *this) {
+    if (CurInst == Inst)
+      return cur_bci;
+    cur_bci += CurInst.getLength();
   }
 
-  throw WrongBci();
+  assert(false); // trying to get bci for the non existent instruction.
+  return 0;
+}
+
+const Instruction &
+JavaMethod::getInstrAtBci(BciType Bci) const {
+  BciType cur_bci = 0;
+
+  // This should be optimized
+  for (const auto &Inst: *this) {
+    if (cur_bci == Bci)
+      return Inst;
+    cur_bci += Inst.getLength();
+  }
+
+  assert(false); // trying to get instruction at non existent bci
+  return *this->begin();
 }

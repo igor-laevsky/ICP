@@ -70,9 +70,6 @@ public:
     StackMapTableType StackMapTable;
   };
 
-  // thrown when trying to request instruction at non existant bci
-  class WrongBci: public std::exception {};
-
 public:
   explicit JavaMethod(MethodConstructorParameters &&Params);
 
@@ -105,6 +102,9 @@ public:
   }
 
   const auto &getStackMapTable() const { return StackMapTable; }
+
+  // Get bci for the specified instruction
+  Bytecode::BciType getBciForInst(const Bytecode::Instruction &Inst) const;
 
   // Get instruction at specified bci.
   // \throws WrongBci if no such instruction is found.

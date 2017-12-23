@@ -205,13 +205,15 @@ void Verifier::verifyMethod(const JavaMethod &Method) {
     // TODO: Set up StackMap if method has it specified for the current bci
     if (!V.checkPreConditions())
       throw VerificationError(
-          "Failed pre conditions at the bci " + std::to_string(Instr.getBci()));
+          "Failed pre conditions at the bci " +
+              std::to_string(Method.getBciForInst(Instr)));
 
     Instr.accept(V);
 
     if (!V.checkPostConditions())
       throw VerificationError(
-          "Failed post conditions at the bci " + std::to_string(Instr.getBci()));
+          "Failed post conditions at the bci " +
+              std::to_string(Method.getBciForInst(Instr)));
   }
 }
 

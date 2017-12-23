@@ -42,9 +42,9 @@ TEST_CASE("Common instruction interface", "[Bytecode]") {
   }
 
   SECTION("bci") {
-    REQUIRE(Aload->getBci() == 0);
-    REQUIRE(Invoke->getBci() == 1);
-    REQUIRE(Ret->getBci() == 4);
+    REQUIRE(Aload->getLength() == 1);
+    REQUIRE(Invoke->getLength() == 3);
+    REQUIRE(Ret->getLength() == 1);
   }
 }
 

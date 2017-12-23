@@ -75,8 +75,9 @@ public:
     return dynamic_cast<const RetType*>(this);
   }
 
-  // Each instruction must know it's bytecode index.
-  BciType getBci() const { return bci; }
+  // Get length of this inistruction. So far this is the only common field for
+  // the all instructions.
+  virtual uint8_t getLength() const = 0;
 
   // Print information about this instruction.
   // This is intended as a debug output and should not be relied on for
@@ -99,14 +100,7 @@ public:
   static std::unique_ptr<Instruction> create(IdxType Arg1 = 0);
 
 protected:
-  // This is supposed to be called only from 'create' function
-  Instruction(ContainerIterator It, BciType bci):
-      bci(bci) {
-    (void)It; // This parameter is used in the inherited classes
-  }
-
-private:
-  const BciType bci;
+  Instruction() = default;
 };
 
 // Two instructions are identical if their addresses are identical.
@@ -117,13 +111,18 @@ inline bool operator==(const Instruction &Lhs, const Instruction &Rhs) {
 // This class is used as a base in CRTP to simplify visitor implementation
 template<class ConcreteType>
 class VisitableInstruction: public Instruction {
-  using Instruction::Instruction;
-
 public:
   // Support instruction visitor
   void accept(InstructionVisitor &V) const override {
     V.visit(static_cast<const ConcreteType&>(*this));
   }
+
+  // Also implement getLength. It might not be a perfect place for this
+  // but adding another inheritance level seems to be redundant.
+  uint8_t getLength() const override { return ConcreteType::Length; }
+
+protected:
+  VisitableInstruction() = default;
 };
 
 template<class InstructionType>
@@ -134,11 +133,8 @@ Instruction::create(const Container &Bytecodes, ContainerIterator &It) {
     throw BytecodeParsingError();
   assert(*It == InstructionType::OpCode);
 
-  // Compute bci
-  BciType bci = static_cast<BciType>(std::distance(Bytecodes.begin(), It));
-
   // Create instruction
-  auto Res = std::unique_ptr<InstructionType>(new InstructionType(It, bci));
+  auto Res = std::unique_ptr<InstructionType>(new InstructionType(It));
 
   // Advance iterator
   It += InstructionType::Length;
