@@ -26,7 +26,7 @@ static ResT testWithMethod(
   assert(Method != nullptr);
 
 #ifndef NDEBUG
-  Verifier::verifyMethod(*Method);
+  //Verifier::verifyMethod(*Method);
 #endif
 
   auto Res = SlowInterpreter::interpret(*Method, InputArgs);
@@ -88,4 +88,16 @@ TEST_CASE("interpret get put static", "[SlowInterpreter]") {
 
   REQUIRE(testWithMethod<Runtime::JavaDouble>(
       *Class, "test4", {}) == 1);
+
+  getClassManager().reset();
+}
+
+TEST_CASE("interpret comparisons", "[SlowInterpreter]") {
+  auto Class =
+      CD::parseFromFile("tests/SlowInterpreter/ifcmp.cd");
+
+  for (int i = 1; i <= 6; ++i) {
+    REQUIRE(testWithMethod<Runtime::JavaInt>(
+        *Class, "test" + std::to_string(i), {}) == 0);
+  }
 }

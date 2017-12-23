@@ -58,17 +58,22 @@ BciType JavaMethod::getBciForInst(const Instruction &Inst) const {
   return 0;
 }
 
-const Instruction &
-JavaMethod::getInstrAtBci(BciType Bci) const {
+JavaMethod::CodeIterator
+JavaMethod::getCodeIterAtBci(Bytecode::BciType Bci) const {
   BciType cur_bci = 0;
 
   // This should be optimized
-  for (const auto &Inst: *this) {
+  for (auto It = begin(), End = end(); It != End; ++It) {
     if (cur_bci == Bci)
-      return Inst;
-    cur_bci += Inst.getLength();
+      return It;
+    cur_bci += It->getLength();
   }
 
   assert(false); // trying to get instruction at non existent bci
-  return *this->begin();
+  return this->end();
+}
+
+const Bytecode::Instruction &
+JavaMethod::getInstrAtBci(Bytecode::BciType Bci) const {
+  return *getCodeIterAtBci(Bci);
 }

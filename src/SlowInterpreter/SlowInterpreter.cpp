@@ -38,10 +38,23 @@ public:
       const JavaMethod &Method,
       std::vector<Value> Locals) noexcept:
     Method(Method),
-    Locals(std::move(Locals)) {
+    Locals(std::move(Locals)),
+    CurInstr(Method.begin()) {
     ;
   }
 
+  const Instruction &getCurInstr() const { return *CurInstr; }
+
+  void jumpToBciOffset(BciType Offset) {
+    const BciType new_bci = Method.getBciForInst(getCurInstr()) + Offset;
+    CurInstr = Method.getCodeIterAtBci(new_bci);
+    assert(CurInstr != Method.end());
+  }
+
+  void jumpToNextInstr() {
+    assert(CurInstr != Method.end());
+    ++CurInstr;
+  }
 
   template<class T>
   T getLocal(uint32_t Idx) const {
@@ -54,7 +67,6 @@ public:
     assert(Idx < locals().size());
     locals()[Idx] = Value::create<T>(NewVal);
   }
-
 
   Value pop() {
     assert(!stack().empty());
@@ -111,6 +123,8 @@ private:
   const JavaMethod &Method;
   std::vector<Value> Locals;
   std::vector<Value> Stack;
+
+  JavaMethod::CodeIterator CurInstr;
 };
 
 // Represents stack of InterpreterFrames.
@@ -133,7 +147,7 @@ public:
     assert(!stack().empty());
     return stack().back();
   }
-  auto &curentFrame() {
+  auto &currentFrame() {
     return const_cast<InterpreterFrame &>(
         const_cast<const InterpreterStack&>(*this).currentFrame());
   }
@@ -182,11 +196,20 @@ public:
     stack().enter_function(Method, std::move(Arguments));
   }
 
-  Value getRetVal() { return RetVal; }
-  bool emptyStack() { return stack().empty(); }
+  // Main interface method.
+  // Executes single instruction and jumps to the next when possible.
+  // Return false when there are no instructions left, true otherwise.
+  bool runSingleInstr();
 
+  // Accessors for the current interpreter state
+  bool isStackEmpty() { return stack().empty(); }
+  const Instruction &getCurInstr() const { return curFrame().getCurInstr(); }
+  Value getRetVal() { return RetVal; }
+
+  // Print state of the interpreter. Inteded for the debugging purposes.
   void print(std::ostream &Out = std::cout) { Stack.print(Out); }
 
+  // Meat of the interpreter.
   void visit(const aload_0 &) override;
   void visit(const invokespecial &) override;
   void visit(const iconst_val &) override;
@@ -198,20 +221,54 @@ public:
   void visit(const putstatic &) override;
   void visit(const getstatic &) override;
 
+  void visit(const if_icmp_op &) override;
+
 private:
   InterpreterStack &stack() { return Stack; }
-  InterpreterFrame &curFrame() { return stack().curentFrame(); }
-  const JavaMethod &curMethod() { return curFrame().method(); }
+  const InterpreterStack &stack() const { return Stack; }
+
+  InterpreterFrame &curFrame() { return stack().currentFrame(); }
+  const InterpreterFrame &curFrame() const { return stack().currentFrame(); }
+
+  const JavaMethod &curMethod() const { return curFrame().method(); }
   const ConstantPool &CP() {
     return curMethod().getOwner().getConstantPool();
   }
 
   void returnFromFunction();
 
+  // Doesn't actually jump anywhere. Actual jump is performed in the
+  // 'runSingleInstr' method.
+  void jumpToBciOffset(BciType Offset) { NextOffset = Offset; }
+
 private:
   InterpreterStack Stack;
   Value RetVal;
+
+  // Bci offset of the next instruction to execute.
+  // Empty means jump to the next instruction.
+  std::optional<BciType> NextOffset;
 };
+
+}
+
+bool Interpreter::runSingleInstr() {
+  // Execute current instruction
+  getCurInstr().accept(*this);
+
+  // If we exited the last function - we are done.
+  if (isStackEmpty())
+    return false;
+
+  // Jump to the next instruction.
+  if (NextOffset)
+    curFrame().jumpToBciOffset(*NextOffset);
+  else
+    curFrame().jumpToNextInstr();
+
+  NextOffset = std::nullopt;
+  return true;
+}
 
 void Interpreter::visit(const iconst_val &Inst) {
   curFrame().push<JavaInt>(Inst.getVal());
@@ -267,7 +324,45 @@ void Interpreter::visit(const getstatic &Inst) {
   curFrame().push(class_obj.getField(FRef.getName()));
 }
 
+// Helper for the comparison operators. Receives two stack values and calls
+// relevant c++ operator on them.
+template<typename ValT>
+static bool javaCompare(
+    ComparisonOp CmpOp, const Value &Val1, const Value &Val2) {
+
+  const auto real_val1 = Val1.getAs<ValT>();
+  const auto real_val2 = Val2.getAs<ValT>();
+
+  if (CmpOp == COMP_EQ)
+    return real_val1 == real_val2;
+  if (CmpOp == COMP_NE)
+    return real_val1 != real_val2;
+  if (CmpOp == COMP_LT)
+    return real_val1 < real_val2;
+  if (CmpOp == COMP_GE)
+    return real_val1 >= real_val2;
+  if (CmpOp == COMP_GT)
+    return real_val1 > real_val2;
+  if (CmpOp == COMP_LE)
+    return real_val1 <= real_val2;
+
+  assert(false); // unrecognizer comparison operator
+  return false;
 }
+
+void Interpreter::visit(const if_icmp_op &Inst) {
+  // Note the ordering here according to the jvm specification
+  const auto val2 = curFrame().pop();
+  const auto val1 = curFrame().pop();
+
+  const auto cmp_op = static_cast<ComparisonOp>(Inst.getVal());
+  const bool res = javaCompare<JavaInt>(cmp_op, val1, val2);
+  curFrame().push<JavaInt>(res);
+
+  if (res)
+    jumpToBciOffset(Inst.getIdx());
+}
+
 
 Value SlowInterpreter::interpret(
     const JavaTypes::JavaMethod &Method,
@@ -278,16 +373,14 @@ Value SlowInterpreter::interpret(
 
   // TODO: assert that all required arguments are specified
 
-  for (const auto &Instr: Method) {
-    Instr.accept(I);
-
+  while (I.runSingleInstr()) {
     if (Debug) {
-      std::cout << "#" << Method.getBciForInst(Instr) << " ";
-      Instr.print(std::cout);
+      std::cout << "#" << Method.getBciForInst(I.getCurInstr()) << " ";
+      I.getCurInstr().print(std::cout);
       I.print();
     }
   }
 
-  assert(I.emptyStack()); // should exit all functions
+  assert(I.isStackEmpty()); // should exit all functions
   return I.getRetVal();
 }

@@ -1,0 +1,134 @@
+class {
+  constant_pool {
+    1: ClassInfo "IfCmp"
+    2: ClassInfo "java/lang/Object"
+    3: NameAndType "F1" "I"
+    4: FieldRef #1 #3
+
+    auto: "main"
+    auto: "test1"
+    auto: "test2"
+    auto: "test3"
+    auto: "test4"
+    auto: "test5"
+    auto: "test6"
+    auto: "()I"
+    auto: "F1"
+    auto: "I"
+  }
+
+  Name: #1
+  Super: #2
+
+  fields {
+    public static "I": "F1"
+  }
+
+  // Check that equality means equality
+  // Expect result: 0
+  method "test1" "()I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 1
+
+    bytecode {
+      iconst_1
+      iconst_0
+      if_icmpeq #5
+        iconst_0
+        ireturn
+      iconst_1
+      ireturn
+    }
+  }
+
+  // Check equality
+  // Expected result: 0
+  method "test2" "()I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 1
+
+    bytecode {
+      iconst_1
+      iconst_1
+      if_icmpeq #5
+        iconst_1
+        ireturn
+      iconst_0
+      ireturn
+    }
+  }
+
+  // Check inequality
+  // Expected result: 0
+  method "test3" "()I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 1
+
+    bytecode {
+      iconst_1
+      iconst_1
+      if_icmpne #5
+        iconst_0
+        ireturn
+      iconst_1
+      ireturn
+    }
+  }
+
+  // Check inequality
+  // Expected result: 0
+  method "test4" "()I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 1
+
+    bytecode {
+      iconst_0
+      iconst_1
+      if_icmpne #5
+        iconst_1
+        ireturn
+      iconst_0
+      ireturn
+    }
+  }
+
+  // Check qe
+  // Expected result: 0
+  method "test5" "()I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 1
+
+    bytecode {
+      iconst_0
+      iconst_1
+      if_icmpge #5
+        iconst_0
+        ireturn
+      iconst_1
+      ireturn
+    }
+  }
+
+  // Check qe
+  // Expected result: 0
+  method "test6" "()I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 1
+
+    bytecode {
+      iconst_1
+      iconst_0
+      if_icmpge #5
+        iconst_1
+        ireturn
+      iconst_0
+      ireturn
+    }
+  }
+}

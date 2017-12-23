@@ -29,34 +29,6 @@ private:
   friend class Instruction;
 };
 
-// Utility class which wraps number of instructions with values encoded into
-// their opcodes and provides uniform access to them.
-template<class... Ts>
-class ValueInstWrapper {
-private:
-  // Better move this into utility module but so far it's the only place
-  // where it's needed.
-  template<class Arg, class... Args>
-  static constexpr bool is_valid_inst =
-    std::disjunction<std::is_same<Arg, Args>...>::value;
-
-public:
-  template<
-      class InstT,
-      class X = std::enable_if_t<is_valid_inst<InstT, Ts...>>>
-  constexpr ValueInstWrapper(const InstT& Inst) noexcept:
-      Inst(Inst),
-      Val(InstT::Val) {
-    ;
-  }
-
-  constexpr int8_t getVal() const { return Val; }
-  constexpr const Instruction &getInst() const { return Inst; }
-
-private:
-  const Instruction &Inst;
-  int8_t Val = 0;
-};
 
 // Utility class for three byte instructions. First byte is opcode,
 // second two represent constant pool index.
@@ -86,6 +58,58 @@ private:
 private:
   const IdxType Idx;
 };
+
+// Better move this into utility module but so far it's the only place
+// where it's needed.
+template<class Arg, class... Args>
+inline constexpr bool contains =
+  std::disjunction<std::is_same<Arg, Args>...>::value;
+
+// Utility class which wraps number of instructions with values encoded into
+// their opcodes and provides uniform access to them.
+template<class... Ts>
+class ValueInstWrapper {
+public:
+
+public:
+  template<
+      class InstT,
+      class X = std::enable_if_t<contains<InstT, Ts...>>>
+  constexpr ValueInstWrapper(const InstT& Inst) noexcept:
+      Inst(Inst),
+      Val(InstT::Val) {
+    ;
+  }
+
+  constexpr int8_t getVal() const { return Val; }
+  constexpr const Instruction &getInst() const { return Inst; }
+
+private:
+  const Instruction &Inst;
+  const int8_t Val = 0;
+};
+
+// Extension of the ValueInstWrapper. Additionally provides access to the
+// instruction index. Only possible to use with SingleIndex instructions.
+template<class... Ts>
+class ValueIdxWrapper: public ValueInstWrapper<Ts...> {
+public:
+  template<
+      class InstT,
+      class X = std::enable_if_t<contains<InstT, Ts...>>>
+  constexpr ValueIdxWrapper(const InstT &Inst):
+      ValueInstWrapper<Ts...>(Inst),
+      Idx(Inst.getIdx()) {
+    ;
+  }
+
+  IdxType getIdx() const { return Idx; }
+
+private:
+  const IdxType Idx;
+};
+
+
 
 class aload_0 final: public NoIndex<aload_0> {
   using NoIndex::NoIndex;
@@ -232,10 +256,10 @@ IF_ICMP(le, 0xa4, COMP_LE);
 #undef IF_ICMP
 
 class if_icmp_op:
-    public ValueInstWrapper<
+    public ValueIdxWrapper<
       if_icmpeq, if_icmpne, if_icmplt,
       if_icmpge, if_icmpgt, if_icmple> {
-  using ValueInstWrapper::ValueInstWrapper;
+  using ValueIdxWrapper::ValueIdxWrapper;
 };
 
 }

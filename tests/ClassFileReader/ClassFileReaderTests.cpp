@@ -44,4 +44,6 @@ TEST_CASE("Read verify and interpret fields class", "[ClassFileReader]") {
   auto Ret = SlowInterpreter::interpret(*Method, {});
 
   REQUIRE(Ret.getAs<Runtime::JavaInt>() == 1);
+
+  Runtime::getClassManager().reset();
 }

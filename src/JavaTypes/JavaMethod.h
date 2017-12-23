@@ -110,6 +110,10 @@ public:
   // \throws WrongBci if no such instruction is found.
   const Bytecode::Instruction &getInstrAtBci(Bytecode::BciType Bci) const;
 
+  // Get code iterator for the given bci.
+  // \throws WrongBci if no such instruction is found.
+  CodeIterator getCodeIterAtBci(Bytecode::BciType Bci) const;
+
   // Support ranged-for iteration over instructions.
   CodeIterator begin() const { return CodeIterator(Code.cbegin()); }
   CodeIterator end() const { return CodeIterator(Code.cend()); }
