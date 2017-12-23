@@ -78,12 +78,10 @@ public:
   JavaMethod &operator=(const JavaMethod &) = delete;
 
   const Utf8String &getName() const {
-    assert(Name != nullptr);
-    return Name->getValue();
+    return Name.getValue();
   }
   const Utf8String &getDescriptor() const {
-    assert(Descriptor != nullptr);
-    return Descriptor->getValue();
+    return Descriptor.getValue();
   }
 
   uint16_t getMaxStack() const { return MaxStack; }
@@ -129,8 +127,8 @@ private:
 
   const AccessFlags Flags;
 
-  const ConstantPoolRecords::Utf8 *const Name;
-  const ConstantPoolRecords::Utf8 *const Descriptor;
+  const ConstantPoolRecords::Utf8 &Name;
+  const ConstantPoolRecords::Utf8 &Descriptor;
 
   const uint16_t MaxStack;
   const uint16_t MaxLocals;

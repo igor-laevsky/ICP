@@ -9,19 +9,23 @@
 using namespace JavaTypes;
 using namespace Bytecode;
 
+// Helper for the name and descriptor initializers.
+static const ConstantPoolRecords::Utf8 &
+checkRecord(const ConstantPoolRecords::Utf8 *Rec) {
+  assert(Rec != nullptr); // can never be null
+  return *Rec;
+}
+
 JavaMethod::JavaMethod(JavaMethod::MethodConstructorParameters &&Params) :
     Owner(nullptr),
     Flags(Params.Flags),
-    Name(Params.Name),
-    Descriptor(Params.Descriptor),
+    Name(checkRecord(Params.Name)),
+    Descriptor(checkRecord(Params.Descriptor)),
     MaxStack(Params.MaxStack),
     MaxLocals(Params.MaxLocals),
     Code(std::move(Params.Code)),
     StackMapTable(std::move(Params.StackMapTable))
 {
-  assert(Name != nullptr);
-  assert(Descriptor != nullptr);
-
   // Null check all instructions
   assert(std::all_of(
       Code.begin(), Code.end(),
