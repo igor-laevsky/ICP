@@ -15,6 +15,7 @@ const Token Token::RBrace{R_BRACE};
 const Token Token::Comma{COMMA};
 const Token Token::Colon{COLON};
 const Token Token::Sharp{SHARP};
+const Token Token::Dog{DOG};
 
 Token Token::String() {
   static Token Ret(STRING);

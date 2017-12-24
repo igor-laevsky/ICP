@@ -34,9 +34,10 @@ class {
     bytecode {
       iconst_1
       iconst_0
-      if_icmpeq #5
+      if_icmpeq @good
         iconst_0
         ireturn
+      :good
       iconst_1
       ireturn
     }
@@ -52,9 +53,10 @@ class {
     bytecode {
       iconst_1
       iconst_1
-      if_icmpeq #5
+      if_icmpeq @ok
         iconst_1
         ireturn
+      :ok
       iconst_0
       ireturn
     }
@@ -88,9 +90,10 @@ class {
     bytecode {
       iconst_0
       iconst_1
-      if_icmpne #5
+      if_icmpne @ok
         iconst_1
         ireturn
+      :ok
       iconst_0
       ireturn
     }
@@ -124,9 +127,10 @@ class {
     bytecode {
       iconst_1
       iconst_0
-      if_icmpge #5
+      if_icmpge @ok
         iconst_1
         ireturn
+      :ok
       iconst_0
       ireturn
     }

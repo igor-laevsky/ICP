@@ -12,13 +12,14 @@
 
 namespace CD {
 
-class Token {
+class Token final {
 public:
   static const Token LBrace;
   static const Token RBrace;
   static const Token Comma;
   static const Token Colon;
   static const Token Sharp;
+  static const Token Dog;
 
   static Token String();
   static Token String(std::string Data);
@@ -64,7 +65,7 @@ public:
     return !(*this == Rhs);
   }
 
-  const auto &getData() const {
+  const std::string &getData() const {
     assert(Data);
     return *Data;
   }
@@ -82,6 +83,7 @@ private:
     COMMA,
     COLON,
     SHARP,
+    DOG,
     STRING,
     KEYWORD,
     NUM,
@@ -98,6 +100,7 @@ private:
       case COMMA: return ",";
       case COLON: return ":";
       case SHARP: return "#";
+      case DOG: return "@";
       case STRING: return "\"[a-zA-Z0-9_<>/()\\[\\];]+\"";
       case KEYWORD: return "class|constant_pool|method|bytecode|auto|fields";
       case NUM: return "\\d+\\b";
@@ -117,6 +120,7 @@ private:
       case COMMA: return Comma;
       case COLON: return Colon;
       case SHARP: return Sharp;
+      case DOG: return Dog;
       case STRING:
         // Cut quotes from the match
         return String(Data.substr(1, Data.length() - 2));

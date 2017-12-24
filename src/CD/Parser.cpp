@@ -11,6 +11,7 @@
 #include <map>
 #include <set>
 #include <variant>
+#include <string>
 
 #include "Lexer.h"
 #include "JavaTypes/JavaClass.h"
@@ -18,6 +19,9 @@
 #include "JavaTypes/ConstantPool.h"
 #include "JavaTypes/ConstantPoolRecords.h"
 #include "JavaTypes/JavaField.h"
+
+using namespace std::string_view_literals;
+using namespace std::string_literals;
 
 using namespace CD;
 using namespace JavaTypes;
@@ -228,21 +232,79 @@ static JavaMethod::CodeOwnerType parseBytecode(Lexer &Lex) {
   consumeOrThrow(Token::Keyword("bytecode"), Lex);
   consumeOrThrow(Token::LBrace, Lex);
 
-  JavaMethod::CodeOwnerType Ret;
+  // Since we need to support forward declared labels we will need two passes
+  // over the bytecode. First on it to gather all instructions and calculate
+  // offsets. Second is to actually create bytecode with correct labels.
+
+  struct ParsedInst {
+    const std::string_view Name = "";
+    const ConstantPool::IndexType Idx = 0;
+    const char *Label = nullptr;
+  };
+  std::vector<ParsedInst> Instrs;
+  std::map<std::string_view, Bytecode::BciType> Label2Bci;
+
+  Bytecode::BciType cur_bci = 0;
   while (!Lex.isNext(Token::RBrace)) {
-    const std::string &Name = consumeOrThrow(Token::Id(), Lex).getData();
+    // Label definition
+    if (Lex.consume(Token::Colon))
+      Label2Bci[consumeOrThrow(Token::Id(), Lex).getData()] = cur_bci;
+
+    // Name
+    const std::string_view Name = consumeOrThrow(Token::Id(), Lex).getData();
+
+    // Index
     // Only single indexed instructions for now.
-    // Sometimes instructions have index but it's not a constant pool index.
-    // Treat them similarly since there is no practical difference.
     const auto &IdxOpt = tryParseCPIndex(Lex);
-    const auto Idx = IdxOpt ? static_cast<Bytecode::IdxType>(*IdxOpt) : 0;
+    static_assert(sizeof(Bytecode::IdxType) == sizeof(decltype(*IdxOpt)));
+    const Bytecode::IdxType Idx =
+        IdxOpt ? static_cast<Bytecode::IdxType>(*IdxOpt) : 0;
+
+    // Label use
+    const char *Label = nullptr;
+    if (Lex.consume(Token::Dog))
+      Label = consumeOrThrow(Token::Id(), Lex).getData().c_str();
+
+    Instrs.push_back({Name, Idx, Label});
+
+    // Can't have both index and label
+    bool hasIdx = (Idx != 0);
+    bool hasLabel = (Label != nullptr);
+    assert(hasLabel != hasIdx || (!hasLabel && !hasIdx));
+
+    // Slightly hacky way to compute current bci
+    cur_bci += 1 + ((hasLabel || hasIdx) ? 2 : 0);
+  }
+
+  // Actually parse all of the instructions
+  //
+
+  JavaMethod::CodeOwnerType Ret;
+  Ret.reserve(Instrs.size());
+  cur_bci = 0;
+
+  for (const auto &InstInfo: Instrs) {
+    Bytecode::IdxType Idx = InstInfo.Idx;
+    if (InstInfo.Label) {
+      assert(Idx == 0); // can't have both label and idx
+      if (Label2Bci.count(InstInfo.Label) == 0)
+        throw ParserError("Undefined label "s + InstInfo.Label);
+
+      // Index is an offset from the current bci
+      Bytecode::BciType offset = Label2Bci[InstInfo.Label] - cur_bci;
+      Idx = static_cast<Bytecode::IdxType>(offset);
+      assert(Idx == offset); // offset should completely fit into index
+    }
 
     try {
-      Ret.push_back(Bytecode::parseFromString(Name, Idx));
+      Ret.push_back(Bytecode::parseFromString(InstInfo.Name, Idx));
     } catch (Bytecode::UnknownBytecode &) {
-      throw ParserError("Unable to parse method bytecode");
+      throw ParserError(
+          "Unable to parse method bytecode for " + std::string(InstInfo.Name));
     }
     assert(Ret.back() != nullptr);
+
+    cur_bci += Ret.back()->getLength();
   }
 
   consumeOrThrow(Token::RBrace, Lex);

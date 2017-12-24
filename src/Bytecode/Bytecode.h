@@ -181,7 +181,7 @@ std::unique_ptr<Instruction> parseInstruction(
 // \returns New bytecode
 // \throws UndefinedBytecode if opcode was not recognized.
 std::unique_ptr<Instruction> parseFromString(
-    const std::string &OpCodeStr, IdxType Idx = 0);
+    const std::string_view OpCodeStr, IdxType Idx = 0);
 
 }
 
