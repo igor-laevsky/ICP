@@ -11,7 +11,6 @@
 #include <map>
 #include <set>
 #include <variant>
-#include <string>
 
 #include "Lexer.h"
 #include "JavaTypes/JavaClass.h"
@@ -237,7 +236,7 @@ static JavaMethod::CodeOwnerType parseBytecode(Lexer &Lex) {
   // offsets. Second is to actually create bytecode with correct labels.
 
   struct ParsedInst {
-    const std::string_view Name = "";
+    const char *Name = "";
     const ConstantPool::IndexType Idx = 0;
     const char *Label = nullptr;
   };
@@ -251,7 +250,7 @@ static JavaMethod::CodeOwnerType parseBytecode(Lexer &Lex) {
       Label2Bci[consumeOrThrow(Token::Id(), Lex).getData()] = cur_bci;
 
     // Name
-    const std::string_view Name = consumeOrThrow(Token::Id(), Lex).getData();
+    const char *Name = consumeOrThrow(Token::Id(), Lex).getData().c_str();
 
     // Index
     // Only single indexed instructions for now.

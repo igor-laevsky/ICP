@@ -71,7 +71,8 @@ set (TEST_FILES
         tests/JavaTypes/JavaFieldTests.cpp
         tests/Runtime/ValueTests.cpp
         tests/Runtime/ObjectsTests.cpp
-        tests/Runtime/ClassManagerTests.cpp)
+        tests/Runtime/ClassManagerTests.cpp
+        tests/JavaTypes/StackMapTableTests.cpp)
 
 add_library(ICP_LIB ${SOURCE_FILES})
 
