@@ -37,8 +37,8 @@ private:
 
 class NameAndType final: public Record {
 public:
-  NameAndType(ConstantPool::CellReference NewNameRef,
-              ConstantPool::CellReference NewDescriptorRef):
+  NameAndType(ConstantPool::CellReference<Utf8> NewNameRef,
+              ConstantPool::CellReference<Utf8> NewDescriptorRef):
       NameRef(NewNameRef), DescriptorRef(NewDescriptorRef) {
     ;
   }
@@ -64,12 +64,12 @@ public:
   }
 
 private:
-  const ConstantPool::CellReference NameRef, DescriptorRef;
+  ConstantPool::CellReference<Utf8> NameRef, DescriptorRef;
 };
 
 class ClassInfo final: public Record {
 public:
-  explicit ClassInfo(ConstantPool::CellReference NewName):
+  explicit ClassInfo(ConstantPool::CellReference<Utf8> NewName):
       Name(NewName) {
     ;
   }
@@ -86,7 +86,8 @@ public:
 
   bool isValid() const override {
     // TODO: Check that name is in a correct form.
-    return Name != nullptr && dynamic_cast<Utf8*>(Name.get());
+    return Name != nullptr &&
+        dynamic_cast<Utf8*>(static_cast<Record*>(Name.get()));
   }
 
   void print(std::ostream &Out) const override {
@@ -94,26 +95,26 @@ public:
   }
 
 private:
-  const ConstantPool::CellReference Name;
+  ConstantPool::CellReference<Utf8> Name;
 };
 
 // Common implementation of the field, method and interface ref fields
 class RefRecord : public Record {
 public:
-  RefRecord(ConstantPool::CellReference NewClassRef,
-            ConstantPool::CellReference NewNameAndTypeRef) :
+  RefRecord(ConstantPool::CellReference<ClassInfo> NewClassRef,
+            ConstantPool::CellReference<NameAndType> NewNameAndTypeRef) :
       ClassRef(NewClassRef), NameAndTypeRef(NewNameAndTypeRef) {
     ;
   }
 
   const ClassInfo &getClass() const {
     assert(isValid());
-    return *static_cast<ClassInfo *>(ClassRef.get());
+    return *ClassRef;
   }
 
   const NameAndType &getNameAndType() const {
     assert(isValid());
-    return *static_cast<NameAndType *>(NameAndTypeRef.get());
+    return *NameAndTypeRef;
   }
 
   const Utf8String &getClassName() const {
@@ -135,13 +136,14 @@ public:
   }
 
 private:
-  const ConstantPool::CellReference ClassRef, NameAndTypeRef;
+  ConstantPool::CellReference<ClassInfo> ClassRef;
+  ConstantPool::CellReference<NameAndType> NameAndTypeRef;
 };
 
 class MethodRef final: public RefRecord {
 public:
-  MethodRef(ConstantPool::CellReference ClassRef,
-            ConstantPool::CellReference NameAndTypeRef) :
+  MethodRef(ConstantPool::CellReference<ClassInfo> ClassRef,
+            ConstantPool::CellReference<NameAndType> NameAndTypeRef) :
       RefRecord(ClassRef, NameAndTypeRef) {
     ;
   }
@@ -157,8 +159,8 @@ public:
 
 class FieldRef final: public RefRecord {
 public:
-  FieldRef(ConstantPool::CellReference ClassRef,
-           ConstantPool::CellReference NameAndTypeRef) :
+  FieldRef(ConstantPool::CellReference<ClassInfo> ClassRef,
+           ConstantPool::CellReference<NameAndType> NameAndTypeRef) :
       RefRecord(ClassRef, NameAndTypeRef) {
     ;
   }

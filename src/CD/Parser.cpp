@@ -28,7 +28,7 @@ using namespace JavaTypes;
 // Helper function to avoid repeating patters:
 //  if (!Lex.consume(Tok)) throw ...
 static const Token &consumeOrThrow(const Token &Tok, Lexer &Lex) {
-  const auto &Res = Lex.consume(Tok);
+  const auto *Res = Lex.consume(Tok);
   if (!Res)
     throw ParserError("Expected " + to_string(Tok));
 
@@ -179,28 +179,28 @@ static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
         throw ParserError("ClassInfo record should have exactly one argument");
 
       NewCPRec = std::make_unique<ConstantPoolRecords::ClassInfo>(
-          Builder.getCellReference(GetIdxForArg(Rec.Args[0])));
+          Builder.getCellReference<ConstantPoolRecords::Utf8>(GetIdxForArg(Rec.Args[0])));
     } else if (Rec.Type == "NameAndType") {
       if (Rec.Args.size() != 2)
         throw ParserError("NameAndType record should have exactly two arguments");
 
       NewCPRec = std::make_unique<ConstantPoolRecords::NameAndType>(
-          Builder.getCellReference(GetIdxForArg(Rec.Args[0])),
-          Builder.getCellReference(GetIdxForArg(Rec.Args[1])));
+          Builder.getCellReference<ConstantPoolRecords::Utf8>(GetIdxForArg(Rec.Args[0])),
+          Builder.getCellReference<ConstantPoolRecords::Utf8>(GetIdxForArg(Rec.Args[1])));
     } else if (Rec.Type == "MethodRef") {
       if (Rec.Args.size() != 2)
         throw ParserError("MethodRef record should have exactly two arguments");
 
       NewCPRec = std::make_unique<ConstantPoolRecords::MethodRef>(
-          Builder.getCellReference(GetIdxForArg(Rec.Args[0])),
-          Builder.getCellReference(GetIdxForArg(Rec.Args[1])));
+          Builder.getCellReference<ConstantPoolRecords::ClassInfo>(GetIdxForArg(Rec.Args[0])),
+          Builder.getCellReference<ConstantPoolRecords::NameAndType>(GetIdxForArg(Rec.Args[1])));
     } else if (Rec.Type == "FieldRef") {
       if (Rec.Args.size() != 2)
         throw ParserError("FieldRef record should have exactly two arguments");
 
       NewCPRec = std::make_unique<ConstantPoolRecords::FieldRef>(
-          Builder.getCellReference(GetIdxForArg(Rec.Args[0])),
-          Builder.getCellReference(GetIdxForArg(Rec.Args[1])));
+          Builder.getCellReference<ConstantPoolRecords::ClassInfo>(GetIdxForArg(Rec.Args[0])),
+          Builder.getCellReference<ConstantPoolRecords::NameAndType>(GetIdxForArg(Rec.Args[1])));
     }
 
     assert(Idx > 0); // all indexes should have been assigned

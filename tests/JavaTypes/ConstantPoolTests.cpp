@@ -11,7 +11,7 @@ TEST_CASE("Basic constant pool construction", "[ConstantPool]") {
   REQUIRE(Builder.isValid());
 
   Builder.set(1, std::make_unique<ConstantPoolRecords::ClassInfo>(
-      Builder.getCellReference(2)));
+      Builder.getCellReference<ConstantPoolRecords::Utf8>(2)));
   REQUIRE(Builder.isValid());
 
   Builder.set(2, std::make_unique<ConstantPoolRecords::Utf8>("test"));
@@ -40,11 +40,11 @@ TEST_CASE("Constant pool with wrong record type", "[ConstantPool]") {
   REQUIRE(Builder.isValid());
 
   Builder.set(1, std::make_unique<ConstantPoolRecords::ClassInfo>(
-      Builder.getCellReference(1)));
+      Builder.getCellReference<ConstantPoolRecords::Utf8>(1)));
   REQUIRE(Builder.isValid());
 
   Builder.set(2, std::make_unique<ConstantPoolRecords::ClassInfo>(
-      Builder.getCellReference(2)));
+      Builder.getCellReference<ConstantPoolRecords::Utf8>(2)));
   REQUIRE(Builder.isValid());
 
   std::unique_ptr<ConstantPool> CP = Builder.createConstantPool();

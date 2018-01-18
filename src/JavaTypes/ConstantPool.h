@@ -42,10 +42,10 @@ public:
   typedef uint16_t IndexType;
   typedef uint16_t SizeType;
 
-  typedef std::unique_ptr<ConstantPoolRecords::Record> CellType;
-  typedef CellType& CellReference;
+  template<class T> using CellType = std::unique_ptr<T>;
+  template<class T> using CellReference = const CellType<T>&;
 
-  typedef std::vector<CellType> RecordTable;
+  typedef std::vector<CellType<ConstantPoolRecords::Record>> RecordTable;
 
 public:
   // Get record at the index 'Idx'.
@@ -64,7 +64,7 @@ public:
   template<class RecordType>
   const RecordType &getAs(IndexType Idx) const {
     const ConstantPoolRecords::Record &Res = get(Idx);
-    const RecordType *TypedRes = dynamic_cast<const RecordType*>(&Res);
+    auto *TypedRes = dynamic_cast<const RecordType*>(&Res);
     assert(TypedRes != nullptr);
     return *TypedRes;
   }
@@ -146,29 +146,36 @@ private:
 
 class ConstantPoolBuilder final {
 public:
-  typedef ConstantPool::IndexType IndexType;
-  typedef ConstantPool::SizeType SizeType;
+  using IndexType = ConstantPool::IndexType;
+  using SizeType = ConstantPool::SizeType;
 
-  typedef ConstantPool::CellType CellType;
-  typedef ConstantPool::CellReference CellReference;
-  typedef ConstantPool::RecordTable RecordTable;
+  template<class T> using CellType = ConstantPool::CellType<T>;
+  template<class T> using CellReference = ConstantPool::CellReference<T>;
+  using RecordTable = ConstantPool::RecordTable;
+
+  template<class T> static constexpr bool IsCPRecord =
+      std::is_base_of_v<ConstantPoolRecords::Record, T>;
 
 public:
   explicit ConstantPoolBuilder(SizeType NumRecords) {
     ConstantPoolUnderConstruction.reset(new ConstantPool(NumRecords));
   }
 
-  CellReference getCellReference(IndexType Idx) const {
+  template<class T, class X = std::enable_if_t<IsCPRecord<T>>>
+  CellReference<T> getCellReference(IndexType Idx) const {
     assert(isValid());
     assert(isValidIndex(Idx));
     Idx = ConstantPool::toZeroBasedIndex(Idx);
-    return getRecordTable()[Idx];
+    return reinterpret_cast<CellReference<T>>(getRecordTable()[Idx]);
   }
 
-  void set(IndexType Idx, CellType &&NewRecord) {
+  template<class T, class X = std::enable_if_t<IsCPRecord<T>>>
+  void set(IndexType Idx, CellType<T> &&NewRecord) {
     assert(isValid());
     assert(isValidIndex(Idx));
     Idx = ConstantPool::toZeroBasedIndex(Idx);
+
+    assert(getRecordTable()[Idx] == nullptr); // only assign once
     getRecordTable()[Idx] = std::move(NewRecord);
   }
 

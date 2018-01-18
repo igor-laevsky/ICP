@@ -98,8 +98,7 @@ parseConstantPool(std::istream& Input) {
         uint16_t name_index = BigEndianReading::readHalf(Input);
         CheckIndex(name_index, i);
 
-        ConstantPool::CellReference NameRef =
-            Builder.getCellReference(name_index);
+        const auto &NameRef = Builder.getCellReference<Utf8>(name_index);
         Builder.set(i, std::make_unique<ConstantPoolRecords::ClassInfo>(NameRef));
         break;
       }
@@ -111,9 +110,10 @@ parseConstantPool(std::istream& Input) {
         uint16_t name_and_type_index = BigEndianReading::readHalf(Input);
         CheckIndex(name_and_type_index, i);
 
-        ConstantPool::CellReference
-            ClassRef = Builder.getCellReference(class_index),
-            NameAndTypeRef = Builder.getCellReference(name_and_type_index);
+        const auto &ClassRef =
+            Builder.getCellReference<ConstantPoolRecords::ClassInfo>(class_index);
+        const auto &NameAndTypeRef =
+            Builder.getCellReference<ConstantPoolRecords::NameAndType>(name_and_type_index);
         Builder.set(i,
                     std::make_unique<ConstantPoolRecords::MethodRef>(
                         ClassRef, NameAndTypeRef));
@@ -127,9 +127,10 @@ parseConstantPool(std::istream& Input) {
         uint16_t name_and_type_index = BigEndianReading::readHalf(Input);
         CheckIndex(name_and_type_index, i);
 
-        ConstantPool::CellReference
-            ClassRef = Builder.getCellReference(class_index),
-            NameAndTypeRef = Builder.getCellReference(name_and_type_index);
+        const auto &ClassRef =
+            Builder.getCellReference<ConstantPoolRecords::ClassInfo>(class_index);
+        const auto &NameAndTypeRef =
+            Builder.getCellReference<ConstantPoolRecords::NameAndType>(name_and_type_index);
         Builder.set(i,
                     std::make_unique<ConstantPoolRecords::FieldRef>(
                         ClassRef, NameAndTypeRef));
@@ -166,9 +167,10 @@ parseConstantPool(std::istream& Input) {
         uint16_t descriptor_index = BigEndianReading::readHalf(Input);
         CheckIndex(descriptor_index, i);
 
-        ConstantPool::CellReference
-            NameRef = Builder.getCellReference(name_index),
-            DescriptorRef = Builder.getCellReference(descriptor_index);
+        const auto &NameRef =
+            Builder.getCellReference<ConstantPoolRecords::Utf8>(name_index);
+        const auto &DescriptorRef =
+            Builder.getCellReference<ConstantPoolRecords::Utf8>(descriptor_index);
         Builder.set(i,
                     std::make_unique<ConstantPoolRecords::NameAndType>(
                         NameRef, DescriptorRef));

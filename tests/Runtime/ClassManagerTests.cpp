@@ -12,7 +12,7 @@ using namespace Runtime;
 
 TEST_CASE("Class manager static class", "[Runtime][ClassManager]") {
   auto C1 = CD::parseFromFile("tests/SlowInterpreter/get_put_static.cd");
-  auto C2 = CD::parseFromFile("tests/verifier/aload.cd");
+  auto C2 = CD::parseFromFile("tests/Verifier/aload.cd");
 
   getClassManager().registerClass(ClassObject::create(*C1)->getAs<ClassObject>());
   getClassManager().registerClass(ClassObject::create(*C2)->getAs<ClassObject>());

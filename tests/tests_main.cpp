@@ -5,4 +5,4 @@
 #define CATCH_CONFIG_MAIN
 #define CATCH_CONFIG_FAST_COMPILE
 
-#include "Catch.hpp"
+#include "catch.hpp"
