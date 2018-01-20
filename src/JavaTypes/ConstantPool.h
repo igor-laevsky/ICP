@@ -12,6 +12,7 @@
 #include <memory>
 #include <cassert>
 #include <ostream>
+#include <typeinfo>
 
 namespace JavaTypes {
 
@@ -146,6 +147,12 @@ private:
 
 class ConstantPoolBuilder final {
 public:
+  // Thrown by to indicate error in cell typing.
+  class IncompatibleCellType: public std::runtime_error {
+    using runtime_error::runtime_error;
+  };
+
+public:
   using IndexType = ConstantPool::IndexType;
   using SizeType = ConstantPool::SizeType;
 
@@ -153,27 +160,51 @@ public:
   template<class T> using CellReference = ConstantPool::CellReference<T>;
   using RecordTable = ConstantPool::RecordTable;
 
+  // Check that type is a subtype of the Record, but not Record itself.
   template<class T> static constexpr bool IsCPRecord =
-      std::is_base_of_v<ConstantPoolRecords::Record, T>;
+      std::is_base_of_v<ConstantPoolRecords::Record, T> &&
+          !std::is_same_v<ConstantPoolRecords::Record, T>;
 
 public:
   explicit ConstantPoolBuilder(SizeType NumRecords) {
+    TypeSpeculations.resize(NumRecords);
     ConstantPoolUnderConstruction.reset(new ConstantPool(NumRecords));
   }
 
+  // Each invocation to this function registers a speculation on the data type
+  // of the referenced cell. If we try to get two references of different types
+  // to the same cell it will throw an 'IncompatibleCellType'.
   template<class T, class X = std::enable_if_t<IsCPRecord<T>>>
-  CellReference<T> getCellReference(IndexType Idx) const {
+  CellReference<T> getCellReference(IndexType Idx) {
+    speculateCellType<T>(Idx);
+
     assert(isValid());
     assert(isValidIndex(Idx));
     Idx = ConstantPool::toZeroBasedIndex(Idx);
+
+    // Check that we always reference through the same type
+    if (TypeSpeculations[Idx] == nullptr) {
+      TypeSpeculations[Idx] = &typeid(T);
+    } else if (*TypeSpeculations[Idx] != typeid(T)) {
+      throw IncompatibleCellType(
+          "Wrong cell type at index " + std::to_string(Idx+1));
+    }
+
     return reinterpret_cast<CellReference<T>>(getRecordTable()[Idx]);
   }
 
+  // If type of the cell is known this will check that we are assigning correct
+  // type.
+  // \throws IncompatibleCellType on error.
   template<class T, class X = std::enable_if_t<IsCPRecord<T>>>
   void set(IndexType Idx, CellType<T> &&NewRecord) {
+    speculateCellType<T>(Idx);
+
     assert(isValid());
     assert(isValidIndex(Idx));
     Idx = ConstantPool::toZeroBasedIndex(Idx);
+
+    // Type check if possible.
 
     assert(getRecordTable()[Idx] == nullptr); // only assign once
     getRecordTable()[Idx] = std::move(NewRecord);
@@ -198,8 +229,27 @@ private:
     return ConstantPoolUnderConstruction->isValidIndex(Idx);
   }
 
+  // Either records type speculation for the record at Idx or check that
+  // speculation is valid.
+  // \throws IncompatibleCellType in case if speculation is not possible.
+  template<class T>
+  void speculateCellType(IndexType Idx) {
+    assert(isValidIndex(Idx));
+    Idx = ConstantPool::toZeroBasedIndex(Idx);
+
+    if (TypeSpeculations[Idx] == nullptr) {
+      TypeSpeculations[Idx] = &typeid(T);
+    } else if (*TypeSpeculations[Idx] != typeid(T)) {
+      throw IncompatibleCellType(
+          "Wrong cell type at index " + std::to_string(Idx+1) + " " + TypeSpeculations[Idx]->name() + " " +
+              typeid(T).name());
+    }
+  }
+
 private:
   std::unique_ptr<ConstantPool> ConstantPoolUnderConstruction;
+
+  std::vector<const std::type_info*> TypeSpeculations;
 };
 
 }

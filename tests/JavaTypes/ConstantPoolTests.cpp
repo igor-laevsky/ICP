@@ -35,35 +35,29 @@ TEST_CASE("Basic constant pool construction", "[ConstantPool]") {
   REQUIRE(IsValid);
 }
 
-TEST_CASE("Constant pool with wrong record type", "[ConstantPool]") {
+TEST_CASE("Constant pool type safety", "[ConstantPool]") {
   ConstantPoolBuilder Builder(2);
-  REQUIRE(Builder.isValid());
 
-  Builder.set(1, std::make_unique<ConstantPoolRecords::ClassInfo>(
-      Builder.getCellReference<ConstantPoolRecords::Utf8>(1)));
-  REQUIRE(Builder.isValid());
+  (void)Builder.getCellReference<ConstantPoolRecords::Utf8>(1);
+  // Matching types.
+  REQUIRE_NOTHROW(Builder.getCellReference<ConstantPoolRecords::Utf8>(1));
+  // Not matching types.
+  REQUIRE_THROWS(Builder.getCellReference<ConstantPoolRecords::ClassInfo>(1));
 
-  Builder.set(2, std::make_unique<ConstantPoolRecords::ClassInfo>(
-      Builder.getCellReference<ConstantPoolRecords::Utf8>(2)));
-  REQUIRE(Builder.isValid());
+  // Matching types.
+  REQUIRE_NOTHROW(Builder.getCellReference<ConstantPoolRecords::ClassInfo>(2));
+  // Non matching types.
+  REQUIRE_THROWS(Builder.getCellReference<ConstantPoolRecords::NameAndType>(2));
 
-  std::unique_ptr<ConstantPool> CP = Builder.createConstantPool();
-  REQUIRE_FALSE(Builder.isValid());
+  // Can't save Utf8 into ClassInfo.
+  REQUIRE_THROWS(
+      Builder.set(2, std::make_unique<ConstantPoolRecords::Utf8>("test")));
 
-  const auto *CI = CP->getAsOrNull<ClassInfo>(1);
-  REQUIRE(CI != nullptr);
-  REQUIRE_FALSE(CI->isValid());
-  const auto *StrRec = CP->getAsOrNull<Utf8>(2);
-  REQUIRE(StrRec == nullptr);
-  const auto *Rec2 = CP->getAsOrNull<ClassInfo>(2);
-  REQUIRE(Rec2 != nullptr);
-  REQUIRE_FALSE(Rec2->isValid());
+  // But can set ClassInfo into ClassInfo.
+  REQUIRE_NOTHROW(Builder.set(2, std::make_unique<ConstantPoolRecords::ClassInfo>(
+      Builder.getCellReference<ConstantPoolRecords::Utf8>(1))));
 
-  const auto *Rec3 = CP->getAsOrNull<ClassInfo>(100);
-  REQUIRE(Rec3 == nullptr);
-
-  std::string Error;
-  bool IsValid = CP->verify(Error);
-  REQUIRE_FALSE(IsValid);
-  REQUIRE(Error == "Invalid record at index 1");
+  // And can set Utf8 into Utf8.
+  REQUIRE_NOTHROW(
+      Builder.set(1, std::make_unique<ConstantPoolRecords::Utf8>("asdf")));
 }

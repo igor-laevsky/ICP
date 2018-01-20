@@ -170,47 +170,67 @@ static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
     return RetIdx;
   };
 
-  // Create non string records
-  for (const auto &[Idx, Rec]: ParsedRecords) {
-    std::unique_ptr<ConstantPoolRecords::Record> NewCPRec(nullptr);
+  // Create non string records.
+  try {
+    for (const auto &[Idx, Rec]: ParsedRecords) {
+      assert(Idx > 0); // all indexes should have been assigned
 
-    if (Rec.Type == "ClassInfo") {
-      if (Rec.Args.size() != 1)
-        throw ParserError("ClassInfo record should have exactly one argument");
+      if (Rec.Type == "ClassInfo") {
+        if (Rec.Args.size() != 1)
+          throw ParserError(
+              "ClassInfo record should have exactly one argument");
 
-      NewCPRec = std::make_unique<ConstantPoolRecords::ClassInfo>(
-          Builder.getCellReference<ConstantPoolRecords::Utf8>(GetIdxForArg(Rec.Args[0])));
-    } else if (Rec.Type == "NameAndType") {
-      if (Rec.Args.size() != 2)
-        throw ParserError("NameAndType record should have exactly two arguments");
+        Builder.set(Idx, std::make_unique<ConstantPoolRecords::ClassInfo>(
+            Builder.getCellReference<ConstantPoolRecords::Utf8>(
+                GetIdxForArg(Rec.Args[0]))));
+      } else if (Rec.Type == "NameAndType") {
+        if (Rec.Args.size() != 2)
+          throw ParserError(
+              "NameAndType record should have exactly two arguments");
 
-      NewCPRec = std::make_unique<ConstantPoolRecords::NameAndType>(
-          Builder.getCellReference<ConstantPoolRecords::Utf8>(GetIdxForArg(Rec.Args[0])),
-          Builder.getCellReference<ConstantPoolRecords::Utf8>(GetIdxForArg(Rec.Args[1])));
-    } else if (Rec.Type == "MethodRef") {
-      if (Rec.Args.size() != 2)
-        throw ParserError("MethodRef record should have exactly two arguments");
+        Builder.set(Idx, std::make_unique<ConstantPoolRecords::NameAndType>(
+            Builder.getCellReference<ConstantPoolRecords::Utf8>(
+                GetIdxForArg(Rec.Args[0])),
+            Builder.getCellReference<ConstantPoolRecords::Utf8>(
+                GetIdxForArg(Rec.Args[1]))));
+      } else if (Rec.Type == "MethodRef") {
+        if (Rec.Args.size() != 2)
+          throw ParserError(
+              "MethodRef record should have exactly two arguments");
 
-      NewCPRec = std::make_unique<ConstantPoolRecords::MethodRef>(
-          Builder.getCellReference<ConstantPoolRecords::ClassInfo>(GetIdxForArg(Rec.Args[0])),
-          Builder.getCellReference<ConstantPoolRecords::NameAndType>(GetIdxForArg(Rec.Args[1])));
-    } else if (Rec.Type == "FieldRef") {
-      if (Rec.Args.size() != 2)
-        throw ParserError("FieldRef record should have exactly two arguments");
+        Builder.set(Idx, std::make_unique<ConstantPoolRecords::MethodRef>(
+            Builder.getCellReference<ConstantPoolRecords::ClassInfo>(
+                GetIdxForArg(Rec.Args[0])),
+            Builder.getCellReference<ConstantPoolRecords::NameAndType>(
+                GetIdxForArg(Rec.Args[1]))));
+      } else if (Rec.Type == "FieldRef") {
+        if (Rec.Args.size() != 2)
+          throw ParserError(
+              "FieldRef record should have exactly two arguments");
 
-      NewCPRec = std::make_unique<ConstantPoolRecords::FieldRef>(
-          Builder.getCellReference<ConstantPoolRecords::ClassInfo>(GetIdxForArg(Rec.Args[0])),
-          Builder.getCellReference<ConstantPoolRecords::NameAndType>(GetIdxForArg(Rec.Args[1])));
+        Builder.set(Idx, std::make_unique<ConstantPoolRecords::FieldRef>(
+            Builder.getCellReference<ConstantPoolRecords::ClassInfo>(
+                GetIdxForArg(Rec.Args[0])),
+            Builder.getCellReference<ConstantPoolRecords::NameAndType>(
+                GetIdxForArg(Rec.Args[1]))));
+      } else {
+        throw ParserError("Unrecognized record type: " + Rec.Type);
+      }
     }
-
-    assert(Idx > 0); // all indexes should have been assigned
-    Builder.set(Idx, std::move(NewCPRec));
+  } catch (const ConstantPoolBuilder::IncompatibleCellType &e) {
+    throw ParserError(e.what());
   }
 
   // Create string records
-  for (const auto &[Str, Idx]: StringToIdx) {
-    assert(Idx > 0); // all indexes should have been assigned
-    Builder.set(Idx, std::make_unique<ConstantPoolRecords::Utf8>(Str));
+  try {
+    for (const auto &[Str, Idx]: StringToIdx) {
+      assert(Idx > 0); // all indexes should have been assigned
+      Builder.set(Idx, std::make_unique<ConstantPoolRecords::Utf8>(Str));
+    }
+  } catch (const ConstantPoolBuilder::IncompatibleCellType &e) {
+    // Indexes for string are assigned automatically so no type collision
+    // should ever happen.
+    assert(false);
   }
 
   consumeOrThrow(Token::RBrace, Lex);
