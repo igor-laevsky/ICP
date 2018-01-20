@@ -218,7 +218,7 @@ static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
       }
     }
   } catch (const ConstantPoolBuilder::IncompatibleCellType &e) {
-    throw ParserError(e.what());
+    throw ParserError("Constant pool parsing error: " + e.what());
   }
 
   // Create string records
@@ -236,14 +236,7 @@ static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
   consumeOrThrow(Token::RBrace, Lex);
 
   // Final step - create real constant pool and verify it
-  std::unique_ptr<ConstantPool> CP = Builder.createConstantPool();
-
-  std::string ErrorMessage;
-  if (!CP->verify(ErrorMessage))
-    throw ParserError(
-        "Failed constant pool verification with message: " + ErrorMessage);
-
-  return CP;
+  return Builder.createConstantPool();
 }
 
 static JavaMethod::CodeOwnerType parseBytecode(Lexer &Lex) {

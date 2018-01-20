@@ -13,6 +13,8 @@
 #include "JavaTypes/JavaMethod.h"
 #include "Bytecode/Bytecode.h"
 
+using namespace std::string_literals;
+
 using namespace ClassFileReader;
 using namespace Utils;
 using namespace JavaTypes;
@@ -69,6 +71,114 @@ static const RecordType &readConstantPoolRecord(
   return readConstantPoolRecord<RecordType>(Idx, CP, FieldName);
 }
 
+// Parses single constant pool record and adds it to the Builder.
+// \throws ConstantPoolBuilder::IncompatibleCellType
+static void parseConstantPoolRecord(
+    ConstantPoolBuilder &Builder, ConstantPool::IndexType CurIdx,
+    std::istream& Input) {
+
+  auto CheckIndex =
+      [&](ConstantPool::IndexType ToCheck) {
+        if (!Builder.isValidIndex(ToCheck))
+          throw FormatError(
+              "Incorrect index " + std::to_string(ToCheck) +
+              " found at " + std::to_string(CurIdx));
+      };
+
+  uint8_t tag = BigEndianReading::readByte(Input);
+
+  switch (static_cast<ConstantPoolTags>(tag)) {
+    case ConstantPoolTags::CONSTANT_Class: {
+      uint16_t name_index = BigEndianReading::readHalf(Input);
+      CheckIndex(name_index);
+
+      const auto &NameRef = Builder.getCellReference<Utf8>(name_index);
+      Builder.set(CurIdx,
+                  std::make_unique<ConstantPoolRecords::ClassInfo>(NameRef));
+      break;
+    }
+
+    case ConstantPoolTags::CONSTANT_Methodref: {
+      uint16_t class_index = BigEndianReading::readHalf(Input);
+      CheckIndex(class_index);
+
+      uint16_t name_and_type_index = BigEndianReading::readHalf(Input);
+      CheckIndex(name_and_type_index);
+
+      const auto &ClassRef =
+          Builder.getCellReference<ConstantPoolRecords::ClassInfo>(class_index);
+      const auto &NameAndTypeRef =
+          Builder.getCellReference<ConstantPoolRecords::NameAndType>(name_and_type_index);
+      Builder.set(CurIdx,
+                  std::make_unique<ConstantPoolRecords::MethodRef>(
+                      ClassRef, NameAndTypeRef));
+      break;
+    }
+
+    case ConstantPoolTags::CONSTANT_Fieldref: {
+      uint16_t class_index = BigEndianReading::readHalf(Input);
+      CheckIndex(class_index);
+
+      uint16_t name_and_type_index = BigEndianReading::readHalf(Input);
+      CheckIndex(name_and_type_index);
+
+      const auto &ClassRef =
+          Builder.getCellReference<ConstantPoolRecords::ClassInfo>(class_index);
+      const auto &NameAndTypeRef =
+          Builder.getCellReference<ConstantPoolRecords::NameAndType>(name_and_type_index);
+      Builder.set(CurIdx,
+                  std::make_unique<ConstantPoolRecords::FieldRef>(
+                      ClassRef, NameAndTypeRef));
+      break;
+    }
+
+    case ConstantPoolTags::CONSTANT_Utf8: {
+      uint16_t length = BigEndianReading::readHalf(Input);
+      std::string name;
+
+      for (uint16_t byte_idx = 0; byte_idx < length; ++byte_idx) {
+        uint8_t byte = BigEndianReading::readByte(Input);
+
+        // Specification requirements
+        if (byte == 0 || byte >= 0xf0)
+          throw FormatError("Unexpected string byte at " + std::to_string(CurIdx));
+
+        // For now support only regular ASCII codes
+        if (byte > 0x7f)
+          throw FormatError("Unicode is not fully supported at " +
+                                std::to_string(CurIdx));
+
+        name += static_cast<char>(byte);
+      }
+
+      Builder.set(CurIdx, std::make_unique<ConstantPoolRecords::Utf8>(name));
+      break;
+    }
+
+    case ConstantPoolTags::CONSTANT_NameAndType: {
+      uint16_t name_index = BigEndianReading::readHalf(Input);
+      CheckIndex(name_index);
+
+      uint16_t descriptor_index = BigEndianReading::readHalf(Input);
+      CheckIndex(descriptor_index);
+
+      const auto &NameRef =
+          Builder.getCellReference<ConstantPoolRecords::Utf8>(name_index);
+      const auto &DescriptorRef =
+          Builder.getCellReference<ConstantPoolRecords::Utf8>(descriptor_index);
+      Builder.set(CurIdx,
+                  std::make_unique<ConstantPoolRecords::NameAndType>(
+                      NameRef, DescriptorRef));
+
+      break;
+    }
+
+    default:
+      throw FormatError("Unsupported constant pool tag " +
+                            std::to_string(tag));
+  }
+}
+
 // Creates and parses constant pool from the class file.
 // \returns Unique pointer to the valid constant pool.
 // \throws FormatError or ReadError is case of any input problems.
@@ -82,114 +192,14 @@ parseConstantPool(std::istream& Input) {
 
   ConstantPoolBuilder Builder(ConstantPoolSize);
 
-  auto CheckIndex =
-      [&](ConstantPool::IndexType ToCheck, ConstantPool::IndexType At) {
-        if (!(ToCheck >= 1 && ToCheck <= ConstantPoolSize))
-          throw FormatError(
-              "Incorrect index " + std::to_string(ToCheck) +
-              " found at " + std::to_string(At));
-      };
-
-  for (ConstantPool::IndexType i = 1; i <= ConstantPoolSize; ++i) {
-    uint8_t tag = BigEndianReading::readByte(Input);
-
-    switch (static_cast<ConstantPoolTags>(tag)) {
-      case ConstantPoolTags::CONSTANT_Class: {
-        uint16_t name_index = BigEndianReading::readHalf(Input);
-        CheckIndex(name_index, i);
-
-        const auto &NameRef = Builder.getCellReference<Utf8>(name_index);
-        Builder.set(i, std::make_unique<ConstantPoolRecords::ClassInfo>(NameRef));
-        break;
-      }
-
-      case ConstantPoolTags::CONSTANT_Methodref: {
-        uint16_t class_index = BigEndianReading::readHalf(Input);
-        CheckIndex(class_index, i);
-
-        uint16_t name_and_type_index = BigEndianReading::readHalf(Input);
-        CheckIndex(name_and_type_index, i);
-
-        const auto &ClassRef =
-            Builder.getCellReference<ConstantPoolRecords::ClassInfo>(class_index);
-        const auto &NameAndTypeRef =
-            Builder.getCellReference<ConstantPoolRecords::NameAndType>(name_and_type_index);
-        Builder.set(i,
-                    std::make_unique<ConstantPoolRecords::MethodRef>(
-                        ClassRef, NameAndTypeRef));
-        break;
-      }
-
-      case ConstantPoolTags::CONSTANT_Fieldref: {
-        uint16_t class_index = BigEndianReading::readHalf(Input);
-        CheckIndex(class_index, i);
-
-        uint16_t name_and_type_index = BigEndianReading::readHalf(Input);
-        CheckIndex(name_and_type_index, i);
-
-        const auto &ClassRef =
-            Builder.getCellReference<ConstantPoolRecords::ClassInfo>(class_index);
-        const auto &NameAndTypeRef =
-            Builder.getCellReference<ConstantPoolRecords::NameAndType>(name_and_type_index);
-        Builder.set(i,
-                    std::make_unique<ConstantPoolRecords::FieldRef>(
-                        ClassRef, NameAndTypeRef));
-        break;
-      }
-
-      case ConstantPoolTags::CONSTANT_Utf8: {
-        uint16_t length = BigEndianReading::readHalf(Input);
-        std::string name;
-
-        for (uint16_t byte_idx = 0; byte_idx < length; ++byte_idx) {
-          uint8_t byte = BigEndianReading::readByte(Input);
-
-          // Specification requirements
-          if (byte == 0 || byte >= 0xf0)
-            throw FormatError("Unexpected string byte at " + std::to_string(i));
-
-          // For now support only regular ASCII codes
-          if (byte > 0x7f)
-            throw FormatError("Unicode is not fully supported at " +
-                                  std::to_string(i));
-
-          name += static_cast<char>(byte);
-        }
-
-        Builder.set(i, std::make_unique<ConstantPoolRecords::Utf8>(name));
-        break;
-      }
-
-      case ConstantPoolTags::CONSTANT_NameAndType: {
-        uint16_t name_index = BigEndianReading::readHalf(Input);
-        CheckIndex(name_index, i);
-
-        uint16_t descriptor_index = BigEndianReading::readHalf(Input);
-        CheckIndex(descriptor_index, i);
-
-        const auto &NameRef =
-            Builder.getCellReference<ConstantPoolRecords::Utf8>(name_index);
-        const auto &DescriptorRef =
-            Builder.getCellReference<ConstantPoolRecords::Utf8>(descriptor_index);
-        Builder.set(i,
-                    std::make_unique<ConstantPoolRecords::NameAndType>(
-                        NameRef, DescriptorRef));
-
-        break;
-      }
-
-      default:
-        throw FormatError("Unsupported constant pool tag " +
-                              std::to_string(tag));
-    }
+  try {
+    for (ConstantPool::IndexType i = 1; i <= ConstantPoolSize; ++i)
+      parseConstantPoolRecord(Builder, i, Input);
+  } catch (const ConstantPoolBuilder::IncompatibleCellType &e) {
+    throw FormatError("Constant pool parsing error: "s + e.what());
   }
 
-  std::unique_ptr<ConstantPool> CP = Builder.createConstantPool();
-  std::string ErrorMessage;
-  if (!CP->verify(ErrorMessage))
-    throw FormatError(
-        "Failed constant pool verification with message: " + ErrorMessage);
-  return CP;
+  return Builder.createConstantPool();
 }
 
 // Skips single attribute.

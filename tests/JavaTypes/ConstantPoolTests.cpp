@@ -22,17 +22,11 @@ TEST_CASE("Basic constant pool construction", "[ConstantPool]") {
 
   const auto *CI = CP->getAsOrNull<ClassInfo>(1);
   REQUIRE(CI != nullptr);
-  REQUIRE(CI->isValid());
   const auto *StrRec = CP->getAsOrNull<Utf8>(2);
   REQUIRE(StrRec != nullptr);
-  REQUIRE(StrRec->isValid());
 
   REQUIRE(StrRec->getValue() == "test");
   REQUIRE(CI->getName() == "test");
-
-  std::string Error;
-  bool IsValid = CP->verify(Error);
-  REQUIRE(IsValid);
 }
 
 TEST_CASE("Constant pool type safety", "[ConstantPool]") {

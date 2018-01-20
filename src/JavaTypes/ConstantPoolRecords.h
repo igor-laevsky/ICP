@@ -23,10 +23,6 @@ public:
     return Value;
   }
 
-  bool isValid() const override {
-    return true;
-  }
-
   void print(std::ostream &Out) const override {
     Out << "Utf8\t" << getValue() << "\n";
   }
@@ -44,19 +40,11 @@ public:
   }
 
   const Utf8String &getName() const {
-    assert(isValid());
-    return static_cast<Utf8*>(NameRef.get())->getValue();
+    return NameRef->getValue();
   }
 
   const Utf8String &getDescriptor() const {
-    assert(isValid());
-    return static_cast<Utf8*>(DescriptorRef.get())->getValue();
-  }
-
-  bool isValid() const override {
-    // TODO: Check that names are in a correct form.
-    return NameRef != nullptr && dynamic_cast<Utf8*>(NameRef.get()) &&
-      DescriptorRef != nullptr && dynamic_cast<Utf8*>(DescriptorRef.get());
+    return DescriptorRef->getValue();
   }
 
   void print(std::ostream &Out) const override {
@@ -74,20 +62,8 @@ public:
     ;
   }
 
-  const Utf8 &getUtf8() const {
-    assert(isValid());
-    return *static_cast<Utf8*>(Name.get());
-  }
-
   const Utf8String &getName() const {
-    assert(isValid());
-    return static_cast<Utf8*>(Name.get())->getValue();
-  }
-
-  bool isValid() const override {
-    // TODO: Check that name is in a correct form.
-    return Name != nullptr &&
-        dynamic_cast<Utf8*>(static_cast<Record*>(Name.get()));
+    return Name->getValue();
   }
 
   void print(std::ostream &Out) const override {
@@ -108,12 +84,10 @@ public:
   }
 
   const ClassInfo &getClass() const {
-    assert(isValid());
     return *ClassRef;
   }
 
   const NameAndType &getNameAndType() const {
-    assert(isValid());
     return *NameAndTypeRef;
   }
 
@@ -127,12 +101,6 @@ public:
 
   const Utf8String &getDescriptor() const {
     return getNameAndType().getDescriptor();
-  }
-
-  bool isValid() const override {
-    return ClassRef != nullptr && dynamic_cast<ClassInfo *>(ClassRef.get()) &&
-           NameAndTypeRef != nullptr &&
-           dynamic_cast<NameAndType *>(NameAndTypeRef.get());
   }
 
 private:

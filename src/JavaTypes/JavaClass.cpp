@@ -18,9 +18,6 @@ JavaClass::JavaClass(JavaClass::ClassParameters &&Params):
 {
   assert(Params.ClassName != nullptr);
 
-  // It is responsibility of the user to provide valid constant pool.
-  assert(CP != nullptr && CP->verify());
-
   // Set up correct owner for the class methods
   for (auto &Method: methods()) {
     assert(Method != nullptr);

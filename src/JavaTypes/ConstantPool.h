@@ -31,8 +31,6 @@ public:
   Record(const Record &) = delete;
   Record &operator=(const Record &) = delete;
 
-  virtual bool isValid() const = 0;
-
   virtual void print(std::ostream &) const = 0;
 };
 
@@ -105,17 +103,6 @@ public:
     return Idx >= 1 && Idx <= numRecords();
   }
 
-  // Check that this constant pool is valid.
-  // \returns true if constant pool is valid, false otherwise. ErrorMessage
-  // will remain unchanged when constant pool is valid or will contain
-  // diagnostic message if any verification errors were discovered.
-  bool verify(std::string &ErrorMessage) const;
-
-  // Convenience overload of the 'verify' function. Makes it easier to use in
-  // asserts.
-  // \returns true if constant pool is in a valid state, false otherwise.
-  bool verify() const;
-
   // Print contents of this constant pool
   void print(std::ostream &Out) const;
 
@@ -163,7 +150,7 @@ public:
   // Check that type is a subtype of the Record, but not Record itself.
   template<class T> static constexpr bool IsCPRecord =
       std::is_base_of_v<ConstantPoolRecords::Record, T> &&
-          !std::is_same_v<ConstantPoolRecords::Record, T>;
+      !std::is_same_v<ConstantPoolRecords::Record, T>;
 
 public:
   explicit ConstantPoolBuilder(SizeType NumRecords) {
@@ -210,8 +197,17 @@ public:
     getRecordTable()[Idx] = std::move(NewRecord);
   }
 
+  // Check that constant pool is fully populated and creates it.
+  // It is invalid to create constant pool with unassigned cells.
   std::unique_ptr<ConstantPool> createConstantPool() {
     assert(isValid());
+
+    // Check that we created all the records.
+    if (std::any_of(getRecordTable().begin(), getRecordTable().end(),
+          [] (const auto &Cell) { return Cell == nullptr; })) {
+      assert(false);
+    }
+
     return std::move(ConstantPoolUnderConstruction);
   }
 
@@ -220,13 +216,15 @@ public:
     return ConstantPoolUnderConstruction != nullptr;
   }
 
-private:
-  RecordTable &getRecordTable() const {
-    return ConstantPoolUnderConstruction->Records;
-  }
-
+  // Helper function intended to save some key typing.
   bool isValidIndex(IndexType Idx) const {
     return ConstantPoolUnderConstruction->isValidIndex(Idx);
+  }
+
+private:
+  // Helper function intended to save some key typing.
+  RecordTable &getRecordTable() const {
+    return ConstantPoolUnderConstruction->Records;
   }
 
   // Either records type speculation for the record at Idx or check that
@@ -241,8 +239,7 @@ private:
       TypeSpeculations[Idx] = &typeid(T);
     } else if (*TypeSpeculations[Idx] != typeid(T)) {
       throw IncompatibleCellType(
-          "Wrong cell type at index " + std::to_string(Idx+1) + " " + TypeSpeculations[Idx]->name() + " " +
-              typeid(T).name());
+          "Wrong cell type at index " + std::to_string(Idx+1));
     }
   }
 

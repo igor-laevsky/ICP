@@ -89,9 +89,7 @@ static std::unique_ptr<ConstantPool> createConstantPool() {
   Builder.set(27, std::make_unique<ConstantPoolRecords::Utf8>(
       "LFields"));
 
-  auto CP = Builder.createConstantPool();
-  assert(CP->verify());
-  return CP;
+  return Builder.createConstantPool();
 }
 
 // Eternal constant pool to simplify memory management
