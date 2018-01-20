@@ -169,14 +169,6 @@ public:
     assert(isValidIndex(Idx));
     Idx = ConstantPool::toZeroBasedIndex(Idx);
 
-    // Check that we always reference through the same type
-    if (TypeSpeculations[Idx] == nullptr) {
-      TypeSpeculations[Idx] = &typeid(T);
-    } else if (*TypeSpeculations[Idx] != typeid(T)) {
-      throw IncompatibleCellType(
-          "Wrong cell type at index " + std::to_string(Idx+1));
-    }
-
     return reinterpret_cast<CellReference<T>>(getRecordTable()[Idx]);
   }
 
@@ -190,8 +182,6 @@ public:
     assert(isValid());
     assert(isValidIndex(Idx));
     Idx = ConstantPool::toZeroBasedIndex(Idx);
-
-    // Type check if possible.
 
     assert(getRecordTable()[Idx] == nullptr); // only assign once
     getRecordTable()[Idx] = std::move(NewRecord);
