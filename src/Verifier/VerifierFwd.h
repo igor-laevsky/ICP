@@ -7,7 +7,7 @@
 
 namespace Verifier {
 
-class StackFrame;
+// Empty
 
 }
 

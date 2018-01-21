@@ -6,10 +6,9 @@
 
 #include <optional>
 
-#include "Verifier/StackFrame.h"
+#include "JavaTypes/StackFrame.h"
 #include "JavaTypes/Type.h"
 
-using namespace Verifier;
 using namespace JavaTypes;
 
 TEST_CASE("Two word extension", "[Verifier][StackFrame]") {

@@ -4,7 +4,6 @@
 
 #include "StackFrame.h"
 
-using namespace Verifier;
 using namespace JavaTypes;
 
 void StackFrame::computeFlags() {

@@ -12,7 +12,7 @@
 
 #include "JavaTypes/Type.h"
 
-namespace Verifier {
+namespace JavaTypes {
 
 // This class more or less directly reflects the term
 // "frame(Locals, OperandStack, Flags)" from the JVM specification.

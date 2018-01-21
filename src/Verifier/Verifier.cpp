@@ -4,7 +4,7 @@
 
 #include "Verifier.h"
 
-#include "StackFrame.h"
+#include "JavaTypes/StackFrame.h"
 #include "Bytecode/InstructionVisitor.h"
 
 #include "JavaTypes/JavaClass.h"

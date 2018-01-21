@@ -9,7 +9,7 @@
 #include "ConstantPoolRecords.h"
 #include "Bytecode/Bytecode.h"
 #include "Utils/Iterators.h"
-#include "Verifier/StackFrame.h"
+#include "StackFrame.h"
 
 namespace JavaTypes {
 
@@ -22,7 +22,7 @@ public:
   using CodeIterator = Utils::SmartPtrIterator<CodeOwnerType::const_iterator>;
 
   using StackMapTableType =
-    std::vector<std::pair<Bytecode::BciType, Verifier::StackFrame>>;
+    std::vector<std::pair<Bytecode::BciType, StackFrame>>;
 
   enum class AccessFlags: uint16_t {
     ACC_NONE = 0x0000,

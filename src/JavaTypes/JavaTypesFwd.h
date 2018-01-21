@@ -17,6 +17,8 @@ class JavaClass;
 class JavaMethod;
 class JavaField;
 
+class StackFrame;
+
 }
 
 #endif //ICP_JAVATYPESFWD_H
