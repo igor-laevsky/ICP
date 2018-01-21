@@ -49,15 +49,15 @@ TEST_CASE("String input", "[CD][Parser]") {
 }
 
 TEST_CASE("Incomplete", "[CD][Parser]") {
-  REQUIRE_THROWS_AS(parseFromFile("CD/Incomplete.cd"), ParserError);
+  REQUIRE_THROWS_AS(parseFromFile("tests/CD/Incomplete.cd"), ParserError);
 }
 
 TEST_CASE("Empty", "[CD][Parser]") {
-  REQUIRE(parseFromFile("CD/Empty.cd"));
+  REQUIRE(parseFromFile("tests/CD/Empty.cd"));
 }
 
 TEST_CASE("EmptyMethods", "[CD][Parser]") {
-  auto C = parseFromFile("CD/EmptyMethods.cd");
+  auto C = parseFromFile("tests/CD/EmptyMethods.cd");
 
   REQUIRE(C);
 
@@ -70,7 +70,7 @@ TEST_CASE("EmptyMethods", "[CD][Parser]") {
 }
 
 TEST_CASE("CD parser for the simple case", "[CD][Parser]") {
-  auto C = parseFromFile("CD/Simple.cd");
+  auto C = parseFromFile("tests/CD/Simple.cd");
 
   REQUIRE(C);
 
@@ -88,7 +88,7 @@ TEST_CASE("CD parser for the simple case", "[CD][Parser]") {
 }
 
 TEST_CASE("Fields", "[CD][Parser]") {
-  auto C = parseFromFile("CD/Fields.cd");
+  auto C = parseFromFile("tests/CD/Fields.cd");
 
   REQUIRE(C);
   REQUIRE(C->hasSuper());
@@ -114,5 +114,5 @@ TEST_CASE("Fields", "[CD][Parser]") {
 }
 
 TEST_CASE("FieldRef", "[CD][Parser]") {
-  REQUIRE(parseFromFile("CD/FieldRef.cd"));
+  REQUIRE(parseFromFile("tests/CD/FieldRef.cd"));
 }
