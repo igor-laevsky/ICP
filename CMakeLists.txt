@@ -51,7 +51,8 @@ set(SOURCE_FILES
         src/Runtime/Objects.cpp
         src/Runtime/Objects.h
         src/Runtime/ClassManager.cpp
-        src/Runtime/ClassManager.h)
+        src/Runtime/ClassManager.h
+        src/JavaTypes/StackMapTable.h)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
@@ -60,7 +61,7 @@ set (TEST_FILES
         tests/JavaTypes/JavaMethodTests.cpp
         tests/Utils/IteratorsTests.cpp
         tests/JavaTypes/TypeTests.cpp
-        tests/Verifier/StackFrameTests.cpp
+        tests/JavaTypes/StackFrameTests.cpp
         tests/JavaTypes/InstructionVisitorTests.cpp
         tests/Verifier/VerifierTests.cpp
         tests/Utils/TestUtils.cpp

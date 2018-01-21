@@ -18,6 +18,7 @@ class JavaMethod;
 class JavaField;
 
 class StackFrame;
+class StackMapTable;
 
 }
 

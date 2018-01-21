@@ -31,12 +31,18 @@ public:
     assert(verifyTypeEncoding());
   }
 
+  StackFrame(const StackFrame &) = default;
+  StackFrame &operator=(const StackFrame &)  = default;
+
+  StackFrame(StackFrame &&) = default;
+  StackFrame &operator=(StackFrame &&)  = default;
+
   auto numLocals() const { return Locals.size(); }
 
   auto numStack() const { return Stack.size(); }
 
   // Locals accessors
-  const auto &locals() const { return Locals; }
+  const auto &locals() const { return this->Locals; }
   JavaTypes::Type getLocal(std::size_t Idx) const {
     assert(Idx < locals().size());
     return locals()[Idx];
