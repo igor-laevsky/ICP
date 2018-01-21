@@ -11,15 +11,10 @@
 #include <cassert>
 #include <vector>
 
-#include "InstructionVisitor.h"
+#include "Bytecode/InstructionsFwd.h"
+#include "Bytecode/InstructionVisitor.h"
 
 namespace Bytecode {
-
-using BciType = uint32_t;
-using IdxType = uint16_t;
-
-using Container = std::vector<uint8_t>;
-using ContainerIterator = Container::const_iterator;
 
 // Exceptions
 class UnexpectedBytecodeOperation: public std::exception {};
