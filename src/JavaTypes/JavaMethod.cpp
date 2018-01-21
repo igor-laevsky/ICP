@@ -34,7 +34,8 @@ JavaMethod::JavaMethod(JavaMethod::MethodConstructorParameters &&Params) :
   // Other flags are not supported currently
   assert(
       getAccessFlags() == AccessFlags::ACC_PUBLIC ||
-      getAccessFlags() == (AccessFlags::ACC_PUBLIC | AccessFlags::ACC_STATIC));
+      getAccessFlags() == AccessFlags::ACC_STATIC ||
+      getAccessFlags() == AccessFlags::ACC_PUBLIC_STATIC);
 }
 
 void JavaMethod::print(std::ostream &Out) const {

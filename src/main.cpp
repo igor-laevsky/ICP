@@ -14,7 +14,7 @@ int main() {
 
   // Load class
   try {
-    NewClass = ClassFileReader::loadClassFromFile("./assets/Fields.class");
+    NewClass = ClassFileReader::loadClassFromFile("Branches.class");
   } catch (ClassFileReader::FileNotFound &) {
     std::cout << "Couldn't open class file." << "\n";
     return 1;
@@ -27,10 +27,10 @@ int main() {
   Runtime::getClassManager().registerClass(
       Runtime::ClassObject::create(*NewClass)->getAs<Runtime::ClassObject>());
 
+  NewClass->print(std::cout);
+
   // Verify class
   Verifier::verify(*NewClass);
-
-  NewClass->print(std::cout);
 
   // Interpret
   auto Method = NewClass->getMethod("main");
