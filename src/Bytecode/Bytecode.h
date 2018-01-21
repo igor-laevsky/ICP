@@ -11,7 +11,7 @@
 #include <cassert>
 #include <vector>
 
-#include "Bytecode/InstructionsFwd.h"
+#include "Bytecode/BytecodeFwd.h"
 #include "Bytecode/InstructionVisitor.h"
 
 namespace Bytecode {

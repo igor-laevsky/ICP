@@ -33,7 +33,7 @@ set(SOURCE_FILES
         src/JavaTypes/StackFrame.h
         src/Bytecode/InstructionVisitor.cpp
         src/Bytecode/InstructionVisitor.h
-        src/Bytecode/InstructionsFwd.h
+        src/Bytecode/BytecodeFwd.h
         src/Verifier/Verifier.cpp
         src/Verifier/Verifier.h
         src/JavaTypes/JavaTypesFwd.h
