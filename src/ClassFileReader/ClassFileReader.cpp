@@ -93,8 +93,7 @@ static void parseConstantPoolRecord(
       CheckIndex(name_index);
 
       const auto &NameRef = Builder.getCellReference<Utf8>(name_index);
-      Builder.set(CurIdx,
-                  std::make_unique<ConstantPoolRecords::ClassInfo>(NameRef));
+      Builder.create<ConstantPoolRecords::ClassInfo>(CurIdx, NameRef);
       break;
     }
 
@@ -109,9 +108,8 @@ static void parseConstantPoolRecord(
           Builder.getCellReference<ConstantPoolRecords::ClassInfo>(class_index);
       const auto &NameAndTypeRef =
           Builder.getCellReference<ConstantPoolRecords::NameAndType>(name_and_type_index);
-      Builder.set(CurIdx,
-                  std::make_unique<ConstantPoolRecords::MethodRef>(
-                      ClassRef, NameAndTypeRef));
+      Builder.create<ConstantPoolRecords::MethodRef>(
+          CurIdx, ClassRef, NameAndTypeRef);
       break;
     }
 
@@ -126,9 +124,8 @@ static void parseConstantPoolRecord(
           Builder.getCellReference<ConstantPoolRecords::ClassInfo>(class_index);
       const auto &NameAndTypeRef =
           Builder.getCellReference<ConstantPoolRecords::NameAndType>(name_and_type_index);
-      Builder.set(CurIdx,
-                  std::make_unique<ConstantPoolRecords::FieldRef>(
-                      ClassRef, NameAndTypeRef));
+      Builder.create<ConstantPoolRecords::FieldRef>(
+          CurIdx, ClassRef, NameAndTypeRef);
       break;
     }
 
@@ -151,7 +148,7 @@ static void parseConstantPoolRecord(
         name += static_cast<char>(byte);
       }
 
-      Builder.set(CurIdx, std::make_unique<ConstantPoolRecords::Utf8>(name));
+      Builder.create<ConstantPoolRecords::Utf8>(CurIdx, name);
       break;
     }
 
@@ -166,10 +163,8 @@ static void parseConstantPoolRecord(
           Builder.getCellReference<ConstantPoolRecords::Utf8>(name_index);
       const auto &DescriptorRef =
           Builder.getCellReference<ConstantPoolRecords::Utf8>(descriptor_index);
-      Builder.set(CurIdx,
-                  std::make_unique<ConstantPoolRecords::NameAndType>(
-                      NameRef, DescriptorRef));
-
+      Builder.create<ConstantPoolRecords::NameAndType>(
+          CurIdx, NameRef, DescriptorRef);
       break;
     }
 

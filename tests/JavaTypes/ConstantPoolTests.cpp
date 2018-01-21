@@ -10,11 +10,11 @@ TEST_CASE("Basic constant pool construction", "[ConstantPool]") {
   ConstantPoolBuilder Builder(2);
   REQUIRE(Builder.isValid());
 
-  Builder.set(1, std::make_unique<ConstantPoolRecords::ClassInfo>(
-      Builder.getCellReference<ConstantPoolRecords::Utf8>(2)));
+  Builder.create<ConstantPoolRecords::ClassInfo>(1,
+      Builder.getCellReference<ConstantPoolRecords::Utf8>(2));
   REQUIRE(Builder.isValid());
 
-  Builder.set(2, std::make_unique<ConstantPoolRecords::Utf8>("test"));
+  Builder.create<ConstantPoolRecords::Utf8>(2, "test");
   REQUIRE(Builder.isValid());
 
   std::unique_ptr<ConstantPool> CP = Builder.createConstantPool();
@@ -48,10 +48,9 @@ TEST_CASE("Constant pool type safety", "[ConstantPool]") {
       Builder.set(2, std::make_unique<ConstantPoolRecords::Utf8>("test")));
 
   // But can set ClassInfo into ClassInfo.
-  REQUIRE_NOTHROW(Builder.set(2, std::make_unique<ConstantPoolRecords::ClassInfo>(
-      Builder.getCellReference<ConstantPoolRecords::Utf8>(1))));
+  REQUIRE_NOTHROW(Builder.create<ConstantPoolRecords::ClassInfo>(
+      2, Builder.getCellReference<ConstantPoolRecords::Utf8>(1)));
 
   // And can set Utf8 into Utf8.
-  REQUIRE_NOTHROW(
-      Builder.set(1, std::make_unique<ConstantPoolRecords::Utf8>("asdf")));
+  REQUIRE_NOTHROW(Builder.create<ConstantPoolRecords::Utf8>(1, "asdf"));
 }

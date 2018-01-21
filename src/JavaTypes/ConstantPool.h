@@ -187,6 +187,15 @@ public:
     getRecordTable()[Idx] = std::move(NewRecord);
   }
 
+  // Helper wrapper to avoid typing redundant 'make_unique'
+  template<
+      class T,
+      class... Ts,
+      class X = std::enable_if_t<IsCPRecord<T>>>
+  void create(IndexType Idx, Ts&&... Args) {
+    set(Idx, std::make_unique<T>(std::forward<Ts>(Args)...));
+  }
+
   // Check that constant pool is fully populated and creates it.
   // It is invalid to create constant pool with unassigned cells.
   std::unique_ptr<ConstantPool> createConstantPool() {
