@@ -128,12 +128,9 @@ std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
 
 std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
     const std::vector<uint8_t> &Bytecode) {
-  JavaMethod::StackMapTableType T = {
-      {0, StackFrame({}, {})}
-  };
   return createMethod(
       10, 10, 1, 2,
-      Bytecode, std::move(T));
+      Bytecode, {});
 }
 
 std::unique_ptr<JavaMethod> TestUtils::createTrivialMethod() {
