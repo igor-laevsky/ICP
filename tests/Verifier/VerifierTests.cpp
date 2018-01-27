@@ -320,10 +320,8 @@ TEST_CASE("aload", "[Verifier]") {
 }
 
 TEST_CASE("too many locals", "[Verifier]") {
-  REQUIRE_THROWS_MATCHES(
-      testWithMethodFile("to_many_locals.cd"),
-      VerificationError, ExEquals("Exceeded maximum number of locals"));
-
+  REQUIRE_THROWS_AS(
+      testWithMethodFile("to_many_locals.cd"), VerificationError);
 }
 
 TEST_CASE("verify get_put_static", "[Verifier][getput]") {

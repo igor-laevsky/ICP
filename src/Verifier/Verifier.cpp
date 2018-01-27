@@ -38,9 +38,6 @@ public:
         LocalTypes.insert(LocalTypes.begin(), Types::Class);
     }
 
-    if (LocalTypes.size() > Method.getMaxLocals())
-      throw VerificationError("Exceeded maximum number of locals");
-
     CurrentFrame = StackFrame(LocalTypes, {});
   }
 
@@ -57,14 +54,18 @@ public:
 
 
   // These two functions are called before or after processing an instruction.
-  bool checkPreConditions() const {
+  void checkPreConditions() const {
     // TODO: This will be used to ensure that we encountered a stack map
     // after branch
-    return true;
+    ;
   }
 
-  bool checkPostConditions() const {
-    return CurrentFrame.numStack() <= Method.getMaxStack();
+  void checkPostConditions() const {
+    if (CurrentFrame.numLocals() > Method.getMaxLocals())
+      throwErr("Exceeded maximum number of locals");
+
+    if (CurrentFrame.numStack() > Method.getMaxStack())
+      throwErr("Exceeded maximum stack size");
   };
 
 private:
@@ -82,6 +83,10 @@ private:
     CurrentFrame.pushList({ActualType});
   }
 
+  // Helper to throw a varification error
+  void throwErr(const std::string &Str) const {
+    throw VerificationError(Str);
+  }
 
 private:
   const JavaMethod &Method;
@@ -196,24 +201,18 @@ void MethodVerifier::visit(const getstatic &Inst) {
 }
 
 }
-#include <iostream>
+
 void Verifier::verifyMethod(const JavaMethod &Method) {
   // TODO: Add method level verification
 
   MethodVerifier V(Method);
   for (const auto &Instr: Method) {
     // TODO: Set up StackMap if method has it specified for the current bci
-    if (!V.checkPreConditions())
-      throw VerificationError(
-          "Failed pre conditions at the bci " +
-              std::to_string(Method.getBciForInst(Instr)));
+    V.checkPreConditions();
 
     Instr.accept(V);
 
-    if (!V.checkPostConditions())
-      throw VerificationError(
-          "Failed post conditions at the bci " +
-              std::to_string(Method.getBciForInst(Instr)));
+    V.checkPostConditions();
   }
 }
 
