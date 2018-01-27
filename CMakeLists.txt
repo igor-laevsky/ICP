@@ -52,7 +52,8 @@ set(SOURCE_FILES
         src/Runtime/Objects.h
         src/Runtime/ClassManager.cpp
         src/Runtime/ClassManager.h
-        src/JavaTypes/StackMapTable.h)
+        src/JavaTypes/StackMapTable.h
+        src/JavaTypes/StackMapTable.cpp)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp

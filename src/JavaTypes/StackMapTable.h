@@ -12,59 +12,128 @@ namespace JavaTypes {
 
 class StackMapTable {
 public:
+  // One element of the stack map table. Records bci and frame at the bci.
+  using Container = std::vector<std::pair<Bytecode::BciType, StackFrame>>;
+
   // Iterates over all stack maps in the method in order of their bci's.
+  // Doesn't allow any modifications.
   class Iterator {
   public:
-    Iterator() = default;
-    Iterator(const StackMapTable &Parent);
+    explicit Iterator(Container::const_iterator Start): It(Start) {
+      ; // Empty
+    }
 
-    // Expensive to copy
-    Iterator(const Iterator &) = delete;
-    Iterator &operator=(const Iterator &) = delete;
+    Bytecode::BciType getBci() const { return It->first; }
 
-    // But fine to remove
-    Iterator(Iterator &&) = default;
-    Iterator &operator=(Iterator &&) = default;
+    Iterator &operator++() {
+      It++;
+      return *this;
+    }
 
-    Bytecode::BciType getBci() const;
+    Iterator operator++(int) {
+      Iterator Old(*this);
+      It++;
+      return Old;
+    }
 
-    Iterator &operator++();
+    const StackFrame &operator*() const {
+      return It->second;
+    }
 
-    const StackFrame &operator*() const;
-
-    bool operator==(const Iterator &Other) const;
+    bool operator==(const Iterator &Other) const {
+      return It == Other.It;
+    }
+    bool operator!=(const Iterator &Other) const {
+      return It != Other.It;
+    }
 
   private:
-    std::optional<StackFrame> CurFrame;
+    Container::const_iterator It;
   };
 
 public:
-  StackMapTable(const std::string &Signature);
+  StackMapTable(const StackMapTable &) = delete;
+  StackMapTable &operator=(const StackMapTable &) = delete;
+  StackMapTable(StackMapTable &&) = delete;
+  StackMapTable &operator=(StackMapTable &&) = delete;
 
-  bool hasBci(Bytecode::BciType Bci) const;
+  bool hasBci(Bytecode::BciType Bci) const {
+    return std::any_of(
+        frames().begin(), frames().end(),
+        [&](const auto &a) { return a.first == Bci; });
+  }
 
-  Iterator begin() const { return Iterator(InitialFrame); }
-  Iterator end() const { return Iterator(); }
+  Iterator begin() const { return Iterator(Frames.begin()); }
+  Iterator end() const { return Iterator(Frames.end()); }
+
+private:
+  // Only called from the StackMapBuilder.
+  StackMapTable(Container &&Input): Frames(std::move(Input)) {
+    ;
+  }
+
+  const Container &frames() const { return Frames; }
+
+private:
+  Container Frames;
+
+  friend class StackMapTableBuilder;
+};
+
+class StackMapTableBuilder {
+public:
+  // Creates stack map table based on the current content of the builder and on
+  // the supplied initial locals array. Usually initial locals are generated
+  // from the method descriptor.
+  StackMapTable createTable(const std::vector<Type> &InitialLocals) const;
+
+  // Constructs next frame by appending some locals into previous one.
+  void addAppend(Bytecode::BciType Idx, std::vector<Type> &&Locals);
+
+  // Next frame is the same as previous one.
+  void addSame(Bytecode::BciType Idx);
+
+  // Next frame is fully constructed from input arguments.
+  void addFull(Bytecode::BciType Idx,
+      std::vector<Type> &&Locals, std::vector<Type> &&Stack);
 
 private:
   struct Action {
+    enum FrameTypeEnum {
+      APPEND, SAME, FULL
+    };
+
     Bytecode::BciType Bci;
+    FrameTypeEnum FrameType;
+    std::vector<Type> Locals, Stack;
 
-    enum {
-      SAME, APPEND, FULL
-    } Action;
-
-    StackFrame Data;
+    Action(Bytecode::BciType Bci, FrameTypeEnum FrameType,
+           std::vector<Type> &&Locals, std::vector<Type> &&Stack):
+        Bci(Bci), FrameType(FrameType), Locals(std::move(Locals)),
+        Stack(std::move(Stack)) {
+      ; // Empty
+    }
   };
 
-private:
-  const std::vector<Action> &getActions() const { return Actions; }
-  const StackFrame &getInitialFrame() const { return InitialFrame; }
+  using Container = std::vector<Action>;
+
+  // Store frame with non-expanded types.
+  using RawFrame = std::pair<std::vector<Type>, std::vector<Type>>;
 
 private:
-  StackFrame InitialFrame;
+  const Container &actions() const { return FrameActions; }
+  Container &actions() { return FrameActions; }
 
-  std::vector<Action> Actions;
+  // Checks that 'Idx' is monotonically increasing in relation to the previous
+  // frame. Always true if there are no frames.
+  bool checkBciMonotonic(Bytecode::BciType Idx);
+
+  // Transforms given frame accoding with the given action. Transformation is
+  // performed in-place.
+  static void transformFrame(RawFrame &Frame, const Action &Act);
+
+private:
+  Container FrameActions;
 };
 
 }

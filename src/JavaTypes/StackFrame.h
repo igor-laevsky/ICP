@@ -41,11 +41,15 @@ public:
   }
   bool operator!=(const StackFrame &Other) const { return !(*this == Other); }
 
+  // Returns true if locals have uninitialized this flag
+  bool flagThisUninit() const { return Flags; }
+
+
+  // Methods to work with locals
+  //
+
   auto numLocals() const { return Locals.size(); }
 
-  auto numStack() const { return Stack.size(); }
-
-  // Locals accessors
   const std::vector<Type> &locals() const { return Locals; }
 
   JavaTypes::Type getLocal(std::size_t Idx) const {
@@ -55,8 +59,13 @@ public:
 
   void setLocal(std::size_t Idx, JavaTypes::Type T);
 
-  // Returns true if locals have uninitialized this flag
-  bool flagThisUninit() const { return Flags; }
+
+  // Methods to work with stack
+  //
+
+  auto numStack() const { return Stack.size(); }
+
+  const std::vector<Type> &stack() const { return Stack; }
 
   // It's possible to pop list of types if each corresponding stack slot is
   // assignable to the given type.
@@ -89,7 +98,6 @@ private:
 
   // There is no need for user to access the stack directly, hence it's a
   // private functions.
-  const std::vector<Type> &stack() const { return Stack; }
   std::vector<Type> &stack() { return Stack; }
 
   // Private non const accessor for locals.
