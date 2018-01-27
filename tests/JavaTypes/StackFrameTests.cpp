@@ -223,3 +223,15 @@ TEST_CASE("Set local", "[Verifier][StackFrame]") {
   REQUIRE(!t.flagThisUninit());
   REQUIRE(t.getLocal(1) == Types::Top);
 }
+
+TEST_CASE("Stack frame equality", "[Verifier][StackFrame]") {
+  StackFrame t1({Types::Double, Types::Reference}, {});
+  StackFrame t2({Types::Double, Types::Reference}, {});
+  StackFrame t3({Types::Top, Types::Int, Types::Reference}, {});
+
+  REQUIRE(t1 == t2);
+  REQUIRE(t2 == t1);
+  REQUIRE(t1 != t3);
+  REQUIRE(t2 != t3);
+  REQUIRE(t3 == t3);
+}

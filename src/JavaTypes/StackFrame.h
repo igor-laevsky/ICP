@@ -37,16 +37,23 @@ public:
   StackFrame(StackFrame &&) = default;
   StackFrame &operator=(StackFrame &&)  = default;
 
+  bool operator==(const StackFrame &Other) const {
+    return stack() == Other.stack() && locals() == Other.locals();
+  }
+  bool operator!=(const StackFrame &Other) const { return !(*this == Other); }
+
   auto numLocals() const { return Locals.size(); }
 
   auto numStack() const { return Stack.size(); }
 
   // Locals accessors
-  const auto &locals() const { return this->Locals; }
+  const std::vector<Type> &locals() const { return Locals; }
+
   JavaTypes::Type getLocal(std::size_t Idx) const {
     assert(Idx < locals().size());
     return locals()[Idx];
   }
+
   void setLocal(std::size_t Idx, JavaTypes::Type T);
 
   // Returns true if locals have uninitialized this flag
@@ -83,8 +90,11 @@ private:
 
   // There is no need for user to access the stack directly, hence it's a
   // private functions.
-  const auto &stack() const { return Stack; }
-  auto &stack() { return Stack; }
+  const std::vector<Type> &stack() const { return Stack; }
+  std::vector<Type> &stack() { return Stack; }
+
+  // Private non const accessor for locals.
+  std::vector<Type> &locals() { return Locals; }
 
   // This is low level method which doesn't check if this operation is
   // logically valid.
@@ -97,15 +107,12 @@ private:
     stack().push_back(T);
   }
 
-  // Private non const accessor for locals.
-  auto &locals() { return Locals; }
-
   // Checks that all two word types are correctly encoded.
   bool verifyTypeEncoding();
 
 private:
-  std::vector<JavaTypes::Type> Locals;
-  std::vector<JavaTypes::Type> Stack;
+  std::vector<Type> Locals;
+  std::vector<Type> Stack;
   bool Flags; // true if any of the locals is uninitializedThis
 };
 
