@@ -55,7 +55,6 @@ std::unique_ptr<JavaTypes::JavaMethod> createMethod(
     JavaTypes::ConstantPool::IndexType NameIdx,
     JavaTypes::ConstantPool::IndexType DescriptorIdx,
     const std::vector<uint8_t> &Bytecode,
-    JavaTypes::JavaMethod::StackMapTableType &&StackMapTable,
     JavaTypes::JavaMethod::AccessFlags Flags = JavaTypes::JavaMethod::AccessFlags::ACC_PUBLIC);
 
 std::unique_ptr<JavaTypes::JavaMethod> createTrivialMethod();

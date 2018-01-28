@@ -103,7 +103,6 @@ std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
     ConstantPool::IndexType NameIdx,
     ConstantPool::IndexType DescriptorIdx,
     const std::vector<uint8_t> &Bytecode,
-    JavaMethod::StackMapTableType &&StackMapTable,
     JavaMethod::AccessFlags Flags /*= ACC_PUBLIC */) {
 
   const auto &Name =
@@ -121,7 +120,6 @@ std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
   Params.MaxLocals = MaxLocals;
   Params.MaxStack = MaxStack;
   Params.Code = Bytecode::parseInstructions(Bytecode);
-  Params.StackMapTable = std::move(StackMapTable);
 
   return std::make_unique<JavaMethod>(std::move(Params));
 }
@@ -130,7 +128,7 @@ std::unique_ptr<JavaTypes::JavaMethod> TestUtils::createMethod(
     const std::vector<uint8_t> &Bytecode) {
   return createMethod(
       10, 10, 1, 2,
-      Bytecode, {});
+      Bytecode, JavaMethod::AccessFlags::ACC_PUBLIC);
 }
 
 std::unique_ptr<JavaMethod> TestUtils::createTrivialMethod() {

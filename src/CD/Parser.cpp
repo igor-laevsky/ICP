@@ -243,7 +243,51 @@ static std::unique_ptr<ConstantPool> parseConstantPool(Lexer &Lex) {
   return Builder.createConstantPool();
 }
 
-static JavaMethod::CodeOwnerType parseBytecode(Lexer &Lex) {
+static StackMapTableBuilder parseStackMap(
+    std::map<std::string_view, Bytecode::BciType> Label2Bci,
+    Lexer &Lex) {
+
+  if (!Lex.consume(Token::Keyword("stackmap")))
+    return {};
+  consumeOrThrow(Token::LBrace, Lex);
+
+  StackMapTableBuilder Ret;
+
+  while (const auto *Label = Lex.consume(Token::Id())) {
+    // Read bci.
+    if (Label2Bci.count(Label->getData()) == 0)
+      throw ParserError("Undefined label found in the stackmap");
+    auto bci = Label2Bci[Label->getData()];
+    consumeOrThrow(Token::Colon, Lex);
+
+    // Current frame is same as previous frame.
+    if (Lex.consume(Token::Id("same"))) {
+      Ret.addSame(bci);
+      continue;
+    }
+
+    // Otherwise current frame is explicitly specified.
+    auto ParseTypeList = [&]() {
+      std::vector<Type> ret;
+      consumeOrThrow(Token::LSBrace, Lex);
+      while (const auto *str_type = Lex.consume(Token::String()))
+        ret.push_back(Type::parseFieldDescriptor(str_type->getData()));
+      consumeOrThrow(Token::RSBrace, Lex);
+      return ret;
+    };
+
+    std::vector<Type> locals = ParseTypeList();
+    std::vector<Type> stack = ParseTypeList();
+
+    Ret.addFull(bci, std::move(locals), std::move(stack));
+  }
+
+  consumeOrThrow(Token::RBrace, Lex);
+  return Ret;
+}
+
+static void parseBytecode(
+    JavaMethod::MethodConstructorParameters &Params, Lexer &Lex) {
 
   consumeOrThrow(Token::Keyword("bytecode"), Lex);
   consumeOrThrow(Token::LBrace, Lex);
@@ -260,14 +304,16 @@ static JavaMethod::CodeOwnerType parseBytecode(Lexer &Lex) {
   std::vector<ParsedInst> Instrs;
   std::map<std::string_view, Bytecode::BciType> Label2Bci;
 
-  Bytecode::BciType cur_bci = 0;
-  while (!Lex.isNext(Token::RBrace)) {
-    // Label definition
+  auto TryEatLabel = [&](Bytecode::BciType CurBci) {
     if (Lex.consume(Token::Colon))
-      Label2Bci[consumeOrThrow(Token::Id(), Lex).getData()] = cur_bci;
+      Label2Bci[consumeOrThrow(Token::Id(), Lex).getData()] = CurBci;
+  };
 
+  TryEatLabel(0);
+  Bytecode::BciType cur_bci = 0;
+  while (const auto *NameTok = Lex.consume(Token::Id())) {
     // Name
-    const char *Name = consumeOrThrow(Token::Id(), Lex).getData().c_str();
+    const char *Name = NameTok->getData().c_str();
 
     // Index
     // Only single indexed instructions for now.
@@ -290,6 +336,9 @@ static JavaMethod::CodeOwnerType parseBytecode(Lexer &Lex) {
 
     // Slightly hacky way to compute current bci
     cur_bci += 1 + ((hasLabel || hasIdx) ? 2 : 0);
+
+    // Label definition for the next bytecode
+    TryEatLabel(cur_bci);
   }
 
   // Actually parse all of the instructions
@@ -323,9 +372,14 @@ static JavaMethod::CodeOwnerType parseBytecode(Lexer &Lex) {
     cur_bci += Ret.back()->getLength();
   }
 
-  consumeOrThrow(Token::RBrace, Lex);
+  Params.Code = std::move(Ret);
 
-  return Ret;
+  // Parse stack map
+  //
+
+  Params.StackMapBuilder = parseStackMap(Label2Bci, Lex);
+
+  consumeOrThrow(Token::RBrace, Lex); // End bytecode
 }
 
 static std::unique_ptr<JavaMethod> parseMethod(
@@ -378,7 +432,7 @@ static std::unique_ptr<JavaMethod> parseMethod(
       std::stoi(consumeOrThrow(Token::Num(), Lex).getData()));
 
   // Parse bytecode
-  Params.Code = parseBytecode(Lex);
+  parseBytecode(Params, Lex);
 
   consumeOrThrow(Token::RBrace, Lex);
 

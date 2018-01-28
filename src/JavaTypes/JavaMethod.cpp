@@ -24,7 +24,7 @@ JavaMethod::JavaMethod(JavaMethod::MethodConstructorParameters &&Params) :
     MaxStack(Params.MaxStack),
     MaxLocals(Params.MaxLocals),
     Code(std::move(Params.Code)),
-    StackMapTable(std::move(Params.StackMapTable))
+    StackMapBuilder(std::move(Params.StackMapBuilder))
 {
   // Null check all instructions
   assert(std::all_of(

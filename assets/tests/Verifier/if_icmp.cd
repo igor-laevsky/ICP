@@ -1,0 +1,194 @@
+class {
+  constant_pool {
+    1: ClassInfo "IfIcmp"
+    2: ClassInfo "java/lang/Object"
+
+    3: NameAndType "a" "I"
+    4: NameAndType "b" "I"
+    8: NameAndType "c" "I"
+
+    5: FieldRef #1 #3 // a
+    6: FieldRef #1 #4 // b
+    7: FieldRef #1 #8 // c
+
+    auto: "main"
+    auto: "ok"
+    auto: "ok_explicit"
+    auto: "ok_complex_stackmap"
+    auto: "wrong_stackmap"
+    auto: "wrong_cond_type"
+    auto: "wrong_no_cond_on_stack"
+    auto: "wrong_no_stackmap"
+    auto: "([Ljava/lang/String;)I"
+
+    auto: "a"
+    auto: "b"
+    auto: "c"
+    auto: "I"
+  }
+
+  Name: #1
+  Super: #2
+
+  fields {
+    public static "I": "a"
+    public static "I": "b"
+    public static "I": "c"
+  }
+
+  // Should pass verification
+  method "ok" "([Ljava/lang/String;)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      getstatic #5 // Field c:I
+      iconst_5
+      if_icmpeq @five
+        getstatic #7 // Field b:I
+        ireturn
+      :five
+        getstatic #6 // Field a:I
+        ireturn
+
+      stackmap {
+        five: same
+      }
+    }
+  }
+
+  // Should pass verification
+  method "ok_explicit" "([Ljava/lang/String;)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      getstatic #5 // Field c:I
+      iconst_5
+      if_icmpeq @five
+        getstatic #7 // Field b:I
+        ireturn
+      :five
+        getstatic #6 // Field a:I
+        ireturn
+
+      stackmap {
+        five: ["Ljava/lang/String;"] []
+      }
+    }
+  }
+
+  // Should pass verification
+  method "ok_complex_stackmap" "([Ljava/lang/String;)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iconst_1
+      aload_0
+      dconst_0
+      iconst_2
+
+      getstatic #5 // Field c:I
+      iconst_5
+      if_icmpeq @five
+        getstatic #7 // Field b:I
+        ireturn
+      :five
+        getstatic #6 // Field a:I
+     :six
+        ireturn
+
+      stackmap {
+        five: ["Ljava/lang/String;"] ["I" "Ljava/lang/String;" "D" "I"]
+        six: same
+      }
+    }
+  }
+
+  // Should fail verification
+  method "wrong_stackmap" "([Ljava/lang/String;)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      getstatic #5 // Field c:I
+      iconst_5
+      if_icmpeq @five
+        getstatic #7 // Field b:I
+        ireturn
+      :five
+        getstatic #6 // Field a:I
+        ireturn
+
+      stackmap {
+        five: ["I"] ["D"]
+      }
+    }
+  }
+
+  // Should fail verification
+  method "wrong_cond_type" "([Ljava/lang/String;)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      getstatic #5 // Field c:I
+      iconst_5
+      aload_0
+      if_icmpeq @five
+        getstatic #7 // Field b:I
+        ireturn
+      :five
+        getstatic #6 // Field a:I
+        ireturn
+
+      stackmap {
+        five: same
+      }
+    }
+  }
+
+  // Should fail verification
+  method "wrong_no_cond_on_stack" "([Ljava/lang/String;)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      if_icmpeq @five
+        getstatic #7 // Field b:I
+        ireturn
+      :five
+        getstatic #6 // Field a:I
+        ireturn
+
+      stackmap {
+        five: same
+      }
+    }
+  }
+
+  // Should fail verification
+  method "wrong_no_stackmap" "([Ljava/lang/String;)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      getstatic #5 // Field c:I
+      iconst_5
+      if_icmpeq @five
+        getstatic #7 // Field b:I
+        ireturn
+      :five
+        getstatic #6 // Field a:I
+        ireturn
+    }
+  }
+}

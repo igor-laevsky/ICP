@@ -22,8 +22,8 @@ static void testWithMethod(
     JavaMethod::AccessFlags Flags,
     uint16_t MaxStack, uint16_t MaxLocals,
     ConstantPool::IndexType NameIdx, ConstantPool::IndexType DescriptorIdx,
-    const std::vector<uint8_t> &Bytecode,
-    JavaMethod::StackMapTableType &&StackMapTable) {
+    const std::vector<uint8_t> &Bytecode) {
+
 
   std::vector<std::unique_ptr<JavaTypes::JavaMethod>> Methods;
   Methods.push_back(TestUtils::createMethod(
@@ -32,7 +32,6 @@ static void testWithMethod(
       NameIdx,
       DescriptorIdx,
       Bytecode,
-      std::move(StackMapTable),
       Flags
   ));
 
@@ -55,8 +54,7 @@ TEST_CASE("Basic verification", "[Verifier]") {
       {
           0x3, // iconst_0
           0xac // ireturn
-      },
-      {} // No stack map
+      }
   ));
 }
 
@@ -72,8 +70,7 @@ TEST_CASE("iconst", "[Verifier]") {
           0x3, // iconst_0
           0x3, // iconst_0
           0x3, // iconst_0
-      },
-      {} // No stack map
+      }
   ), VerificationError);
 }
 
@@ -88,8 +85,7 @@ TEST_CASE("ireturn", "[Verifier]") {
       {
           Bytecode::iconst_0::OpCode,
           Bytecode::ireturn::OpCode,
-      },
-      {} // No stack map
+      }
   ), VerificationError);
 
   // Wrong return type
@@ -102,8 +98,7 @@ TEST_CASE("ireturn", "[Verifier]") {
       {
           Bytecode::iconst_0::OpCode,
           Bytecode::ireturn::OpCode,
-      },
-      {} // No stack map
+      }
   ), VerificationError);
 
   // Stack is empty
@@ -115,8 +110,7 @@ TEST_CASE("ireturn", "[Verifier]") {
       2, // ()I
       {
           Bytecode::ireturn::OpCode,
-      },
-      {} // No stack map
+      }
   ), VerificationError);
 
   // All good
@@ -129,8 +123,7 @@ TEST_CASE("ireturn", "[Verifier]") {
       {
           Bytecode::iconst_0::OpCode,
           Bytecode::ireturn::OpCode,
-      },
-      {} // No stack map
+      }
   ));
 }
 
@@ -145,8 +138,7 @@ TEST_CASE("aload_0", "[Verifier]") {
       {
           Bytecode::aload_0::OpCode,
           Bytecode::java_return::OpCode,
-      },
-      {} // No stack map
+      }
   ));
 
   // Return object
@@ -159,8 +151,7 @@ TEST_CASE("aload_0", "[Verifier]") {
       {
           Bytecode::aload_0::OpCode,
           Bytecode::java_return::OpCode,
-      },
-      {} // No stack map
+      }
   ));
 
   // Try to load integer
@@ -173,8 +164,7 @@ TEST_CASE("aload_0", "[Verifier]") {
       {
           Bytecode::aload_0::OpCode,
           Bytecode::java_return::OpCode,
-      },
-      {} // No stack map
+      }
   ), VerificationError);
 
   // Try to load when no locals are present
@@ -187,8 +177,7 @@ TEST_CASE("aload_0", "[Verifier]") {
       {
           Bytecode::aload_0::OpCode,
           Bytecode::java_return::OpCode,
-      },
-      {} // No stack map
+      }
   ), VerificationError);
 }
 
@@ -204,8 +193,7 @@ TEST_CASE("invokespecial", "[Verifier]") {
           Bytecode::aload_0::OpCode,
           Bytecode::invokespecial::OpCode, 0x00, 14, // java/lang/Object."<init>":()V
           Bytecode::java_return::OpCode,
-      },
-      {} // No stack map
+      }
   ));
 
   // No uninitializedArg on the stack
@@ -218,8 +206,7 @@ TEST_CASE("invokespecial", "[Verifier]") {
       {
           Bytecode::invokespecial::OpCode, 0x00, 14, // java/lang/Object."<init>":()V
           Bytecode::java_return::OpCode,
-      },
-      {} // No stack map
+      }
   ), VerificationError);
 
   // Init method with arguments
@@ -235,8 +222,7 @@ TEST_CASE("invokespecial", "[Verifier]") {
           Bytecode::iconst_0::OpCode,
           Bytecode::invokespecial::OpCode, 0x00, 17, // java/lang/Object.<init>:(Ljava/lang/Object;I)V
           Bytecode::java_return::OpCode,
-      },
-      {} // No stack map
+      }
   ));
 
   // Init method with arguments in the wrong order
@@ -252,8 +238,7 @@ TEST_CASE("invokespecial", "[Verifier]") {
           Bytecode::aload::OpCode, 0x00, 1,
           Bytecode::invokespecial::OpCode, 0x00, 17, // java/lang/Object.<init>:(Ljava/lang/Object;I)V
           Bytecode::java_return::OpCode,
-      },
-      {} // No stack map
+      }
   ), VerificationError);
 
   // Init method with non void return type
@@ -266,8 +251,7 @@ TEST_CASE("invokespecial", "[Verifier]") {
       {
           Bytecode::invokespecial::OpCode, 0x00, 20, // java/lang/Object.<init>:()I
           Bytecode::java_return::OpCode,
-      },
-      {} // No stack map
+      }
   ), VerificationError);
 
   // Returning before complete initialization
@@ -279,8 +263,7 @@ TEST_CASE("invokespecial", "[Verifier]") {
       5, // ()V
       {
           Bytecode::java_return::OpCode,
-      },
-      {} // No stack map
+      }
   ), VerificationError);
 
   // Not an init method
@@ -294,8 +277,7 @@ TEST_CASE("invokespecial", "[Verifier]") {
           Bytecode::aload_0::OpCode,
           Bytecode::invokespecial::OpCode, 0x00, 14, // java/lang/Object."<init>":()V
           Bytecode::java_return::OpCode,
-      },
-      {} // No stack map
+      }
   ), VerificationError);
 }
 
@@ -314,8 +296,7 @@ TEST_CASE("aload", "[Verifier]") {
           Bytecode::invokespecial::OpCode, 0x00,
           14, // java/lang/Object."<init>":()V
           Bytecode::java_return::OpCode,
-      },
-      {} // No stack map
+      }
   ), VerificationError);
 }
 
@@ -389,3 +370,20 @@ TEST_CASE("verifier dconst_dreturn", "[Verifier][dconst_dreturn]") {
   REQUIRE(m);
   REQUIRE_NOTHROW(verifyMethod(*m));
 }
+
+//TEST_CASE("verifier if_icmp", "[Verifier][if_icmp]") {
+//  auto C = CD::parseFromFile("tests/Verifier/if_icmp.cd");
+//
+//  for (const auto &method: C->methods()) {
+//    assert(method.get() != nullptr); // should never happen
+//    const JavaMethod &M = *method.get();
+//
+//    if (starts_with(M.getName(), "ok")) {
+//      REQUIRE_NOTHROW(verifyMethod(M));
+//    } else if (starts_with(M.getName(), "wrong")) {
+//      REQUIRE_THROWS_AS(verifyMethod(M), VerificationError);
+//    } else {
+//      assert(false); // Method name should start with either 'ok' or 'wrong'
+//    }
+//  }
+//}

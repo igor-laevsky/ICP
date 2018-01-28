@@ -16,6 +16,8 @@ class Token final {
 public:
   static const Token LBrace;
   static const Token RBrace;
+  static const Token LSBrace;
+  static const Token RSBrace;
   static const Token Comma;
   static const Token Colon;
   static const Token Sharp;
@@ -80,6 +82,8 @@ private:
   enum Type {
     L_BRACE = 0,
     R_BRACE,
+    L_SBRACE,
+    R_SBRACE,
     COMMA,
     COLON,
     SHARP,
@@ -97,12 +101,14 @@ private:
     switch (T) {
       case L_BRACE: return "\\{";
       case R_BRACE: return "\\}";
+      case L_SBRACE: return "\\[";
+      case R_SBRACE: return "\\]";
       case COMMA: return ",";
       case COLON: return ":";
       case SHARP: return "#";
       case DOG: return "@";
       case STRING: return "\"[a-zA-Z0-9_<>/()\\[\\];]+\"";
-      case KEYWORD: return "class|constant_pool|method|bytecode|auto|fields";
+      case KEYWORD: return "class|constant_pool|method|bytecode|auto|fields|stackmap";
       case NUM: return "\\d+\\b";
       case ID: return "[a-zA-Z0-9_]+\\b";
 
@@ -117,6 +123,8 @@ private:
     switch (T) {
       case L_BRACE: return LBrace;
       case R_BRACE: return RBrace;
+      case L_SBRACE: return LSBrace;
+      case R_SBRACE: return RSBrace;
       case COMMA: return Comma;
       case COLON: return Colon;
       case SHARP: return Sharp;

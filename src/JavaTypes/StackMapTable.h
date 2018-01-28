@@ -82,6 +82,13 @@ private:
 
 class StackMapTableBuilder {
 public:
+  StackMapTableBuilder() = default;
+
+  StackMapTableBuilder(const StackMapTableBuilder &) = delete;
+  StackMapTableBuilder &operator=(const StackMapTableBuilder &) = delete;
+  StackMapTableBuilder(StackMapTableBuilder &&) = default;
+  StackMapTableBuilder &operator=(StackMapTableBuilder &&) = default;
+
   // Creates stack map table based on the current content of the builder and on
   // the supplied initial locals array. Usually initial locals are generated
   // from the method descriptor.

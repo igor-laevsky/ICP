@@ -10,6 +10,7 @@
 #include "Bytecode/Bytecode.h"
 #include "Utils/Iterators.h"
 #include "StackFrame.h"
+#include "StackMapTable.h"
 
 namespace JavaTypes {
 
@@ -20,9 +21,6 @@ public:
   using CodeOwnerType =
     std::vector<std::unique_ptr<Bytecode::Instruction>>;
   using CodeIterator = Utils::SmartPtrIterator<CodeOwnerType::const_iterator>;
-
-  using StackMapTableType =
-    std::vector<std::pair<Bytecode::BciType, StackFrame>>;
 
   enum class AccessFlags: uint16_t {
     ACC_NONE = 0x0000,
@@ -67,7 +65,7 @@ public:
 
     CodeOwnerType Code; // This is plain unparsed bytecode
 
-    StackMapTableType StackMapTable;
+    StackMapTableBuilder StackMapBuilder;
   };
 
 public:
@@ -99,7 +97,7 @@ public:
     Owner = &NewOwner;
   }
 
-  const auto &getStackMapTable() const { return StackMapTable; }
+  const auto &getStackMapBuilder() const { return StackMapBuilder; }
 
   // Get bci for the specified instruction
   Bytecode::BciType getBciForInst(const Bytecode::Instruction &Inst) const;
@@ -135,7 +133,7 @@ private:
 
   CodeOwnerType Code;
 
-  StackMapTableType StackMapTable;
+  StackMapTableBuilder StackMapBuilder;
 };
 
 }

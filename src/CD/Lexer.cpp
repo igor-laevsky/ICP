@@ -12,6 +12,8 @@ using namespace std::string_literals;
 
 const Token Token::LBrace{L_BRACE};
 const Token Token::RBrace{R_BRACE};
+const Token Token::LSBrace{L_SBRACE};
+const Token Token::RSBrace{R_SBRACE};
 const Token Token::Comma{COMMA};
 const Token Token::Colon{COLON};
 const Token Token::Sharp{SHARP};
