@@ -60,15 +60,29 @@ Lexer::Lexer(std::string &&Input) {
   PatternStr.pop_back();
 
   std::regex Pattern(PatternStr);
-  std::regex Spaces("^\\s*(//.*[\n|\r\n|\r]\\s*)*");
+  std::regex Spaces("^\\s*(//[^\n|\r\n|\r]*)?");
+  std::regex NewLine("^[\n|\r\n|\r]");
 
   // Match tokens until the end of string.
   // We can modify 'Input' because it's an rvalue.
+  std::size_t cur_line = 1;
   while (!Input.empty()) {
     std::smatch Matches;
 
+    // Count new lines.
+    // This is probably slow but whatever.
+    auto old_len = Input.length();
+    Input = std::regex_replace(Input, NewLine, "");
+    if (old_len != Input.length()) {
+      cur_line++;
+      continue;
+    }
+
     // Skip whitespaces and comments
+    old_len = Input.length();
     Input = std::regex_replace(Input, Spaces, "");
+    if (old_len != Input.length())
+      continue;
 
     // Parse token
     std::regex_search(Input, Matches, Pattern,
@@ -96,7 +110,8 @@ Lexer::Lexer(std::string &&Input) {
   }
 
   if (!Input.empty())
-    throw LexerError("Unable to lex the whole string");
+    throw LexerError(
+        "Unable to lex the whole string: " + std::to_string(cur_line));
 
   // Reverse the list to simplify common operations
   std::reverse(Tokens.begin(), Tokens.end());
