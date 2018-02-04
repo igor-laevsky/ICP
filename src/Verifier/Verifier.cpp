@@ -152,16 +152,13 @@ void MethodVerifier::visit(const invokespecial &Inst) {
 
   // Pop method arguments
   std::reverse(ArgTypes.begin(), ArgTypes.end());
-  if (!CurrentFrame.popMatchingList(ArgTypes))
-    throw VerificationError("Unable to pop arguments");
+  tryPop(ArgTypes, "Unable to pop arguments");
 
   // Pop UninitializedArg
   // TODO: Support uninitialized(Address)
   Type UninitializedArg = Types::UninitializedThis;
   Type UninitializedRepl = Types::Class;
-
-  if (!CurrentFrame.popMatchingList({UninitializedArg}))
-    throw VerificationError("Unable to pop uninitializedThis");
+  tryPop({UninitializedArg}, "Unable to pop uninitializedThis");
 
   // Replace UninitializedArg in locals
   for (std::size_t i = 0; i < CurrentFrame.numLocals(); ++i)
@@ -186,8 +183,7 @@ void MethodVerifier::visit(const ireturn &) {
   if (ReturnType != Types::Int)
     throw VerificationError("Return type should be integer");
 
-  if (!CurrentFrame.popMatchingList({Types::Int}))
-    throw VerificationError("Expected integer type to be on the stack");
+  tryPop({Types::Int}, "Expected integer type to be on the stack");
 }
 
 void MethodVerifier::visit(const dconst_val &) {
@@ -198,8 +194,7 @@ void MethodVerifier::visit(const dreturn &) {
   if (ReturnType != Types::Double)
     throw VerificationError("Return type should be double");
 
-  if (!CurrentFrame.popMatchingList({Types::Double}))
-    throw VerificationError("Expected double type to be on the stack");
+  tryPop({Types::Double}, "Expected double type to be on the stack");
 }
 
 // Helper with common parts of the get and put static bytecodes
@@ -221,8 +216,7 @@ Type getFieldType(ConstantPool::IndexType Idx, const ConstantPool &CP) {
 
 void MethodVerifier::visit(const putstatic &Inst) {
   auto FieldType = getFieldType(Inst.getIdx(), CP);
-  if (!CurrentFrame.popMatchingList({FieldType}))
-    throw VerificationError("Incompatible type in put static instruction");
+  tryPop({FieldType}, "Incompatible type in put static instruction");
 }
 
 void MethodVerifier::visit(const getstatic &Inst) {
