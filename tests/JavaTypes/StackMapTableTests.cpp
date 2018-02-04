@@ -23,17 +23,15 @@ TEST_CASE("Basic stack map table construction", "[StackMapTable]") {
   std::tie(ReturnType, LocalTypes) = Type::parseMethodDescriptor("(J)V");
   StackMapTable Table = Builder.createTable(LocalTypes);
 
-  REQUIRE(Table.hasBci(0));
   REQUIRE(Table.hasBci(2));
   REQUIRE(Table.hasBci(4));
   REQUIRE(Table.hasBci(8));
+  REQUIRE(!Table.hasBci(0));
   REQUIRE(!Table.hasBci(3));
   REQUIRE(!Table.hasBci(100000));
 
   // Check iteration order
   StackMapTable::Iterator It = Table.begin();
-  REQUIRE(It.getBci() == 0);
-  const auto &f0 = *It++;
   REQUIRE(It.getBci() == 2);
   const auto &f1 = *It++;
   REQUIRE(It.getBci() == 4);
@@ -44,9 +42,7 @@ TEST_CASE("Basic stack map table construction", "[StackMapTable]") {
   const auto &f4 = *It++;
   REQUIRE(It == Table.end());
 
-  // Check that we created correct subtypes
-  REQUIRE(f0.getLocal(0) == Types::Long);
-
+  // Check that we created correct frames
   REQUIRE(f1.getLocal(2) == Types::Int);
 
   REQUIRE(f2.getLocal(3) == Types::Double);

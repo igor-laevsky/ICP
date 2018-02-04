@@ -69,10 +69,7 @@ StackMapTable StackMapTableBuilder::createTable(
   StackMapTable::Container specific_frames;
   specific_frames.reserve(actions().size() + 1);
 
-  // Initial stack frame.
-  specific_frames.emplace_back(0, StackFrame(InitialLocals, std::vector<Type>()));
-
-  // Fill in all other stack frames.
+  // Use raw frames to avoid type expansion.
   RawFrame cur_frame_raw{InitialLocals, {}};
 
   for (const auto &act: actions()) {
