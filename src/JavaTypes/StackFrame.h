@@ -86,6 +86,15 @@ public:
   bool doTypeTransition(
       const std::vector<JavaTypes::Type> &ToPop, JavaTypes::Type ToPush);
 
+  // Checks if we can assign this stack from into the 'NextFrame'.
+  static bool isAssignable(const StackFrame &From, const StackFrame &To);
+
+  // Checks if this frame is assignable into the 'NextFrame' and if this is true
+  // transforms this frame into 'NextFrame'. Guarantees that no changes were made
+  // if frames were not assignable.
+  // \return true on success, false otherwise.
+  bool transformInto(const StackFrame &NextFrame);
+
 private:
   // Computes uninitializedThis flag
   void computeFlags();

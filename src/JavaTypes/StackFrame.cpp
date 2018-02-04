@@ -118,3 +118,59 @@ void StackFrame::setLocal(std::size_t Idx, Type T) {
   computeFlags();
   assert(verifyTypeEncoding());
 }
+
+bool StackFrame::isAssignable(const StackFrame &From, const StackFrame &To) {
+  // Early return on trivial case.
+  if (From == To)
+    return true;
+
+  // Stack sized should match.
+  if (From.numStack() != To.numStack())
+    return false;
+
+  // Stacks should be assignable.
+  auto to_stack = To.stack().begin();
+  for (const auto &from_stack: From.stack()) {
+    if (!Types::isAssignable(from_stack, *to_stack))
+      return false;
+    ++to_stack;
+  }
+
+  // Locals should be assignable but can have different lengths.
+  // Unexistent elements are considered as Top type according with the spec.
+  auto to_locals = To.locals().begin();
+  auto to_locals_end = To.locals().end();
+  auto from_locals = From.locals().begin();
+  auto from_locals_end = From.locals().end();
+
+  while (to_locals != to_locals_end || from_locals != from_locals_end) {
+    Type to_type = to_locals == to_locals_end ? Types::Top : *to_locals;
+    Type from_type = from_locals == from_locals_end ? Types::Top : *from_locals;
+
+    if (!Types::isAssignable(from_type, to_type))
+      return false;
+
+    if (to_locals != to_locals_end) ++to_locals;
+    if (from_locals != from_locals_end) ++from_locals;
+  }
+
+  // All checks have passed.
+  return true;
+}
+
+bool StackFrame::transformInto(const StackFrame &NextFrame) {
+  // Early return on trivial case.
+  if (*this == NextFrame)
+    return true;
+
+  if (!StackFrame::isAssignable(*this, NextFrame))
+    return false;
+
+  // Frames are assignable, do the transformation.
+  locals() = NextFrame.locals();
+  stack() = NextFrame.stack();
+  computeFlags();
+  assert(verifyTypeEncoding());
+
+  return true;
+}

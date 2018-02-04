@@ -235,3 +235,31 @@ TEST_CASE("Stack frame equality", "[Verifier][StackFrame]") {
   REQUIRE(t2 != t3);
   REQUIRE(t3 == t3);
 }
+
+TEST_CASE("Stack frame transformInto", "[Verifier][StackFrame]") {
+  StackFrame t1({Types::Int, Types::Double, Types::Class}, {});
+  StackFrame t2({Types::Int, Types::Double, Types::Class}, {});
+  REQUIRE(t1.transformInto(t2));
+
+  StackFrame t3({Types::Int, Types::Double, Types::Class}, {Types::Int});
+  StackFrame t4({Types::Int, Types::Double, Types::Class}, {Types::OneWord});
+  REQUIRE(!t4.transformInto(t3));
+  REQUIRE(!t4.transformInto(t2));
+  REQUIRE(!t3.transformInto(t2));
+  REQUIRE(t3.transformInto(t4));
+
+  StackFrame t5({Types::Int, Types::Double, Types::Class}, {Types::Double, Types::Int});
+  StackFrame t6({Types::Int, Types::Double, Types::Class}, {Types::Double, Types::Reference});
+  REQUIRE(!t5.transformInto(t6));
+  REQUIRE(!t6.transformInto(t5));
+
+  StackFrame t7({Types::Int, Types::Double, Types::Class}, {Types::Double, Types::Long});
+  StackFrame t8({Types::Int, Types::Double, Types::OneWord}, {Types::Double, Types::Long});
+  REQUIRE(!t8.transformInto(t7));
+  REQUIRE(t7.transformInto(t8));
+
+  StackFrame t9({Types::Int, Types::Double, Types::Class}, {});
+  StackFrame t10({}, {});
+  REQUIRE(!t10.transformInto(t9));
+  REQUIRE(t9.transformInto(t10));
+}
