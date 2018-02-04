@@ -39,6 +39,9 @@ public:
     }
 
     CurrentFrame = StackFrame(LocalTypes, {});
+
+    StackMap = Method.getStackMapBuilder().createTable(LocalTypes);
+    StackMapIt = StackMap.begin();
   }
 
   void visit(const aload_0 &) override;
@@ -52,15 +55,30 @@ public:
   void visit(const getstatic &) override;
   void visit(const dconst_val &) override;
 
+  void visit(const if_icmp_op &) override;
 
-  // These two functions are called before or after processing an instruction.
-  void checkPreConditions() const {
-    // TODO: This will be used to ensure that we encountered a stack map
-    // after branch
-    ;
+  // Runs before visiting instruction.
+  void runPreConditions(const Instruction &CurInstr) {
+    // No stack map - nothing to do.
+    if (StackMapIt == StackMap.end())
+      return;
+
+    const auto cur_bci = Method.getBciForInst(CurInstr);
+
+    // Don't have stack map for the current bci - nothing to do.
+    // This place will change once we will have unconditional goto's.
+    if (StackMapIt.getBci() != cur_bci)
+      return;
+
+    const auto &map_frame = *StackMapIt;
+    if (!CurrentFrame.transformInto(map_frame))
+      throwErr("Current frame is unassignable into map frame");
+
+    ++StackMapIt;
   }
 
-  void checkPostConditions() const {
+  // Runs after visit of the instruction.
+  void runPostConditions() const {
     if (CurrentFrame.numLocals() > Method.getMaxLocals())
       throwErr("Exceeded maximum number of locals");
 
@@ -83,9 +101,18 @@ private:
     CurrentFrame.pushList({ActualType});
   }
 
+  // Checks if we can jump to this target from the current state
+  void targetIsTypeSafe(Bytecode::BciType Bci);
+
   // Helper to throw a varification error
-  void throwErr(const std::string &Str) const {
-    throw VerificationError(Str);
+  void throwErr(std::string_view Str) const {
+    throw VerificationError(Str.data());
+  }
+
+  // Pops type list from the current frame or throws verification error
+  void tryPop(const std::vector<Type> &ToPop, std::string_view ErrMsg) {
+    if (!CurrentFrame.popMatchingList(ToPop))
+      throwErr(ErrMsg);
   }
 
 private:
@@ -94,6 +121,9 @@ private:
 
   StackFrame CurrentFrame{{}, {}};
   Type ReturnType = Types::Top;
+
+  StackMapTable StackMap;
+  StackMapTable::Iterator StackMapIt;
 };
 
 void MethodVerifier::visit(const aload_0 &) {
@@ -200,6 +230,21 @@ void MethodVerifier::visit(const getstatic &Inst) {
   CurrentFrame.pushList({FieldType});
 }
 
+void MethodVerifier::targetIsTypeSafe(Bytecode::BciType Bci) {
+  const auto target_frame = StackMap.findAtBci(Bci);
+
+  if (target_frame == StackMap.end())
+    throwErr("Unable to find stack map table entry for the target bci");
+
+  if (!StackFrame::isAssignable(CurrentFrame, *target_frame))
+    throwErr("Can't transfer to the target stack frame");
+}
+
+void MethodVerifier::visit(const if_icmp_op &Inst) {
+  tryPop({Types::Int, Types::Int}, "Incorrect if_icmp operands");
+  targetIsTypeSafe(Method.getBciForInst(Inst.getInst()) + Inst.getIdx());
+}
+
 }
 
 void Verifier::verifyMethod(const JavaMethod &Method) {
@@ -207,12 +252,11 @@ void Verifier::verifyMethod(const JavaMethod &Method) {
 
   MethodVerifier V(Method);
   for (const auto &Instr: Method) {
-    // TODO: Set up StackMap if method has it specified for the current bci
-    V.checkPreConditions();
+    V.runPreConditions(Instr);
 
     Instr.accept(V);
 
-    V.checkPostConditions();
+    V.runPostConditions();
   }
 }
 

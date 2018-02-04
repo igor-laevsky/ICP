@@ -371,19 +371,19 @@ TEST_CASE("verifier dconst_dreturn", "[Verifier][dconst_dreturn]") {
   REQUIRE_NOTHROW(verifyMethod(*m));
 }
 
-//TEST_CASE("verifier if_icmp", "[Verifier][if_icmp]") {
-//  auto C = CD::parseFromFile("tests/Verifier/if_icmp.cd");
-//
-//  for (const auto &method: C->methods()) {
-//    assert(method.get() != nullptr); // should never happen
-//    const JavaMethod &M = *method.get();
-//
-//    if (starts_with(M.getName(), "ok")) {
-//      REQUIRE_NOTHROW(verifyMethod(M));
-//    } else if (starts_with(M.getName(), "wrong")) {
-//      REQUIRE_THROWS_AS(verifyMethod(M), VerificationError);
-//    } else {
-//      assert(false); // Method name should start with either 'ok' or 'wrong'
-//    }
-//  }
-//}
+TEST_CASE("verifier if_icmp", "[Verifier][if_icmp]") {
+  auto C = CD::parseFromFile("tests/Verifier/if_icmp.cd");
+
+  for (const auto &method: C->methods()) {
+    assert(method.get() != nullptr); // should never happen
+    const JavaMethod &M = *method.get();
+
+    if (starts_with(M.getName(), "ok")) {
+      REQUIRE_NOTHROW(verifyMethod(M));
+    } else if (starts_with(M.getName(), "wrong")) {
+      REQUIRE_THROWS_AS(verifyMethod(M), VerificationError);
+    } else {
+      assert(false); // Method name should start with either 'ok' or 'wrong'
+    }
+  }
+}

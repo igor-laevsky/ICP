@@ -346,7 +346,7 @@ static bool javaCompare(
   if (CmpOp == COMP_LE)
     return real_val1 <= real_val2;
 
-  assert(false); // unrecognizer comparison operator
+  assert(false); // unrecognised comparison operator
   return false;
 }
 

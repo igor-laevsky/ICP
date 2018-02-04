@@ -52,7 +52,7 @@ void JavaMethod::print(std::ostream &Out) const {
 BciType JavaMethod::getBciForInst(const Instruction &Inst) const {
   BciType cur_bci = 0;
 
-  // This should be optimized
+  // TODO: This should be optimized
   for (const auto &CurInst: *this) {
     if (CurInst == Inst)
       return cur_bci;

@@ -97,7 +97,7 @@ public:
     Owner = &NewOwner;
   }
 
-  const auto &getStackMapBuilder() const { return StackMapBuilder; }
+  const StackMapTableBuilder &getStackMapBuilder() const { return StackMapBuilder; }
 
   // Get bci for the specified instruction
   Bytecode::BciType getBciForInst(const Bytecode::Instruction &Inst) const;

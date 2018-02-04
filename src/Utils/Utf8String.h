@@ -13,7 +13,7 @@
   using Utf8String = std::string;
 
   inline bool starts_with(const Utf8String &In, const Utf8String &Prefix) {
-    if (In.length() > Prefix.length())
+    if (In.length() < Prefix.length())
       return false;
 
     for (std::size_t i = 0; i < Prefix.length(); ++i)

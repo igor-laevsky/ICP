@@ -75,7 +75,7 @@ class {
         ireturn
 
       stackmap {
-        five: ["Ljava/lang/String;"] []
+        five: ["[Ljava/lang/String;"] []
       }
     }
   }
@@ -99,12 +99,12 @@ class {
         ireturn
       :five
         getstatic #6 // Field a:I
-     :six
+      :six
         ireturn
 
       stackmap {
-        five: ["Ljava/lang/String;"] ["I" "Ljava/lang/String;" "D" "I"]
-        six: same
+        five: ["[Ljava/lang/String;"] ["I" "[Ljava/lang/String;" "D" "I"]
+        six: ["[Ljava/lang/String;"] ["I" "[Ljava/lang/String;" "D" "I" "I"]
       }
     }
   }

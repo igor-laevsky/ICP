@@ -6,6 +6,14 @@
 
 using namespace JavaTypes;
 
+StackMapTable::Iterator StackMapTable::findAtBci(Bytecode::BciType Bci) const {
+  // TODO: optimize this
+  for (auto It = begin(), End = end(); It != End; ++It)
+    if (It.getBci() == Bci)
+      return It;
+  return end();
+}
+
 void StackMapTableBuilder::addAppend(
     Bytecode::BciType Idx, std::vector<Type> &&Locals) {
 
@@ -73,5 +81,5 @@ StackMapTable StackMapTableBuilder::createTable(
         act.Bci, StackFrame(cur_frame_raw.first, cur_frame_raw.second));
   }
 
-  return {std::move(specific_frames)};
+  return StackMapTable(std::move(specific_frames));
 }

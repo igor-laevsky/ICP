@@ -19,6 +19,8 @@ public:
   // Doesn't allow any modifications.
   class Iterator {
   public:
+    Iterator() = default;
+
     explicit Iterator(Container::const_iterator Start): It(Start) {
       ; // Empty
     }
@@ -52,10 +54,12 @@ public:
   };
 
 public:
+  StackMapTable() = default;
+
   StackMapTable(const StackMapTable &) = delete;
   StackMapTable &operator=(const StackMapTable &) = delete;
-  StackMapTable(StackMapTable &&) = delete;
-  StackMapTable &operator=(StackMapTable &&) = delete;
+  StackMapTable(StackMapTable &&) = default;
+  StackMapTable &operator=(StackMapTable &&) = default;
 
   bool hasBci(Bytecode::BciType Bci) const {
     return std::any_of(
@@ -63,12 +67,14 @@ public:
         [&](const auto &a) { return a.first == Bci; });
   }
 
+  Iterator findAtBci(Bytecode::BciType Bci) const;
+
   Iterator begin() const { return Iterator(Frames.begin()); }
   Iterator end() const { return Iterator(Frames.end()); }
 
 private:
   // Only called from the StackMapBuilder.
-  StackMapTable(Container &&Input): Frames(std::move(Input)) {
+  explicit StackMapTable(Container &&Input): Frames(std::move(Input)) {
     ;
   }
 
