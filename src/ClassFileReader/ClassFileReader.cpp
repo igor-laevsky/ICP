@@ -197,44 +197,65 @@ parseConstantPool(std::istream& Input) {
   return Builder.createConstantPool();
 }
 
-// Skips single attribute.
-// \throws FormatError or ReadError in case of any errors.
-static void skipAttribute(std::istream &Input) {
-  BigEndianReading::readHalf(Input); // name_index
-  const uint32_t attribute_length = BigEndianReading::readWord(Input);
+namespace {
 
-  Input.seekg(attribute_length, std::ios_base::cur);
+// Reads specified amount of attributes. Throws ReadError on errors.
+class AttributeIterator {
+public:
+  explicit AttributeIterator(const ConstantPool &CP, std::istream &Input):
+      CP(CP), Input(Input) {
+    NumAttrs = BigEndianReading::readHalf(Input);
 
-  if (Input.fail())
-    throw FormatError("Unable to skip attribute");
-}
-
-// Skips attributes until attribute with specific name is found.
-// Input position is set right after the name of the target attribute.
-// \returns Number of skipped attributes.
-// \throws FormatError in case if end of file was reached before target attribute.
-// \throws ReadError In case of a reading error.
-static uint16_t skipAttributesUntil(
-    const std::string &TargetAttrName, std::istream &Input,
-    const ConstantPool &CP) {
-
-  uint16_t NumSkipped = 0;
-
-  while (Input) {
-    const auto &Name =
-        readConstantPoolRecord<ConstantPoolRecords::Utf8>(
-            Input, CP, "attribute_name");
-    if (Name.getValue() == TargetAttrName)
-      return NumSkipped;
-
-    const uint32_t attribute_length = BigEndianReading::readWord(Input);
-    Input.seekg(attribute_length, std::ios_base::cur);
-
-    ++NumSkipped;
+    // Read first attribute if possible
+    if (!empty())
+      readAttr();
   }
 
-  // Reached the end of the file and no attribute was found
-  throw FormatError("Unable to find attribute " + TargetAttrName);
+  // Return true if all attributes were parsed.
+  bool empty() const { return NumAttrs == 0; }
+
+  // Get name of the current attribute
+  const Utf8String &getName() const { assert(CurName); return *CurName; };
+
+  // Assuming current input position is at the beginning of the attribute,
+  // read information about this attribute. Fails assertion if no attributes
+  // were left.
+  void next() {
+    assert(!empty()); // too much attributes
+
+    --NumAttrs;
+    if (!empty())
+      readAttr();
+  }
+
+  // Skips this attribute base on it's size. User should explicitly call 'next'
+  // if he want's to visit next attribute.
+  void skip() {
+    assert(!empty());
+    Input.seekg(CurSize, std::ios_base::cur);
+  }
+
+private:
+  // Read attribute information, but don't advance attribute count.
+  void readAttr() {
+    assert(!empty());
+
+    const auto &NameRec =
+        readConstantPoolRecord<ConstantPoolRecords::Utf8>(
+            Input, CP, "attribute_name");
+    CurName = &NameRec.getValue();
+    CurSize = BigEndianReading::readWord(Input);
+  }
+
+private:
+  const ConstantPool &CP;
+  std::istream &Input;
+  uint16_t NumAttrs = 0;
+
+  const Utf8String *CurName = nullptr;
+  uint32_t CurSize = 0;
+};
+
 }
 
 // Parses stack map table and saves it into the 'Params' structure.
@@ -252,8 +273,7 @@ static uint16_t skipAttributesUntil(
 // \throws ReadError or FormatError.
 static void parseMethodCode(
     JavaMethod::MethodConstructorParameters &Params,
-    std::istream &Input) {
-  BigEndianReading::readWord(Input); // attribute_length
+    const ConstantPool &CP, std::istream &Input) {
 
   Params.MaxStack = BigEndianReading::readHalf(Input);
   Params.MaxLocals = BigEndianReading::readHalf(Input);
@@ -275,9 +295,9 @@ static void parseMethodCode(
     throw FormatError("Failed to read exception table from code attribute");
 
   // Skip all attributes for now
-  const uint16_t attributes_count = BigEndianReading::readHalf(Input);
-  for (uint16_t i = 0; i < attributes_count; ++i)
-    skipAttribute(Input);
+  AttributeIterator AttrIt(CP, Input);
+  for (; !AttrIt.empty(); AttrIt.next())
+    AttrIt.skip();
 
   // TODO: Check that attribute_length is consistent with the actual
   // amount of data.
@@ -304,9 +324,9 @@ static JavaField parseField(
           Input, CP, "field_descriptor_index");
 
   // Skip all the attributes for now
-  const uint16_t attributes_count = BigEndianReading::readHalf(Input);
-  for (uint16_t idx = 0; idx < attributes_count; ++idx)
-    skipAttribute(Input);
+  AttributeIterator AttrIt(CP, Input);
+  for (; !AttrIt.empty(); AttrIt.next())
+    AttrIt.skip();
 
   return JavaField(Descriptor, Name, Flags);
 }
@@ -333,18 +353,20 @@ static std::unique_ptr<JavaMethod> parseMethod(
           Input, CP, "method_descriptor_index");
   Params.Descriptor = &Descriptor;
 
-  uint16_t attributes_count = BigEndianReading::readHalf(Input);
+  bool seen_code = false;
 
-  // Search for code
-  attributes_count -= skipAttributesUntil("Code", Input, CP);
+  AttributeIterator AttrIt(CP, Input);
+  for (; !AttrIt.empty(); AttrIt.next()) {
+    if (AttrIt.getName() == "Code") {
+      parseMethodCode(Params, CP, Input);
+      seen_code = true;
+    } else {
+      AttrIt.skip();
+    }
+  }
 
-  // Parse method code
-  parseMethodCode(Params, Input);
-  attributes_count -= 1;
-
-  // Skip the rest of the attributes
-  for (uint16_t i = 0; i < attributes_count; ++i)
-    skipAttribute(Input);
+  if (!seen_code)
+    throw FormatError("Couldn't find method code attribute");
 
   return std::make_unique<JavaMethod>(std::move(Params));
 }
