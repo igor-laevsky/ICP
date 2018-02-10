@@ -2,8 +2,8 @@
 // Definitions for the bytecode instructions
 //
 
-#ifndef ICP_BYTECODEINSTRUCTIONS_H
-#define ICP_BYTECODEINSTRUCTIONS_H
+#ifndef ICP_INSTRUCTIONS_H
+#define ICP_INSTRUCTIONS_H
 
 #include "Bytecode.h"
 
@@ -68,7 +68,8 @@ inline constexpr bool contains =
 // Utility class which wraps number of instructions with values encoded into
 // their opcodes and provides uniform access to them.
 template<class... Ts>
-class ValueInstWrapper {
+class
+ValueInstWrapper {
 public:
 
 public:
@@ -78,6 +79,21 @@ public:
   constexpr ValueInstWrapper(const InstT& Inst) noexcept:
       Inst(Inst),
       Val(InstT::Val) {
+    ;
+  }
+
+  // Get this instruction's value from it's index
+  struct from_idx_t {
+    explicit from_idx_t() = default;
+  };
+  static constexpr from_idx_t from_idx;
+
+  template<
+      class InstT,
+      class X = std::enable_if_t<contains<InstT, Ts...>>>
+  constexpr ValueInstWrapper(from_idx_t, const InstT& Inst) noexcept:
+      Inst(Inst),
+      Val(Inst.getIdx()) {
     ;
   }
 
@@ -262,6 +278,64 @@ class if_icmp_op:
   using ValueIdxWrapper::ValueIdxWrapper;
 };
 
+///
+/// Locals load/store
+///
+
+#define DEF_ILOAD(Value, OpCodeVal) \
+class iload_##Value final: public NoIndex<iload_##Value> { \
+  using NoIndex::NoIndex; \
+\
+public:\
+  static constexpr uint8_t OpCode = OpCodeVal;\
+  static constexpr const char *Name = "iload_"#Value;\
+  static constexpr uint8_t Val = Value;\
 }
 
-#endif //ICP_BYTECODEINSTRUCTIONS_H
+#define DEF_ISTORE(Value, OpCodeVal) \
+class istore_##Value final: public NoIndex<istore_##Value> { \
+  using NoIndex::NoIndex; \
+\
+public:\
+  static constexpr uint8_t OpCode = OpCodeVal;\
+  static constexpr const char *Name = "istore_"#Value;\
+  static constexpr uint8_t Val = Value;\
+}
+
+DEF_ILOAD(0, 0x1a); DEF_ISTORE(0, 0x3b);
+DEF_ILOAD(1, 0x1b); DEF_ISTORE(1, 0x3c);
+DEF_ILOAD(2, 0x1c); DEF_ISTORE(2, 0x3d);
+DEF_ILOAD(3, 0x1d); DEF_ISTORE(3, 0x3e);
+
+#undef DEF_ILOAD
+#undef DEF_ISTORE
+
+class iload: public SingleIndex<iload> {
+  using SingleIndex::SingleIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0x15;
+  static constexpr const char *Name = "iload";
+};
+
+class istore: public SingleIndex<istore> {
+  using SingleIndex::SingleIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0x36;
+  static constexpr const char *Name = "istore";
+};
+
+class iload_val final:
+    public ValueInstWrapper<iload, iload_0, iload_1, iload_2, iload_3> {
+  using ValueInstWrapper::ValueInstWrapper;
+};
+
+class istore_val final:
+    public ValueInstWrapper<istore, istore_0, istore_1, istore_2, istore_3> {
+  using ValueInstWrapper::ValueInstWrapper;
+};
+
+}
+
+#endif //ICP_INSTRUCTIONS_H

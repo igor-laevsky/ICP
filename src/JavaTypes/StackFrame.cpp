@@ -115,6 +115,11 @@ void StackFrame::setLocal(std::size_t Idx, Type T) {
     locals()[Idx + 1] = Types::Top;
   }
 
+  // If preceeding variable had two slots, we need to invalidate it
+  if (Idx > 0 && Types::sizeOf(locals()[Idx - 1]) == 2) {
+    locals()[Idx - 1] = Types::Top;
+  }
+
   computeFlags();
   assert(verifyTypeEncoding());
 }

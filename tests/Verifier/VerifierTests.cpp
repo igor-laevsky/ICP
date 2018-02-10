@@ -44,6 +44,23 @@ static void testWithMethodFile(const std::string &FileName) {
   Verifier::verify(*NewClass);
 }
 
+static void runAutoTest(const std::string &FileName) {
+  auto C = CD::parseFromFile("tests/Verifier/" + FileName);
+
+  for (const auto &method: C->methods()) {
+    assert(method.get() != nullptr); // should never happen
+    const JavaMethod &M = *method.get();
+
+    if (starts_with(M.getName(), "ok")) {
+      REQUIRE_NOTHROW(verifyMethod(M));
+    } else if (starts_with(M.getName(), "wrong")) {
+      REQUIRE_THROWS_AS(verifyMethod(M), VerificationError);
+    } else {
+      assert(false); // Method name should start with either 'ok' or 'wrong'
+    }
+  }
+}
+
 TEST_CASE("Basic verification", "[Verifier]") {
   REQUIRE_NOTHROW(testWithMethod(
       JavaMethod::AccessFlags::ACC_PUBLIC,
@@ -371,19 +388,11 @@ TEST_CASE("verifier dconst_dreturn", "[Verifier][dconst_dreturn]") {
   REQUIRE_NOTHROW(verifyMethod(*m));
 }
 
+
 TEST_CASE("verifier if_icmp", "[Verifier][if_icmp]") {
-  auto C = CD::parseFromFile("tests/Verifier/if_icmp.cd");
+  runAutoTest("if_icmp.cd");
+}
 
-  for (const auto &method: C->methods()) {
-    assert(method.get() != nullptr); // should never happen
-    const JavaMethod &M = *method.get();
-
-    if (starts_with(M.getName(), "ok")) {
-      REQUIRE_NOTHROW(verifyMethod(M));
-    } else if (starts_with(M.getName(), "wrong")) {
-      REQUIRE_THROWS_AS(verifyMethod(M), VerificationError);
-    } else {
-      assert(false); // Method name should start with either 'ok' or 'wrong'
-    }
-  }
+TEST_CASE("verifier iload istore", "[Verifier][iload_istore]") {
+  runAutoTest("iload_istore.cd");
 }

@@ -44,6 +44,18 @@ std::unique_ptr<Instruction> Bytecode::parseInstruction(
     PARSE_OP(if_icmpge);
     PARSE_OP(if_icmpgt);
     PARSE_OP(if_icmple);
+
+    PARSE_OP(iload);
+    PARSE_OP(iload_0);
+    PARSE_OP(iload_1);
+    PARSE_OP(iload_2);
+    PARSE_OP(iload_3);
+    PARSE_OP(istore);
+    PARSE_OP(istore_0);
+    PARSE_OP(istore_1);
+    PARSE_OP(istore_2);
+    PARSE_OP(istore_3);
+
     default:
       throw UnknownBytecode();
   }
@@ -95,6 +107,17 @@ std::unique_ptr<Instruction> Bytecode::parseFromString(
   PARSE_OP(if_icmpge);
   PARSE_OP(if_icmpgt);
   PARSE_OP(if_icmple);
+
+  PARSE_OP(iload);
+  PARSE_OP(iload_0);
+  PARSE_OP(iload_1);
+  PARSE_OP(iload_2);
+  PARSE_OP(iload_3);
+  PARSE_OP(istore);
+  PARSE_OP(istore_0);
+  PARSE_OP(istore_1);
+  PARSE_OP(istore_2);
+  PARSE_OP(istore_3);
 
 #undef PARSE_OP
 

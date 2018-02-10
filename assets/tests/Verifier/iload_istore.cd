@@ -1,0 +1,118 @@
+class {
+  constant_pool {
+    1: ClassInfo "IloadIstore"
+    2: ClassInfo "java/lang/Object"
+
+    auto: "main"
+    auto: "ok"
+    auto: "ok_expl_idx"
+    auto: "ok_weird"
+    auto: "wrong_type_load"
+    auto: "wrong_type_store"
+    auto: "wrong_uninit_load"
+    auto: "wrong_uninit_load2"
+    auto: "(II)I"
+    auto: "(JI)I"
+  }
+
+  Name: #1
+  Super: #2
+
+  method "ok" "(II)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iload_0
+      iload_0
+      iload_0
+      istore_1
+      istore_1
+      istore_1
+      iload_1
+      ireturn
+    }
+  }
+
+  method "ok_expl_idx" "(II)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iload #0
+      iload #0
+      iload #0
+      istore #1
+      istore #1
+      istore #1
+      iload #1
+      ireturn
+    }
+  }
+
+  method "ok_weird" "(JI)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iload #2
+      istore #1
+      iload #1
+      ireturn
+    }
+  }
+
+  method "wrong_type_load" "(JI)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iload #0
+      ireturn
+    }
+  }
+
+  method "wrong_type_store" "(JI)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iload #2
+      istore #0
+      iload #2
+      ireturn
+    }
+  }
+
+  method "wrong_uninit_load" "(JI)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iload #1
+      istore #0
+      iload #2
+      ireturn
+    }
+  }
+
+  method "wrong_uninit_load2" "(II)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iload #5
+      istore #0
+      iload #2
+      ireturn
+    }
+  }
+
+}

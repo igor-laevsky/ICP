@@ -304,13 +304,14 @@ static void parseBytecode(
   std::vector<ParsedInst> Instrs;
   std::map<std::string_view, Bytecode::BciType> Label2Bci;
 
-  auto TryEatLabel = [&](Bytecode::BciType CurBci) {
+  Bytecode::BciType cur_bci = 0;
+
+  auto TryEatLabel = [&]() {
     if (Lex.consume(Token::Colon))
-      Label2Bci[consumeOrThrow(Token::Id(), Lex).getData()] = CurBci;
+      Label2Bci[consumeOrThrow(Token::Id(), Lex).getData()] = cur_bci;
   };
 
-  TryEatLabel(0);
-  Bytecode::BciType cur_bci = 0;
+  TryEatLabel();
   while (const auto *NameTok = Lex.consume(Token::Id())) {
     // Name
     const char *Name = NameTok->getData().c_str();
@@ -330,7 +331,7 @@ static void parseBytecode(
     Instrs.push_back({Name, Idx, Label});
 
     // Can't have both index and label
-    bool hasIdx = (Idx != 0);
+    bool hasIdx = IdxOpt.has_value();
     bool hasLabel = (Label != nullptr);
     assert(hasLabel != hasIdx || (!hasLabel && !hasIdx));
 
@@ -338,7 +339,7 @@ static void parseBytecode(
     cur_bci += 1 + ((hasLabel || hasIdx) ? 2 : 0);
 
     // Label definition for the next bytecode
-    TryEatLabel(cur_bci);
+    TryEatLabel();
   }
 
   // Actually parse all of the instructions

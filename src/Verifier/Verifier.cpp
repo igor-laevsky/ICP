@@ -57,6 +57,9 @@ public:
 
   void visit(const if_icmp_op &) override;
 
+  void visit(const iload_val &) override;
+  void visit(const istore_val &) override;
+
   // Runs before visiting instruction.
   void runPreConditions(const Instruction &CurInstr) {
     // No stack map - nothing to do.
@@ -88,17 +91,27 @@ public:
 
 private:
   // Load type 'T' from the loacal variable Idx
-  void loadFromLocal(uint32_t Idx, Type T) {
+  void loadFromLocal(uint32_t Idx, Type ToT) {
     if (Idx >= CurrentFrame.numLocals())
-      throw VerificationError(
-          "Unable to load local variable at index " + std::to_string(Idx));
+      throwErr("Unable to load local variable at index " + std::to_string(Idx));
 
-    Type ActualType = CurrentFrame.getLocal(Idx);
-    if (!Types::isAssignable(ActualType, T))
-      throw VerificationError(
-          "Local variable has incompatible type at index " + std::to_string(Idx));
+    Type FromType = CurrentFrame.getLocal(Idx);
+    if (!Types::isAssignable(FromType, ToT))
+      throwErr("Local variable has incompatible load type at index " + std::to_string(Idx));
 
-    CurrentFrame.pushList({ActualType});
+    CurrentFrame.pushList({FromType});
+  }
+
+  // Store type 'T' into local variable Idx
+  void storeToLocal(uint32_t Idx, Type FromT) {
+    if (Idx >= CurrentFrame.numLocals())
+      throwErr("Unable to store local variable at index " + std::to_string(Idx));
+
+    Type ToT = CurrentFrame.getLocal(Idx);
+    if (!Types::isAssignable(FromT, ToT))
+      throwErr("Local variable has incompatible store type at index " + std::to_string(Idx));
+
+    CurrentFrame.setLocal(Idx, FromT);
   }
 
   // Checks if we can jump to this target from the current state
@@ -237,6 +250,14 @@ void MethodVerifier::targetIsTypeSafe(Bytecode::BciType Bci) {
 void MethodVerifier::visit(const if_icmp_op &Inst) {
   tryPop({Types::Int, Types::Int}, "Incorrect if_icmp operands");
   targetIsTypeSafe(Method.getBciForInst(Inst.getInst()) + Inst.getIdx());
+}
+
+void MethodVerifier::visit(const iload_val &Inst) {
+  loadFromLocal(Inst.getVal(), Types::Int);
+}
+
+void MethodVerifier::visit(const istore_val &Inst) {
+  storeToLocal(Inst.getVal(), Types::Int);
 }
 
 }

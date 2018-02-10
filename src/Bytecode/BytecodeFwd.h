@@ -49,6 +49,20 @@ class if_icmpge;
 class if_icmpgt;
 class if_icmple;
 
+class iload_val;
+class iload;
+class iload_0;
+class iload_1;
+class iload_2;
+class iload_3;
+
+class istore_val;
+class istore;
+class istore_0;
+class istore_1;
+class istore_2;
+class istore_3;
+
 }
 
 #endif //ICP_BYTECODEINSTRUCTIONSFWD_H

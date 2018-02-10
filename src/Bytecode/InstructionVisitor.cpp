@@ -31,4 +31,22 @@ DEF_FWD_VISIT(if_icmp_op, if_icmpge)
 DEF_FWD_VISIT(if_icmp_op, if_icmpgt)
 DEF_FWD_VISIT(if_icmp_op, if_icmple)
 
+DEF_FWD_VISIT(iload_val, iload_0)
+DEF_FWD_VISIT(iload_val, iload_1)
+DEF_FWD_VISIT(iload_val, iload_2)
+DEF_FWD_VISIT(iload_val, iload_3)
+
+DEF_FWD_VISIT(istore_val, istore_0)
+DEF_FWD_VISIT(istore_val, istore_1)
+DEF_FWD_VISIT(istore_val, istore_2)
+DEF_FWD_VISIT(istore_val, istore_3)
+
 #undef DEF_VISIT
+
+void InstructionVisitor::visit(const iload &I) {
+  visit(iload_val(iload_val::from_idx, I));
+}
+
+void InstructionVisitor::visit(const istore &I) {
+  visit(istore_val(istore_val::from_idx, I));
+}

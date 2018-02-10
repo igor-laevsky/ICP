@@ -46,6 +46,20 @@ public:
   DECL_VISIT(if_icmpgt);
   DECL_VISIT(if_icmple);
 
+  DEF_VISIT(iload_val);
+  DECL_VISIT(iload);
+  DECL_VISIT(iload_0);
+  DECL_VISIT(iload_1);
+  DECL_VISIT(iload_2);
+  DECL_VISIT(iload_3);
+
+  DEF_VISIT(istore_val);
+  DECL_VISIT(istore);
+  DECL_VISIT(istore_0);
+  DECL_VISIT(istore_1);
+  DECL_VISIT(istore_2);
+  DECL_VISIT(istore_3);
+
 #undef DEF_VISIT
 #undef DECL_VISIT
 
