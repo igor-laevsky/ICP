@@ -199,7 +199,7 @@ parseConstantPool(std::istream& Input) {
 
 namespace {
 
-// Reads specified amount of attributes. Throws ReadError on errors.
+// Reads class file attributes. Throws ReadError on errors.
 class AttributeIterator {
 public:
   explicit AttributeIterator(const ConstantPool &CP, std::istream &Input):
@@ -260,13 +260,27 @@ private:
 
 // Parses stack map table and saves it into the 'Params' structure.
 // \throws ReadError or FormatError.
-//static void parseStackMapTable(
-//    JavaMethod::MethodConstructorParameters &Params,
-//    std::istream &Input) {
-//
-//
-//
-//}
+static StackMapTableBuilder parseStackMapTable(std::istream &Input) {
+
+  const uint16_t number_of_entries = BigEndianReading::readHalf(Input);
+
+  StackMapTableBuilder Ret;
+  // Specification is terribly thoughtful
+  auto cur_bci = static_cast<Bytecode::BciType>(-1);
+
+  for (int i = 0; i < number_of_entries; ++i) {
+    uint8_t frame_type = BigEndianReading::readByte(Input);
+
+    if (frame_type <= 63) {
+      cur_bci += frame_type + 1;
+      Ret.addSame(cur_bci);
+    } else {
+      throw FormatError("Unrecognized stack map frame type");
+    }
+  }
+
+  return Ret;
+}
 
 // Expects current input position to be set up right after 'Code' attribute
 // tag. Saves result in the 'Params' structure.
@@ -294,10 +308,14 @@ static void parseMethodCode(
   if (Input.fail())
     throw FormatError("Failed to read exception table from code attribute");
 
-  // Skip all attributes for now
   AttributeIterator AttrIt(CP, Input);
-  for (; !AttrIt.empty(); AttrIt.next())
-    AttrIt.skip();
+  for (; !AttrIt.empty(); AttrIt.next()) {
+    if (AttrIt.getName() == "StackMapTable") {
+      Params.StackMapBuilder = parseStackMapTable(Input);
+    } else {
+      AttrIt.skip();
+    }
+  }
 
   // TODO: Check that attribute_length is consistent with the actual
   // amount of data.

@@ -235,7 +235,7 @@ private:
     return curMethod().getOwner().getConstantPool();
   }
 
-  void returnFromFunction();
+  void returnFromFunction(bool DoPop);
 
   // Doesn't actually jump anywhere. Actual jump is performed in the
   // 'runSingleInstr' method.
@@ -278,24 +278,25 @@ void Interpreter::visit(const dconst_val &Inst) {
   curFrame().push<JavaDouble>(Inst.getVal());
 }
 
-void Interpreter::returnFromFunction() {
+void Interpreter::returnFromFunction(bool DoPop) {
   // TODO: pop frame and push result to stack
   assert(stack().numFrames() == 1); // function calls are not supported
 
-  RetVal = curFrame().pop();
+  if (DoPop)
+    RetVal = curFrame().pop();
   stack().exit_function();
 }
 
 void Interpreter::visit(const ireturn &) {
-  returnFromFunction();
+  returnFromFunction(true);
 }
 
 void Interpreter::visit(const dreturn &) {
-  returnFromFunction();
+  returnFromFunction(true);
 }
 
 void Interpreter::visit(const java_return &) {
-  returnFromFunction();
+  returnFromFunction(false);
 }
 
 void Interpreter::visit(const aload_0 &) {
@@ -373,13 +374,13 @@ Value SlowInterpreter::interpret(
 
   // TODO: assert that all required arguments are specified
 
-  while (I.runSingleInstr()) {
+  do {
     if (Debug) {
       std::cout << "#" << Method.getBciForInst(I.getCurInstr()) << " ";
       I.getCurInstr().print(std::cout);
       I.print();
     }
-  }
+  } while (I.runSingleInstr());
 
   assert(I.isStackEmpty()); // should exit all functions
   return I.getRetVal();

@@ -47,3 +47,26 @@ TEST_CASE("Read verify and interpret fields class", "[ClassFileReader]") {
 
   Runtime::getClassManager().reset();
 }
+
+TEST_CASE("Read verify and interpret branches class", "[ClassFileReader]") {
+  auto NewClass = ClassFileReader::loadClassFromFile("./Branches.class");
+  assert(NewClass != nullptr);
+
+  Runtime::getClassManager().registerClass(
+      Runtime::ClassObject::create(*NewClass)->getAs<Runtime::ClassObject>());
+
+  Verifier::verify(*NewClass);
+
+  // TODO: This should go away with normal class manager
+  auto ClInit = NewClass->getMethod("<clinit>");
+  REQUIRE(ClInit != nullptr);
+  SlowInterpreter::interpret(*ClInit, {});
+
+  auto Method = NewClass->getMethod("main");
+  REQUIRE(Method != nullptr);
+  auto Ret = SlowInterpreter::interpret(*Method, {});
+
+  REQUIRE(Ret.getAs<Runtime::JavaInt>() == 1);
+
+  Runtime::getClassManager().reset();
+}
