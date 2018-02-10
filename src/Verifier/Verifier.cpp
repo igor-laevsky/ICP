@@ -38,6 +38,13 @@ public:
         LocalTypes.insert(LocalTypes.begin(), Types::Class);
     }
 
+    if (LocalTypes.size() > Method.getMaxLocals())
+      throwErr("Too much locals");
+
+    // Add uninitialized locals as 'Top' types.
+    const auto num_locals_to_add = Method.getMaxLocals() - LocalTypes.size();
+    LocalTypes.insert(LocalTypes.end(), num_locals_to_add, Types::Top);
+
     CurrentFrame = StackFrame(LocalTypes, {});
 
     StackMap = Method.getStackMapBuilder().createTable(LocalTypes);
@@ -82,9 +89,6 @@ public:
 
   // Runs after visit of the instruction.
   void runPostConditions() const {
-    if (CurrentFrame.numLocals() > Method.getMaxLocals())
-      throwErr("Exceeded maximum number of locals");
-
     if (CurrentFrame.numStack() > Method.getMaxStack())
       throwErr("Exceeded maximum stack size");
   };

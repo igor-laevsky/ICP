@@ -7,6 +7,7 @@ class {
     auto: "ok"
     auto: "ok_expl_idx"
     auto: "ok_weird"
+    auto: "ok_store_to_uninit"
     auto: "wrong_type_load"
     auto: "wrong_type_store"
     auto: "wrong_uninit_load"
@@ -61,6 +62,23 @@ class {
       iload #2
       istore #1
       iload #1
+      ireturn
+    }
+  }
+
+  method "ok_store_to_uninit" "(JI)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iload #2
+      istore #1
+
+      iload #1
+      istore #5
+
+      iload #5
       ireturn
     }
   }
