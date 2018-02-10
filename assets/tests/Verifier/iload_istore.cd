@@ -22,7 +22,7 @@ class {
   method "ok" "(II)I" {
     Flags: public, static
     MaxStack: 10
-    MaxLocals: 10
+    MaxLocals: 2
 
     bytecode {
       iload_0

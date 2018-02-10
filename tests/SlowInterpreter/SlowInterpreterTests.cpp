@@ -33,6 +33,24 @@ static ResT testWithMethod(
   return Res.getAs<ResT>();
 }
 
+template<class ResT>
+static bool runAutoTest(
+    const std::string &FileName, const std::vector<Value> &InputArgs) {
+
+  auto Class = CD::parseFromFile("tests/SlowInterpreter/" + FileName);
+
+  for (const auto &method: Class->methods()) {
+    ResT res = SlowInterpreter::interpret(*method, InputArgs).getAs<ResT>();
+    if (res != 0) {
+      std::cerr << "Wrong interpreter result: " << res <<
+                   " for " << method->getName() << "\n";
+      return false;
+    }
+  }
+
+  return true;
+}
+
 TEST_CASE("interpret iconst with ireturn", "[SlowInterpreter]") {
   auto Class =
       CD::parseFromFile("tests/SlowInterpreter/iconst_ireturn.cd");
@@ -93,11 +111,10 @@ TEST_CASE("interpret get put static", "[SlowInterpreter]") {
 }
 
 TEST_CASE("interpret comparisons", "[SlowInterpreter]") {
-  auto Class =
-      CD::parseFromFile("tests/SlowInterpreter/ifcmp.cd");
+  runAutoTest<Runtime::JavaInt>("ifcmp.cd", {});
+}
 
-  for (int i = 1; i <= 6; ++i) {
-    REQUIRE(testWithMethod<Runtime::JavaInt>(
-        *Class, "test" + std::to_string(i), {}) == 0);
-  }
+TEST_CASE("interpret iload istore", "[SlowInterpreter]") {
+  runAutoTest<Runtime::JavaInt>("iload_istore.cd",
+      {Value::create<JavaInt>(5), Value::create<JavaInt>(0)});
 }

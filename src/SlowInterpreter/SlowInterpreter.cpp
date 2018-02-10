@@ -40,7 +40,10 @@ public:
     Method(Method),
     Locals(std::move(Locals)),
     CurInstr(Method.begin()) {
-    ;
+
+    // Ensure there is always anough locals
+    if (Method.getMaxLocals() > Locals.size())
+      locals().resize(Method.getMaxLocals());
   }
 
   const Instruction &getCurInstr() const { return *CurInstr; }
@@ -56,16 +59,22 @@ public:
     ++CurInstr;
   }
 
+  Value getLocal(uint32_t Idx) const {
+    assert(Idx < locals().size());
+    return locals()[Idx];
+  }
   template<class T>
   T getLocal(uint32_t Idx) const {
-    assert(Idx < locals().size());
-    return locals()[Idx].getAs<T>();
+    return getLocal(Idx).getAs<T>();
   }
 
+  void setLocal(uint32_t Idx, Value NewVal) {
+    assert(Idx < locals().size());
+    locals()[Idx] = NewVal;
+  }
   template<class T>
   void setLocal(uint32_t Idx, const std::remove_reference_t<T>& NewVal) {
-    assert(Idx < locals().size());
-    locals()[Idx] = Value::create<T>(NewVal);
+    setLocal(Idx, Value::create<T>(NewVal));
   }
 
   Value pop() {
@@ -223,6 +232,9 @@ public:
 
   void visit(const if_icmp_op &) override;
 
+  void visit(const iload_val &) override;
+  void visit(const istore_val &) override;
+
 private:
   InterpreterStack &stack() { return Stack; }
   const InterpreterStack &stack() const { return Stack; }
@@ -360,8 +372,17 @@ void Interpreter::visit(const if_icmp_op &Inst) {
   const bool res = javaCompare<JavaInt>(cmp_op, val1, val2);
   curFrame().push<JavaInt>(res);
 
-  if (res)
+  if (res) {
     jumpToBciOffset(Inst.getIdx());
+  }
+}
+
+void Interpreter::visit(const istore_val &Inst) {
+  curFrame().setLocal(Inst.getVal(), curFrame().pop());
+}
+
+void Interpreter::visit(const iload_val &Inst) {
+  curFrame().push(curFrame().getLocal(Inst.getVal()));
 }
 
 

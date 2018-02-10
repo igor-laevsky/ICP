@@ -1,0 +1,32 @@
+class {
+  constant_pool {
+    1: ClassInfo "IloadIstore"
+    2: ClassInfo "java/lang/Object"
+
+    auto: "swap"
+    auto: "(II)I"
+  }
+
+  Name: #1
+  Super: #2
+
+  method "swap" "(II)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iload_0
+      istore_2
+
+      iload_1
+      istore_0
+
+      iload_2
+      istore_1
+
+      iload_0
+      ireturn
+    }
+  }
+}
