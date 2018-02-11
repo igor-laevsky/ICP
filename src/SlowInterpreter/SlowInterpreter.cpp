@@ -49,7 +49,7 @@ public:
   const Instruction &getCurInstr() const { return *CurInstr; }
 
   void jumpToBciOffset(BciType Offset) {
-    const BciType new_bci = Method.getBciForInst(getCurInstr()) + Offset;
+    const BciType new_bci = Method.getBciForInst(getCurInstr()) + static_cast<int16_t>(Offset);
     CurInstr = Method.getCodeIterAtBci(new_bci);
     assert(CurInstr != Method.end());
   }
@@ -374,7 +374,6 @@ void Interpreter::visit(const if_icmp_op &Inst) {
 
   const auto cmp_op = static_cast<ComparisonOp>(Inst.getVal());
   const bool res = javaCompare<JavaInt>(cmp_op, val1, val2);
-  curFrame().push<JavaInt>(res);
 
   if (res) {
     jumpToBciOffset(Inst.getIdx());

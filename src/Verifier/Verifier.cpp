@@ -41,14 +41,12 @@ public:
     if (LocalTypes.size() > Method.getMaxLocals())
       throwErr("Too much locals");
 
-    // Add uninitialized locals as 'Top' types.
-    const auto num_locals_to_add = Method.getMaxLocals() - LocalTypes.size();
-    LocalTypes.insert(LocalTypes.end(), num_locals_to_add, Types::Top);
-
-    CurrentFrame = StackFrame(LocalTypes, {});
-
+    // Materialize stack map
     StackMap = Method.getStackMapBuilder().createTable(LocalTypes);
     StackMapIt = StackMap.begin();
+
+    CurrentFrame = StackFrame(LocalTypes, {});
+    CurrentFrame.resizeLocals(Method.getMaxLocals());
   }
 
   void visit(const aload_0 &) override;
@@ -78,6 +76,8 @@ public:
         throwErr("Couldn't find stack map after goto");
 
       CurrentFrame = *StackMapIt;
+      CurrentFrame.resizeLocals(Method.getMaxLocals());
+
       ++StackMapIt;
       afterGoto = false;
       return;
@@ -95,6 +95,7 @@ public:
     if (!CurrentFrame.transformInto(map_frame))
       throwErr("Current frame is unassignable into map frame");
 
+    CurrentFrame.resizeLocals(Method.getMaxLocals());
     ++StackMapIt;
   }
 
@@ -111,7 +112,7 @@ public:
 
 private:
   // Load type 'T' from the loacal variable Idx.
-  void loadFromLocal(uint32_t Idx, Type ToT) {
+  void loadFromLocal(Bytecode::IdxType Idx, Type ToT) {
     checkLocalIdx(Idx);
 
     Type FromType = CurrentFrame.getLocal(Idx);
@@ -123,7 +124,7 @@ private:
   }
 
   // Store type 'T' into local variable Idx.
-  void storeToLocal(uint32_t Idx, Type FromT) {
+  void storeToLocal(Bytecode::IdxType Idx, Type FromT) {
     checkLocalIdx(Idx);
 
     Type ToT = CurrentFrame.getLocal(Idx);
@@ -292,6 +293,7 @@ void MethodVerifier::visit(const iload_val &Inst) {
 }
 
 void MethodVerifier::visit(const istore_val &Inst) {
+  tryPop({Types::Int}, "Expected integer on the stack");
   storeToLocal(Inst.getVal(), Types::Int);
 }
 
@@ -303,7 +305,7 @@ void MethodVerifier::visit(const iinc &Inst) {
 }
 
 void MethodVerifier::visit(const java_goto &Inst) {
-  targetIsTypeSafe(Method.getBciForInst(Inst) + Inst.getIdx());
+  targetIsTypeSafe(Method.getBciForInst(Inst) + static_cast<int16_t>(Inst.getIdx()));
   afterGoto = true;
   // Reset frame to avoid unfortunate accidents
   CurrentFrame = StackFrame({}, {});

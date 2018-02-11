@@ -19,7 +19,9 @@ namespace Bytecode {
 // Exceptions
 class UnexpectedBytecodeOperation: public std::exception {};
 class BytecodeParsingError: public std::exception {};
-class UnknownBytecode: public std::exception {};
+class UnknownBytecode: public std::runtime_error {
+  using runtime_error::runtime_error;
+};
 
 // Represents single bytecode instruction. Supposed to be created from the
 // byte array using 'Instruction::create' or 'parseInstruction' functions.

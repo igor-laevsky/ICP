@@ -258,6 +258,32 @@ private:
 
 }
 
+static Type parseVerificationTypeInfo(std::istream &Input) {
+  const uint8_t tag = BigEndianReading::readByte(Input);
+
+  switch (tag) {
+    case 0: return Types::Top;
+    case 1: return Types::Int;
+    case 2: return Types::Float;
+    case 5: return Types::Null;
+    case 6: return Types::UninitializedThis;
+    case 7: {
+      (void)BigEndianReading::readHalf(Input);
+      return Types::Class;
+    }
+    case 8: {
+      const uint16_t offset = BigEndianReading::readHalf(Input);
+      return Types::UninitializedOffset(offset);
+    }
+    case 4: return Types::Long;
+    case 3: return Types::Double;
+    default: throw FormatError("Unrecognized verification type tag");
+  }
+
+  assert(false); // never happens
+  return Types::Void;
+}
+
 // Parses stack map table and saves it into the 'Params' structure.
 // \throws ReadError or FormatError.
 static StackMapTableBuilder parseStackMapTable(std::istream &Input) {
@@ -273,6 +299,20 @@ static StackMapTableBuilder parseStackMapTable(std::istream &Input) {
     if (frame_type <= 63) {
       cur_bci += frame_type + 1;
       Ret.addSame(cur_bci);
+
+    } else if (frame_type >= 252 && frame_type <= 254) {
+      const uint16_t offset_delta = BigEndianReading::readHalf(Input);
+      const uint8_t k = frame_type - 251;
+
+      std::vector<Type> new_locals;
+      new_locals.reserve(k);
+      for (uint8_t local_idx = 0; local_idx < k; ++local_idx) {
+        new_locals.push_back(parseVerificationTypeInfo(Input));
+      }
+
+      cur_bci += offset_delta + 1;
+      Ret.addAppend(cur_bci, std::move(new_locals));
+
     } else {
       throw FormatError("Unrecognized stack map frame type");
     }
@@ -491,10 +531,10 @@ std::unique_ptr<JavaTypes::JavaClass> ClassFileReader::loadClassFromStream(
       ClassParams.Methods.push_back(parseMethod(Input, *ClassParams.CP));
   } catch (ReadError &) {
     throw FormatError("Unable to read class methods");
-  } catch (Bytecode::BytecodeParsingError &) {
-    throw FormatError("Unable to parse method's bytecode");
-  } catch (Bytecode::UnknownBytecode &) {
-    throw FormatError("Encountered unknown bytecode");
+  } catch (Bytecode::BytecodeParsingError &e) {
+    throw FormatError("Unable to parse method's bytecode: "s + e.what());
+  } catch (Bytecode::UnknownBytecode &e) {
+    throw FormatError("Encountered unknown bytecode: "s + e.what());
   }
 
   return std::make_unique<JavaClass>(std::move(ClassParams));

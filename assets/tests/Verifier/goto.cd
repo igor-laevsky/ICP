@@ -13,6 +13,7 @@ class {
 
     auto: "ok"
     auto: "ok2"
+    auto: "ok_back_branch"
     auto: "wrong"
     auto: "wrong2"
     auto: "(I)I"
@@ -70,6 +71,24 @@ class {
 
       stackmap {
         f: same
+        t: same
+      }
+    }
+  }
+
+  method "ok_back_branch" "(I)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      goto @t
+      :t
+        iconst_1
+        istore_1
+        goto @t
+
+      stackmap {
         t: same
       }
     }

@@ -383,9 +383,12 @@ static void parseBytecode(
         throw ParserError("Undefined label "s + InstInfo.Label);
 
       // Index is an offset from the current bci
-      Bytecode::BciType offset = Label2Bci[InstInfo.Label] - cur_bci;
+      int64_t offset = static_cast<int64_t>(Label2Bci[InstInfo.Label]) - cur_bci;
+      auto trunc_offset = static_cast<int16_t>(offset);
+      // offset should completely fit into index
+      assert(offset == trunc_offset);
+
       Idx = static_cast<Bytecode::IdxType>(offset);
-      assert(Idx == offset); // offset should completely fit into index
     }
 
     try {

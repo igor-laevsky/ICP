@@ -36,6 +36,13 @@ public:
   StackFrame(StackFrame &&) = default;
   StackFrame &operator=(StackFrame &&)  = default;
 
+  void resizeLocals(std::size_t NewSize) {
+    if (NewSize <= locals().size())
+      return;
+
+    locals().insert(locals().end(), NewSize - locals().size(), Types::Top);
+  }
+
   bool operator==(const StackFrame &Other) const {
     return stack() == Other.stack() && locals() == Other.locals();
   }

@@ -24,7 +24,7 @@ std::unique_ptr<Instruction> Bytecode::parseInstruction(
 #include "Instructions.inc"
 
     default:
-      throw UnknownBytecode();
+      throw UnknownBytecode(std::to_string(*It));
   }
 
 #undef PARSE_OP
@@ -55,5 +55,6 @@ std::unique_ptr<Instruction> Bytecode::parseFromString(
 
 #undef PARSE_OP
 
-  throw UnknownBytecode(); // unable to find correct instruction for string
+  // Unable to find correct instruction for string
+  throw UnknownBytecode(OpCodeStr.data());
 }

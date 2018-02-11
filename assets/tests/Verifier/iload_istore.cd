@@ -8,12 +8,14 @@ class {
     auto: "ok_expl_idx"
     auto: "ok_weird"
     auto: "ok_store_to_uninit"
+    auto: "ok_stack_pop"
     auto: "wrong_type_load"
     auto: "wrong_type_store"
     auto: "wrong_uninit_load"
     auto: "wrong_uninit_load2"
     auto: "(II)I"
     auto: "(JI)I"
+    auto: "(II)D"
   }
 
   Name: #1
@@ -91,6 +93,22 @@ class {
     bytecode {
       iload #0
       ireturn
+    }
+  }
+
+  // istore should pop from stask
+  method "ok_stack_pop" "(II)D" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      dconst_1
+
+      iconst_3
+      istore #2
+
+      dreturn
     }
   }
 
