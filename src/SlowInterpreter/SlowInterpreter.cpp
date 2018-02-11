@@ -237,6 +237,8 @@ public:
 
   void visit(const iinc &) override;
 
+  void visit(const java_goto &) override;
+
 private:
   InterpreterStack &stack() { return Stack; }
   const InterpreterStack &stack() const { return Stack; }
@@ -251,8 +253,7 @@ private:
 
   void returnFromFunction(bool DoPop);
 
-  // Doesn't actually jump anywhere. Actual jump is performed in the
-  // 'runSingleInstr' method.
+  // Schedules bci jump which is performed in the 'runSingleInstr' method.
   void jumpToBciOffset(BciType Offset) { NextOffset = Offset; }
 
 private:
@@ -390,6 +391,10 @@ void Interpreter::visit(const iload_val &Inst) {
 void Interpreter::visit(const iinc &Inst) {
   const auto cur_val = curFrame().getLocal<JavaInt>(Inst.getIdx());
   curFrame().setLocal<JavaInt>(Inst.getIdx(), cur_val + Inst.getConst());
+}
+
+void Interpreter::visit(const java_goto &Inst) {
+  jumpToBciOffset(Inst.getIdx());
 }
 
 Value SlowInterpreter::interpret(

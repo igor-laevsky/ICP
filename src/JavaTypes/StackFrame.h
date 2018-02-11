@@ -31,8 +31,8 @@ public:
     assert(verifyTypeEncoding());
   }
 
-  StackFrame(const StackFrame &) = delete;
-  StackFrame &operator=(const StackFrame &)  = delete;
+  StackFrame(const StackFrame &) = default;
+  StackFrame &operator=(const StackFrame &) = default;
   StackFrame(StackFrame &&) = default;
   StackFrame &operator=(StackFrame &&)  = default;
 

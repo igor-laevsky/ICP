@@ -400,3 +400,7 @@ TEST_CASE("verifier iload istore", "[Verifier][iload_istore]") {
 TEST_CASE("verifier iiinc", "[Verifier][iinc]") {
   runAutoTest("iinc.cd");
 }
+
+TEST_CASE("verifier goto", "[Verifier][goto]") {
+  runAutoTest("goto.cd");
+}

@@ -1,0 +1,119 @@
+class {
+  constant_pool {
+    1: ClassInfo "Goto"
+    2: ClassInfo "java/lang/Object"
+
+    3: NameAndType "a" "I"
+    4: NameAndType "b" "I"
+    8: NameAndType "c" "I"
+
+    5: FieldRef #1 #3 // a
+    6: FieldRef #1 #4 // b
+    7: FieldRef #1 #8 // c
+
+    auto: "ok"
+    auto: "ok2"
+    auto: "wrong"
+    auto: "wrong2"
+    auto: "(I)I"
+  }
+
+  Name: #1
+  Super: #2
+
+  fields {
+    public static "I": "a"
+    public static "I": "b"
+    public static "I": "c"
+  }
+
+  method "ok" "(I)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      getstatic #5 // Field c:I
+      iconst_5
+      if_icmpeq @five
+        goto @t
+      :five
+        goto @f
+      :t
+        iconst_0
+        ireturn
+      :f
+        iconst_1
+        ireturn
+
+      stackmap {
+        five: same
+        t: same
+        f: same
+      }
+    }
+  }
+
+  method "ok2" "(I)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      goto @t
+      :f
+        iconst_0
+        ireturn
+      :t
+        iconst_1
+        ireturn
+
+      stackmap {
+        f: same
+        t: same
+      }
+    }
+  }
+
+  // No stack map after goto
+  method "wrong" "(I)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      goto @t
+      :f
+        iconst_0
+        ireturn
+      :t
+        iconst_1
+        ireturn
+
+      stackmap {
+        t: same
+      }
+    }
+  }
+
+  // No stack map at the goto target
+  method "wrong2" "(I)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      goto @t
+      :f
+        iconst_0
+        ireturn
+      :t
+        iconst_1
+        ireturn
+
+      stackmap {
+        f: same
+      }
+    }
+  }
+}

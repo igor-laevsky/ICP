@@ -1,0 +1,40 @@
+class {
+  constant_pool {
+    1: ClassInfo "Goto"
+    2: ClassInfo "java/lang/Object"
+
+    auto: "test1"
+    auto: "(I)I"
+  }
+
+  Name: #1
+  Super: #2
+
+  method "test1" "(I)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iload_0
+      iconst_5
+
+      if_icmpeq @five
+        goto @t
+      :five
+        goto @f
+      :t
+        iconst_0
+        ireturn
+      :f
+        iconst_1
+        ireturn
+
+      stackmap {
+        five: same
+        t: same
+        f: same
+      }
+    }
+  }
+}

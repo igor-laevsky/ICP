@@ -48,6 +48,8 @@ HANDLE_INSTR_WRAPPED(if_icmpge)
 HANDLE_INSTR_WRAPPED(if_icmpgt)
 HANDLE_INSTR_WRAPPED(if_icmple)
 
+HANDLE_INSTR(java_goto)
+
 HANDLE_INSTR(aload)
 HANDLE_INSTR(aload_0)
 

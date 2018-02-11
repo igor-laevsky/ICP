@@ -277,6 +277,14 @@ class if_icmp_op:
   using ValueIdxWrapper::ValueIdxWrapper;
 };
 
+class java_goto final: public SingleIndex<java_goto> {
+  using SingleIndex::SingleIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0xa7;
+  static constexpr const char *Name = "goto";
+};
+
 ///
 /// Locals load/store
 ///
@@ -339,7 +347,7 @@ public:
   istore_val(const istore &Inst): ValueInstWrapper(from_idx, Inst) {}
 };
 
-class iinc: public VisitableInstruction<iinc> {
+class iinc final: public VisitableInstruction<iinc> {
 public:
   static constexpr uint8_t Length = 3;
   static constexpr uint8_t OpCode = 0x84;

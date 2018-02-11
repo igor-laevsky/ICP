@@ -52,32 +52,20 @@ public:
   }
 
   void visit(const aload_0 &) override;
-
   void visit(const aload &Inst) override;
-
   void visit(const invokespecial &Inst) override;
-
   void visit(const java_return &) override;
-
   void visit(const iconst_val &) override;
-
   void visit(const ireturn &) override;
-
   void visit(const dreturn &) override;
-
   void visit(const putstatic &) override;
-
   void visit(const getstatic &) override;
-
   void visit(const dconst_val &) override;
-
   void visit(const if_icmp_op &) override;
-
   void visit(const iload_val &) override;
-
   void visit(const istore_val &) override;
-
   void visit(const iinc &) override;
+  void visit(const java_goto &) override;
 
   // Runs before visiting instruction.
   void runPreConditions(const Instruction &CurInstr) {
@@ -87,8 +75,18 @@ public:
 
     const auto cur_bci = Method.getBciForInst(CurInstr);
 
+    // Must have stack map if after goto
+    if (afterGoto) {
+      if (StackMapIt.getBci() != cur_bci)
+        throwErr("Couldn't find stack map after goto");
+
+      CurrentFrame = *StackMapIt;
+      ++StackMapIt;
+      afterGoto = false;
+      return;
+    }
+
     // Don't have stack map for the current bci - nothing to do.
-    // This place will change once we will have unconditional goto's.
     if (StackMapIt.getBci() != cur_bci)
       return;
 
@@ -106,7 +104,7 @@ public:
   };
 
 private:
-  // Load type 'T' from the loacal variable Idx
+  // Load type 'T' from the loacal variable Idx.
   void loadFromLocal(uint32_t Idx, Type ToT) {
     checkLocalIdx(Idx);
 
@@ -118,7 +116,7 @@ private:
     CurrentFrame.pushList({FromType});
   }
 
-  // Store type 'T' into local variable Idx
+  // Store type 'T' into local variable Idx.
   void storeToLocal(uint32_t Idx, Type FromT) {
     checkLocalIdx(Idx);
 
@@ -130,21 +128,21 @@ private:
     CurrentFrame.setLocal(Idx, FromT);
   }
 
-  // Checks if we can jump to this target from the current state
+  // Checks if we can jump to this target from the current state.
   void targetIsTypeSafe(Bytecode::BciType Bci);
 
-  // Helper to throw a varification error
+  // Helper to throw a varification error.
   void throwErr(std::string_view Str) const {
     throw VerificationError(Str.data());
   }
 
-  // Pops type list from the current frame or throws verification error
+  // Pops type list from the current frame or throws verification error.
   void tryPop(const std::vector<Type> &ToPop, std::string_view ErrMsg) {
     if (!CurrentFrame.popMatchingList(ToPop))
       throwErr(ErrMsg);
   }
 
-  // Checks if we can access given local and throws if not
+  // Check if we can access given local and throw if not.
   void checkLocalIdx(Bytecode::IdxType Idx) {
     if (Idx >= CurrentFrame.numLocals())
       throwErr("Incorrect local variable index " + std::to_string(Idx));
@@ -160,6 +158,9 @@ private:
 
   StackMapTable StackMap;
   StackMapTable::Iterator StackMapIt;
+
+  // If tru we need to load new stack frame
+  bool afterGoto = false;
 };
 
 }
@@ -290,6 +291,13 @@ void MethodVerifier::visit(const iinc &Inst) {
 
   if (CurrentFrame.getLocal(Inst.getIdx()) != Types::Int)
     throwErr("iinc can only increment integer types");
+}
+
+void MethodVerifier::visit(const java_goto &Inst) {
+  targetIsTypeSafe(Method.getBciForInst(Inst) + Inst.getIdx());
+  afterGoto = true;
+  // Reset frame to avoid unfortunate accidents
+  CurrentFrame = StackFrame({}, {});
 }
 
 void Verifier::verifyMethod(const JavaMethod &Method) {
