@@ -8,6 +8,8 @@ class {
     auto: "test3"
     auto: "test4"
     auto: "test5"
+    auto: "test6"
+    auto: "test7"
     auto: "()I"
     auto: "()D"
   }
@@ -74,6 +76,52 @@ class {
       iconst_0
       dconst_1
       dreturn
+    }
+  }
+
+  // Ok
+  method "test5" "()D" {
+    Flags: public, static
+    MaxStack: 3
+    MaxLocals: 2
+
+    bytecode {
+      iconst_0
+      dconst_1
+      dreturn
+    }
+  }
+
+  // Fail due to the absent stack map
+  method "test6" "()D" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      dconst_1
+      dreturn
+      dconst_1
+      dreturn
+    }
+  }
+
+  // Stack map is present - all good
+  method "test7" "()D" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      dconst_1
+      dreturn
+      :t
+      dconst_1
+      dreturn
+
+      stackmap {
+        t: same
+      }
     }
   }
 }

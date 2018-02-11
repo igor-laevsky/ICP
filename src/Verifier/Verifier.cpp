@@ -69,15 +69,11 @@ public:
 
   // Runs before visiting instruction.
   void runPreConditions(const Instruction &CurInstr) {
-    // No stack map - nothing to do.
-    if (StackMapIt == StackMap.end())
-      return;
-
     const auto cur_bci = Method.getBciForInst(CurInstr);
 
     // Must have stack map if after goto
     if (afterGoto) {
-      if (StackMapIt.getBci() != cur_bci)
+      if (StackMapIt == StackMap.end() || StackMapIt.getBci() != cur_bci)
         throwErr("Couldn't find stack map after goto");
 
       CurrentFrame = *StackMapIt;
@@ -85,6 +81,10 @@ public:
       afterGoto = false;
       return;
     }
+
+    // No stack map - nothing to do.
+    if (StackMapIt == StackMap.end())
+      return;
 
     // Don't have stack map for the current bci - nothing to do.
     if (StackMapIt.getBci() != cur_bci)
@@ -212,6 +212,7 @@ void MethodVerifier::visit(const java_return &) {
     throw VerificationError("Return type should be 'void'");
   if (CurrentFrame.flagThisUninit())
     throw VerificationError("Exiting <init> method before complete initialization");
+  afterGoto = true;
 }
 
 void MethodVerifier::visit(const iconst_val &) {
@@ -223,6 +224,7 @@ void MethodVerifier::visit(const ireturn &) {
     throw VerificationError("Return type should be integer");
 
   tryPop({Types::Int}, "Expected integer type to be on the stack");
+  afterGoto = true;
 }
 
 void MethodVerifier::visit(const dconst_val &) {
@@ -234,6 +236,7 @@ void MethodVerifier::visit(const dreturn &) {
     throw VerificationError("Return type should be double");
 
   tryPop({Types::Double}, "Expected double type to be on the stack");
+  afterGoto = true;
 }
 
 // Helper with common parts of the get and put static bytecodes

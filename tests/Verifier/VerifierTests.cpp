@@ -386,6 +386,14 @@ TEST_CASE("verifier dconst_dreturn", "[Verifier][dconst_dreturn]") {
   m = C->getMethod("test5");
   REQUIRE(m);
   REQUIRE_NOTHROW(verifyMethod(*m));
+
+  m = C->getMethod("test6");
+  REQUIRE(m);
+  REQUIRE_THROWS_AS(verifyMethod(*m), VerificationError);
+
+  m = C->getMethod("test7");
+  REQUIRE(m);
+  REQUIRE_NOTHROW(verifyMethod(*m));
 }
 
 
