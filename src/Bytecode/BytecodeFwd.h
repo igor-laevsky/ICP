@@ -21,47 +21,9 @@ class Instruction;
 template<class T> class NoIndex;
 template<class T> class SingleIndex;
 
-class aload;
-class aload_0;
-class invokespecial;
-class java_return;
-class iconst_m1;
-class iconst_0;
-class iconst_1;
-class iconst_2;
-class iconst_3;
-class iconst_4;
-class iconst_5;
-class iconst_val;
-class dconst_0;
-class dconst_1;
-class dconst_val;
-class ireturn;
-class dreturn;
-class putstatic;
-class getstatic;
-
-class if_icmp_op;
-class if_icmpeq;
-class if_icmpne;
-class if_icmplt;
-class if_icmpge;
-class if_icmpgt;
-class if_icmple;
-
-class iload_val;
-class iload;
-class iload_0;
-class iload_1;
-class iload_2;
-class iload_3;
-
-class istore_val;
-class istore;
-class istore_0;
-class istore_1;
-class istore_2;
-class istore_3;
+#define HANDLE_INSTR_ALL(ClassName) class ClassName;
+#define HANDLE_WRAPPER(ClassName) class ClassName;
+#include "Instructions.inc"
 
 }
 

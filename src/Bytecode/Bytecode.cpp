@@ -20,41 +20,8 @@ std::unique_ptr<Instruction> Bytecode::parseInstruction(
       return Instruction::create<OpType>(Bytecodes, It);
 
   switch (*It) {
-    PARSE_OP(aload);
-    PARSE_OP(aload_0);
-    PARSE_OP(invokespecial);
-    PARSE_OP(java_return);
-    PARSE_OP(ireturn);
-    PARSE_OP(dreturn);
-    PARSE_OP(iconst_m1);
-    PARSE_OP(iconst_0);
-    PARSE_OP(iconst_1);
-    PARSE_OP(iconst_2);
-    PARSE_OP(iconst_3);
-    PARSE_OP(iconst_4);
-    PARSE_OP(iconst_5);
-    PARSE_OP(putstatic);
-    PARSE_OP(getstatic);
-    PARSE_OP(dconst_0);
-    PARSE_OP(dconst_1);
-
-    PARSE_OP(if_icmpeq);
-    PARSE_OP(if_icmpne);
-    PARSE_OP(if_icmplt);
-    PARSE_OP(if_icmpge);
-    PARSE_OP(if_icmpgt);
-    PARSE_OP(if_icmple);
-
-    PARSE_OP(iload);
-    PARSE_OP(iload_0);
-    PARSE_OP(iload_1);
-    PARSE_OP(iload_2);
-    PARSE_OP(iload_3);
-    PARSE_OP(istore);
-    PARSE_OP(istore_0);
-    PARSE_OP(istore_1);
-    PARSE_OP(istore_2);
-    PARSE_OP(istore_3);
+#define HANDLE_INSTR_ALL(ClassName) PARSE_OP(ClassName)
+#include "Instructions.inc"
 
     default:
       throw UnknownBytecode();
@@ -83,41 +50,8 @@ std::unique_ptr<Instruction> Bytecode::parseFromString(
   if (OpCodeStr == OpType::Name) \
     return Instruction::create<OpType>(Idx);
 
-  PARSE_OP(aload);
-  PARSE_OP(aload_0);
-  PARSE_OP(invokespecial);
-  PARSE_OP(java_return);
-  PARSE_OP(ireturn);
-  PARSE_OP(dreturn);
-  PARSE_OP(iconst_m1);
-  PARSE_OP(iconst_0);
-  PARSE_OP(iconst_1);
-  PARSE_OP(iconst_2);
-  PARSE_OP(iconst_3);
-  PARSE_OP(iconst_4);
-  PARSE_OP(iconst_5);
-  PARSE_OP(putstatic);
-  PARSE_OP(getstatic);
-  PARSE_OP(dconst_0);
-  PARSE_OP(dconst_1);
-
-  PARSE_OP(if_icmpeq);
-  PARSE_OP(if_icmpne);
-  PARSE_OP(if_icmplt);
-  PARSE_OP(if_icmpge);
-  PARSE_OP(if_icmpgt);
-  PARSE_OP(if_icmple);
-
-  PARSE_OP(iload);
-  PARSE_OP(iload_0);
-  PARSE_OP(iload_1);
-  PARSE_OP(iload_2);
-  PARSE_OP(iload_3);
-  PARSE_OP(istore);
-  PARSE_OP(istore_0);
-  PARSE_OP(istore_1);
-  PARSE_OP(istore_2);
-  PARSE_OP(istore_3);
+#define HANDLE_INSTR_ALL(ClassName) PARSE_OP(ClassName)
+#include "Instructions.inc"
 
 #undef PARSE_OP
 

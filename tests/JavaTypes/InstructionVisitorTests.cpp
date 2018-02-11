@@ -45,15 +45,9 @@ public:
   void visit(const iconst_val &) override {
     seenIconstVal = true;
   }
-  void visit(const iconst_1 &) override {
-    seenIconst1 = true;
-  }
 
   void visit(const dconst_val &) override {
     seenDconstVal = true;
-  }
-  void visit(const dconst_0 &) override {
-    seenDconst0 = true;
   }
 
   bool seenEverything() const {

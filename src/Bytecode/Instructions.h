@@ -68,8 +68,7 @@ inline constexpr bool contains =
 // Utility class which wraps number of instructions with values encoded into
 // their opcodes and provides uniform access to them.
 template<class... Ts>
-class
-ValueInstWrapper {
+class ValueInstWrapper {
 public:
 
 public:
@@ -100,7 +99,7 @@ public:
   constexpr int8_t getVal() const { return Val; }
   constexpr const Instruction &getInst() const { return Inst; }
 
-private:
+protected:
   const Instruction &Inst;
   const int8_t Val = 0;
 };
@@ -328,12 +327,17 @@ public:
 
 class iload_val final:
     public ValueInstWrapper<iload, iload_0, iload_1, iload_2, iload_3> {
+public:
   using ValueInstWrapper::ValueInstWrapper;
+  iload_val(const iload &Inst): ValueInstWrapper(from_idx, Inst) {}
 };
 
 class istore_val final:
     public ValueInstWrapper<istore, istore_0, istore_1, istore_2, istore_3> {
+public:
+
   using ValueInstWrapper::ValueInstWrapper;
+  istore_val(const istore &Inst): ValueInstWrapper(from_idx, Inst) {}
 };
 
 }

@@ -261,7 +261,6 @@ private:
 // Parses stack map table and saves it into the 'Params' structure.
 // \throws ReadError or FormatError.
 static StackMapTableBuilder parseStackMapTable(std::istream &Input) {
-
   const uint16_t number_of_entries = BigEndianReading::readHalf(Input);
 
   StackMapTableBuilder Ret;
@@ -269,7 +268,7 @@ static StackMapTableBuilder parseStackMapTable(std::istream &Input) {
   auto cur_bci = static_cast<Bytecode::BciType>(-1);
 
   for (int i = 0; i < number_of_entries; ++i) {
-    uint8_t frame_type = BigEndianReading::readByte(Input);
+    const uint8_t frame_type = BigEndianReading::readByte(Input);
 
     if (frame_type <= 63) {
       cur_bci += frame_type + 1;
