@@ -28,6 +28,16 @@ uint64_t readDoubleWord(std::istream &Input);
 
 }
 
+template<class T, class X = std::enable_if_t<std::is_integral_v<T>>>
+constexpr bool is8bit(T Val) {
+  return (Val & 0xFF) == Val;
+};
+
+template<class T, class X = std::enable_if_t<std::is_integral_v<T>>>
+constexpr bool is16bit(T Val) {
+  return (Val & 0xFFFF) == Val;
+};
+
 }
 
 #endif //ICP_BINARYFILES_H

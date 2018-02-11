@@ -396,3 +396,7 @@ TEST_CASE("verifier if_icmp", "[Verifier][if_icmp]") {
 TEST_CASE("verifier iload istore", "[Verifier][iload_istore]") {
   runAutoTest("iload_istore.cd");
 }
+
+TEST_CASE("verifier iiinc", "[Verifier][iinc]") {
+  runAutoTest("iinc.cd");
+}

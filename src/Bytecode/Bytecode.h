@@ -145,7 +145,7 @@ std::unique_ptr<Instruction> Instruction::create(IdxType Arg1/* = 0*/) {
   }
   else if constexpr (InstructionType::Length == 3) {
     Bytecode = {InstructionType::OpCode,
-                static_cast<uint8_t>(Arg1 & 0xFF00),
+                static_cast<uint8_t>((Arg1 & 0xFF00) >> 8),
                 static_cast<uint8_t>(Arg1 & 0x00FF)};
   }
   else {

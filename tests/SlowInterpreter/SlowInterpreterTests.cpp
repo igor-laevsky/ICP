@@ -26,7 +26,7 @@ static ResT testWithMethod(
   assert(Method != nullptr);
 
 #ifndef NDEBUG
-  //Verifier::verifyMethod(*Method);
+  Verifier::verifyMethod(*Method);
 #endif
 
   auto Res = SlowInterpreter::interpret(*Method, InputArgs);
@@ -35,12 +35,13 @@ static ResT testWithMethod(
 
 template<class ResT>
 static bool runAutoTest(
-    const std::string &FileName, const std::vector<Value> &InputArgs) {
+    const std::string &FileName, const std::vector<Value> &InputArgs,
+    bool Debug = false) {
 
   auto Class = CD::parseFromFile("tests/SlowInterpreter/" + FileName);
 
   for (const auto &method: Class->methods()) {
-    ResT res = SlowInterpreter::interpret(*method, InputArgs).getAs<ResT>();
+    ResT res = SlowInterpreter::interpret(*method, InputArgs, Debug).getAs<ResT>();
     if (res != 0) {
       std::cerr << "Wrong interpreter result: " << res <<
                    " for " << method->getName() << "\n";
@@ -110,11 +111,16 @@ TEST_CASE("interpret get put static", "[SlowInterpreter]") {
   getClassManager().reset();
 }
 
-TEST_CASE("interpret comparisons", "[SlowInterpreter]") {
-  runAutoTest<Runtime::JavaInt>("ifcmp.cd", {});
+TEST_CASE("interpret comparisons", "[SlowInterpreter][comparisons]") {
+  REQUIRE(runAutoTest<Runtime::JavaInt>("ifcmp.cd", {}));
 }
 
-TEST_CASE("interpret iload istore", "[SlowInterpreter]") {
-  runAutoTest<Runtime::JavaInt>("iload_istore.cd",
-      {Value::create<JavaInt>(5), Value::create<JavaInt>(0)});
+TEST_CASE("interpret iload istore", "[SlowInterpreter][iload_istore]") {
+  REQUIRE(runAutoTest<Runtime::JavaInt>("iload_istore.cd",
+      {Value::create<JavaInt>(5), Value::create<JavaInt>(0)}));
+}
+
+TEST_CASE("interpret iinc", "[SlowInterpreter][iinc]") {
+  REQUIRE(runAutoTest<Runtime::JavaInt>("iinc.cd",
+      {Value::create<JavaInt>(-5), Value::create<JavaInt>(-12)}));
 }

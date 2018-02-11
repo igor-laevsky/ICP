@@ -18,6 +18,7 @@
 #include "JavaTypes/ConstantPool.h"
 #include "JavaTypes/ConstantPoolRecords.h"
 #include "JavaTypes/JavaField.h"
+#include "Utils/BinaryFiles.h"
 
 using namespace std::string_view_literals;
 using namespace std::string_literals;
@@ -35,13 +36,38 @@ static const Token &consumeOrThrow(const Token &Tok, Lexer &Lex) {
   return *Res;
 }
 
-// Helper function. Parses #<number> or returns nothing.
+// Helper function. Index can be in a form of either #<number>
+// or #[first_byte second_byte]. Returns nothing on error.
 static std::optional<ConstantPool::IndexType> tryParseCPIndex(Lexer &Lex) {
   if (!Lex.consume(Token::Sharp))
     return std::nullopt;
 
-  const auto &Res = consumeOrThrow(Token::Num(), Lex);
-  return static_cast<ConstantPool::IndexType>(std::stoi(Res.getData()));
+  // Unlikely this will ever change, assert to be certain.
+  static_assert(sizeof(ConstantPool::IndexType) == 2, "invariant");
+
+  // It's #[<first_byte> <second_byte>] form
+  if (Lex.consume(Token::LSBrace)) {
+    const auto &first_byte_tok = consumeOrThrow(Token::Num(), Lex);
+    const auto &second_byte_tok = consumeOrThrow(Token::Num(), Lex);
+    consumeOrThrow(Token::RSBrace, Lex);
+
+    auto first_byte = std::stoi(first_byte_tok.getData());
+    auto second_byte = std::stoi(second_byte_tok.getData());
+
+    if (!Utils::is8bit(first_byte) || !Utils::is8bit(second_byte))
+      throw ParserError("Compound indexes should fit into single byte");
+
+    return (static_cast<uint8_t>(first_byte) << 8) |
+           (static_cast<uint8_t>(second_byte));
+  }
+
+  // It's #<number form
+  const auto &res_tok = consumeOrThrow(Token::Num(), Lex);
+  auto res = std::stoi(res_tok.getData());
+
+  if (!Utils::is16bit(res))
+    throw ParserError("Index must fir into 16 bits");
+  return static_cast<ConstantPool::IndexType>(res);
 }
 
 // Helper function. Parses CP index or throws ParserError.

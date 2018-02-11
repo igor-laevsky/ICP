@@ -19,16 +19,16 @@ namespace {
 // This visitor is intended to be called on all instructions of the method
 // in order of their appearance. Caller is responsible to supply
 // correct stack frames when necessary.
-class MethodVerifier final: public InstructionVisitor {
+class MethodVerifier final : public InstructionVisitor {
 public:
-  explicit MethodVerifier(const JavaMethod &Method):
+  explicit MethodVerifier(const JavaMethod &Method) :
       Method(Method),
       CP(Method.getOwner().getConstantPool()) {
 
     // Set up initial frame
     std::vector<Type> LocalTypes;
     std::tie(ReturnType, LocalTypes) =
-      Type::parseMethodDescriptor(Method.getDescriptor());
+        Type::parseMethodDescriptor(Method.getDescriptor());
 
     // Add 'this' argument type
     if (!(Method.getAccessFlags() & JavaMethod::AccessFlags::ACC_STATIC)) {
@@ -52,20 +52,32 @@ public:
   }
 
   void visit(const aload_0 &) override;
+
   void visit(const aload &Inst) override;
+
   void visit(const invokespecial &Inst) override;
+
   void visit(const java_return &) override;
+
   void visit(const iconst_val &) override;
+
   void visit(const ireturn &) override;
+
   void visit(const dreturn &) override;
+
   void visit(const putstatic &) override;
+
   void visit(const getstatic &) override;
+
   void visit(const dconst_val &) override;
 
   void visit(const if_icmp_op &) override;
 
   void visit(const iload_val &) override;
+
   void visit(const istore_val &) override;
+
+  void visit(const iinc &) override;
 
   // Runs before visiting instruction.
   void runPreConditions(const Instruction &CurInstr) {
@@ -96,24 +108,24 @@ public:
 private:
   // Load type 'T' from the loacal variable Idx
   void loadFromLocal(uint32_t Idx, Type ToT) {
-    if (Idx >= CurrentFrame.numLocals())
-      throwErr("Unable to load local variable at index " + std::to_string(Idx));
+    checkLocalIdx(Idx);
 
     Type FromType = CurrentFrame.getLocal(Idx);
     if (!Types::isAssignable(FromType, ToT))
-      throwErr("Local variable has incompatible load type at index " + std::to_string(Idx));
+      throwErr("Local variable has incompatible load type at index " +
+               std::to_string(Idx));
 
     CurrentFrame.pushList({FromType});
   }
 
   // Store type 'T' into local variable Idx
   void storeToLocal(uint32_t Idx, Type FromT) {
-    if (Idx >= CurrentFrame.numLocals())
-      throwErr("Unable to store local variable at index " + std::to_string(Idx));
+    checkLocalIdx(Idx);
 
     Type ToT = CurrentFrame.getLocal(Idx);
     if (!Types::isAssignable(FromT, ToT))
-      throwErr("Local variable has incompatible store type at index " + std::to_string(Idx));
+      throwErr("Local variable has incompatible store type at index " +
+               std::to_string(Idx));
 
     CurrentFrame.setLocal(Idx, FromT);
   }
@@ -132,16 +144,25 @@ private:
       throwErr(ErrMsg);
   }
 
+  // Checks if we can access given local and throws if not
+  void checkLocalIdx(Bytecode::IdxType Idx) {
+    if (Idx >= CurrentFrame.numLocals())
+      throwErr("Incorrect local variable index " + std::to_string(Idx));
+  }
+
 private:
   const JavaMethod &Method;
   const ConstantPool &CP;
 
-  StackFrame CurrentFrame{{}, {}};
+  StackFrame CurrentFrame{{},
+                          {}};
   Type ReturnType = Types::Top;
 
   StackMapTable StackMap;
   StackMapTable::Iterator StackMapIt;
 };
+
+}
 
 void MethodVerifier::visit(const aload_0 &) {
   loadFromLocal(0, Types::Reference);
@@ -264,6 +285,11 @@ void MethodVerifier::visit(const istore_val &Inst) {
   storeToLocal(Inst.getVal(), Types::Int);
 }
 
+void MethodVerifier::visit(const iinc &Inst) {
+  checkLocalIdx(Inst.getIdx());
+
+  if (CurrentFrame.getLocal(Inst.getIdx()) != Types::Int)
+    throwErr("iinc can only increment integer types");
 }
 
 void Verifier::verifyMethod(const JavaMethod &Method) {

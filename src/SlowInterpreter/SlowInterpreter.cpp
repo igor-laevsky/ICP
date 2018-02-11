@@ -235,6 +235,8 @@ public:
   void visit(const iload_val &) override;
   void visit(const istore_val &) override;
 
+  void visit(const iinc &) override;
+
 private:
   InterpreterStack &stack() { return Stack; }
   const InterpreterStack &stack() const { return Stack; }
@@ -385,6 +387,10 @@ void Interpreter::visit(const iload_val &Inst) {
   curFrame().push(curFrame().getLocal(Inst.getVal()));
 }
 
+void Interpreter::visit(const iinc &Inst) {
+  const auto cur_val = curFrame().getLocal<JavaInt>(Inst.getIdx());
+  curFrame().setLocal<JavaInt>(Inst.getIdx(), cur_val + Inst.getConst());
+}
 
 Value SlowInterpreter::interpret(
     const JavaTypes::JavaMethod &Method,

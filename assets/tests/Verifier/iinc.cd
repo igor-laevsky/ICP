@@ -1,0 +1,81 @@
+class {
+  constant_pool {
+    1: ClassInfo "Iinc"
+    2: ClassInfo "java/lang/Object"
+
+    auto: "ok"
+    auto: "ok2"
+    auto: "ok3"
+    auto: "wrong"
+    auto: "wrong2"
+    auto: "(II)I"
+    auto: "(I)I"
+  }
+
+  Name: #1
+  Super: #2
+
+  method "ok" "(II)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iinc #[0 5]
+      iload #0
+      ireturn
+    }
+  }
+
+  method "ok2" "(II)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iinc #[1 5]
+      iload #1
+      ireturn
+    }
+  }
+
+  method "ok3" "(II)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iconst_3
+      istore #5
+
+      iinc #[5 30]
+      iload #5
+
+      ireturn
+    }
+  }
+
+  method "wrong" "(II)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iinc #[5 30]
+      iload #5
+      ireturn
+    }
+  }
+
+  method "wrong2" "(I)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iinc #[1 5]
+      iload #0
+      ireturn
+    }
+  }
+}

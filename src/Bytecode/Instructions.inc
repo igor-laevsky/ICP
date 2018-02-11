@@ -61,6 +61,8 @@ HANDLE_INSTR_WRAPPED(istore_0)
 HANDLE_INSTR_WRAPPED(istore_1)
 HANDLE_INSTR_WRAPPED(istore_2)
 HANDLE_INSTR_WRAPPED(istore_3)
+
+HANDLE_INSTR(iinc)
              
 HANDLE_WRAPPER(if_icmp_op)
 HANDLE_WRAPPER(iconst_val)

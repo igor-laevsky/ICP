@@ -335,10 +335,40 @@ public:
 class istore_val final:
     public ValueInstWrapper<istore, istore_0, istore_1, istore_2, istore_3> {
 public:
-
   using ValueInstWrapper::ValueInstWrapper;
   istore_val(const istore &Inst): ValueInstWrapper(from_idx, Inst) {}
 };
+
+class iinc: public VisitableInstruction<iinc> {
+public:
+  static constexpr uint8_t Length = 3;
+  static constexpr uint8_t OpCode = 0x84;
+  static constexpr const char *Name = "iinc";
+
+public:
+  uint8_t getIdx() const { return Idx; }
+  int8_t getConst() const { return Const; }
+
+  void print(std::ostream &Out) const override {
+    Out << iinc::Name << " #" << std::to_string(getIdx()) <<  " #" <<
+        std::to_string(getConst()) << "\n";
+  }
+
+private:
+  explicit iinc(ContainerIterator It):
+      Idx(*(It + 1)),
+      Const(*(It + 2)) {
+    ;
+  }
+
+  // Allow calling constructor from the Instruction::create functions
+  friend class Instruction;
+
+private:
+  const uint8_t Idx;
+  const int8_t Const;
+};
+
 
 }
 
