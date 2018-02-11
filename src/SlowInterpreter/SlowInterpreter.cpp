@@ -238,6 +238,7 @@ public:
   void visit(const iinc &) override;
 
   void visit(const java_goto &) override;
+  void visit(const iadd &) override;
 
 private:
   InterpreterStack &stack() { return Stack; }
@@ -396,6 +397,15 @@ void Interpreter::visit(const iinc &Inst) {
 void Interpreter::visit(const java_goto &Inst) {
   jumpToBciOffset(Inst.getIdx());
 }
+
+void Interpreter::visit(const iadd &) {
+  const auto val1 = curFrame().pop<JavaInt>();
+  const auto val2 = curFrame().pop<JavaInt>();
+
+  curFrame().push<JavaInt>(val1 + val2);
+}
+
+
 
 Value SlowInterpreter::interpret(
     const JavaTypes::JavaMethod &Method,

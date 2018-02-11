@@ -1,0 +1,40 @@
+class {
+  constant_pool {
+    1: ClassInfo "Iadd"
+    2: ClassInfo "java/lang/Object"
+
+    auto: "test1"
+    auto: "test2"
+    auto: "test3"
+    auto: "(II)I"
+  }
+
+  Name: #1
+  Super: #2
+
+  method "test1" "(II)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iload #0
+      iload #1
+      iadd
+      ireturn
+    }
+  }
+
+  method "test2" "(II)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iconst_5
+      iload_0
+      iadd
+      ireturn
+    }
+  }
+}

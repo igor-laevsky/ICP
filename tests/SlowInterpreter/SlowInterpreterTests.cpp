@@ -129,3 +129,8 @@ TEST_CASE("interpret goto", "[SlowInterpreter][goto]") {
   REQUIRE(runAutoTest<Runtime::JavaInt>("goto.cd",
       {Value::create<JavaInt>(-5), Value::create<JavaInt>(-12)}));
 }
+
+TEST_CASE("interpret iadd", "[SlowInterpreter][iadd]") {
+  REQUIRE(runAutoTest<Runtime::JavaInt>("iadd.cd",
+      {Value::create<JavaInt>(-5), Value::create<JavaInt>(5)}));
+}

@@ -377,6 +377,14 @@ private:
   const int8_t Const;
 };
 
+class iadd final: public NoIndex<iadd> {
+  using NoIndex::NoIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0x60;
+  static constexpr const char *Name = "iadd";
+};
+
 
 }
 

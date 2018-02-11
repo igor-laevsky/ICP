@@ -66,6 +66,7 @@ public:
   void visit(const istore_val &) override;
   void visit(const iinc &) override;
   void visit(const java_goto &) override;
+  void visit(const iadd &) override;
 
   // Runs before visiting instruction.
   void runPreConditions(const Instruction &CurInstr) {
@@ -102,6 +103,11 @@ public:
     if (CurrentFrame.numStack() > Method.getMaxStack())
       throwErr("Exceeded maximum stack size");
   };
+
+  void tryTypeTransition(const std::vector<Type> &ToPop, Type ToPush) {
+    if (!CurrentFrame.doTypeTransition(ToPop, ToPush))
+      throwErr("Incorrect type transition");
+  }
 
 private:
   // Load type 'T' from the loacal variable Idx.
@@ -302,6 +308,12 @@ void MethodVerifier::visit(const java_goto &Inst) {
   // Reset frame to avoid unfortunate accidents
   CurrentFrame = StackFrame({}, {});
 }
+
+void MethodVerifier::visit(const iadd &) {
+  tryTypeTransition({Types::Int, Types::Int}, Types::Int);
+}
+
+
 
 void Verifier::verifyMethod(const JavaMethod &Method) {
   // TODO: Add method level verification
