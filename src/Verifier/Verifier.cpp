@@ -305,7 +305,7 @@ void MethodVerifier::visit(const iinc &Inst) {
 }
 
 void MethodVerifier::visit(const java_goto &Inst) {
-  targetIsTypeSafe(Method.getBciForInst(Inst) + static_cast<int16_t>(Inst.getIdx()));
+  targetIsTypeSafe(Method.getBciForInst(Inst) + Inst.getIdx());
   afterGoto = true;
   // Reset frame to avoid unfortunate accidents
   CurrentFrame = StackFrame({}, {});

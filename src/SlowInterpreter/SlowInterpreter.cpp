@@ -48,8 +48,8 @@ public:
 
   const Instruction &getCurInstr() const { return *CurInstr; }
 
-  void jumpToBciOffset(BciType Offset) {
-    const BciType new_bci = Method.getBciForInst(getCurInstr()) + static_cast<int16_t>(Offset);
+  void jumpToBciOffset(BciOffsetType Offset) {
+    const BciType new_bci = Method.getBciForInst(getCurInstr()) + Offset;
     CurInstr = Method.getCodeIterAtBci(new_bci);
     assert(CurInstr != Method.end());
   }
@@ -255,7 +255,7 @@ private:
   void returnFromFunction(bool DoPop);
 
   // Schedules bci jump which is performed in the 'runSingleInstr' method.
-  void jumpToBciOffset(BciType Offset) { NextOffset = Offset; }
+  void jumpToBciOffset(BciOffsetType Offset) { NextOffset = Offset; }
 
 private:
   InterpreterStack Stack;
@@ -263,7 +263,7 @@ private:
 
   // Bci offset of the next instruction to execute.
   // Empty means jump to the next instruction.
-  std::optional<BciType> NextOffset;
+  std::optional<BciOffsetType> NextOffset;
 };
 
 }
@@ -401,6 +401,7 @@ void Interpreter::visit(const iadd &) {
   const auto val1 = curFrame().pop<JavaInt>();
   const auto val2 = curFrame().pop<JavaInt>();
 
+  // TODO: Should properly handle overflow
   curFrame().push<JavaInt>(val1 + val2);
 }
 

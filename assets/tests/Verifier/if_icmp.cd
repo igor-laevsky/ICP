@@ -15,6 +15,7 @@ class {
     auto: "ok"
     auto: "ok_explicit"
     auto: "ok_complex_stackmap"
+    auto: "ok_neg_offset"
     auto: "wrong_stackmap"
     auto: "wrong_cond_type"
     auto: "wrong_no_cond_on_stack"
@@ -100,6 +101,38 @@ class {
       :five
         getstatic #6 // Field a:I
       :six
+        ireturn
+
+      stackmap {
+        five: ["[Ljava/lang/String;"] ["I" "[Ljava/lang/String;" "D" "I"]
+        six: ["[Ljava/lang/String;"] ["I" "[Ljava/lang/String;" "D" "I" "I"]
+      }
+    }
+  }
+
+  // Negative offsets are handled correctly
+  method "ok_neg_offset" "([Ljava/lang/String;)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iconst_1
+      aload_0
+      dconst_0
+      iconst_2
+
+      :five
+        getstatic #6 // Field a:I
+      :six
+        getstatic #5 // Field c:I
+      putstatic #5
+      putstatic #6
+
+      getstatic #5 // Field c:I
+      iconst_5
+      if_icmpeq @five
+        getstatic #7 // Field b:I
         ireturn
 
       stackmap {

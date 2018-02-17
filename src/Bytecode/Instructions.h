@@ -32,13 +32,13 @@ private:
 
 // Utility class for three byte instructions. First byte is opcode,
 // second two represent constant pool index.
-template<class ConcreteType>
+template<class ConcreteType, class T = IdxType>
 class SingleIndex: public VisitableInstruction<ConcreteType> {
 public:
   static constexpr uint8_t Length = 3;
 
 public:
-  auto getIdx() const {
+  T getIdx() const {
     return Idx;
   }
 
@@ -56,8 +56,27 @@ private:
   friend class Instruction;
 
 private:
-  const IdxType Idx;
+  static_assert(sizeof(T) == 2, "other sizes are not supported");
+  const T Idx;
 };
+
+// Same as SingleIndex but has signed index type.
+template<class ConcreteType>
+using OffsetIndex = SingleIndex<ConcreteType, BciOffsetType>;
+
+// Determine index type of the given instruction. We can have different index
+// types - signed, unsigend, wide. Results in a substitution failure if at least
+// one of the instructions is not indexed.
+template<class... Ts>
+using InstrIdxType = std::common_type_t<
+    std::result_of_t<decltype(&Ts::getIdx)(Ts)>...>;
+
+// Determine value type of the given instruction. Substitution failure if at
+// least one of the instructions is not indexed.
+template<class... Ts>
+using InstrValType = std::common_type_t<decltype(Ts::Val)...>;
+
+
 
 // Better move this into utility module but so far it's the only place
 // where it's needed.
@@ -67,14 +86,18 @@ inline constexpr bool contains =
 
 // Utility class which wraps number of instructions with values encoded into
 // their opcodes and provides uniform access to them.
-template<class... Ts>
-class ValueInstWrapper {
-public:
+template<class... Ts> class ValueInstWrapper {
+private:
+  using ThisValType = InstrValType<Ts...>;
 
 public:
   template<
       class InstT,
-      class X = std::enable_if_t<contains<InstT, Ts...>>>
+      // Check that we declared this instruction.
+      class X = std::enable_if_t<contains<InstT, Ts...>>,
+      // Check that instruction has the expected value type.
+      class Y = std::enable_if_t<
+          std::is_same_v<InstrValType<InstT>, ThisValType>>>
   constexpr ValueInstWrapper(const InstT& Inst) noexcept:
       Inst(Inst),
       Val(InstT::Val) {
@@ -89,25 +112,30 @@ public:
 
   template<
       class InstT,
-      class X = std::enable_if_t<contains<InstT, Ts...>>>
+      // Check that index of this instruction has the same type as values of
+      // all the other instructions.
+      class Y = std::enable_if_t<std::is_same_v<InstrIdxType<InstT>, ThisValType>>>
   constexpr ValueInstWrapper(from_idx_t, const InstT& Inst) noexcept:
       Inst(Inst),
       Val(Inst.getIdx()) {
     ;
   }
 
-  constexpr int8_t getVal() const { return Val; }
+  constexpr ThisValType getVal() const { return Val; }
   constexpr const Instruction &getInst() const { return Inst; }
 
 protected:
   const Instruction &Inst;
-  const int8_t Val = 0;
+  const ThisValType Val = 0;
 };
 
 // Extension of the ValueInstWrapper. Additionally provides access to the
 // instruction index. Only possible to use with SingleIndex instructions.
 template<class... Ts>
 class ValueIdxWrapper: public ValueInstWrapper<Ts...> {
+private:
+  using ThisIdxType = InstrIdxType<Ts...>;
+
 public:
   template<
       class InstT,
@@ -118,10 +146,10 @@ public:
     ;
   }
 
-  IdxType getIdx() const { return Idx; }
+  ThisIdxType getIdx() const { return Idx; }
 
 private:
-  const IdxType Idx;
+  const ThisIdxType Idx;
 };
 
 
@@ -165,7 +193,7 @@ class iconst_##Num final: public NoIndex<iconst_##Num> { \
 public:\
   static constexpr uint8_t OpCode = OpCodeVal;\
   static constexpr const char *Name = "iconst_"#Num;\
-  static constexpr uint8_t Val = Value;\
+  static constexpr int8_t Val = Value;\
 }
 
 DEF_ICONST(m1, -1, 0x02);
@@ -252,7 +280,7 @@ enum ComparisonOp: uint8_t {
 };
 
 #define IF_ICMP(Suffix, OpCodeNum, OpCodeName) \
-class if_icmp##Suffix: public SingleIndex<if_icmp##Suffix> { \
+class if_icmp##Suffix: public OffsetIndex<if_icmp##Suffix> { \
   using SingleIndex::SingleIndex; \
 \
 public:\
@@ -277,7 +305,7 @@ class if_icmp_op:
   using ValueIdxWrapper::ValueIdxWrapper;
 };
 
-class java_goto final: public SingleIndex<java_goto> {
+class java_goto final: public OffsetIndex<java_goto> {
   using SingleIndex::SingleIndex;
 
 public:
@@ -296,7 +324,7 @@ class iload_##Value final: public NoIndex<iload_##Value> { \
 public:\
   static constexpr uint8_t OpCode = OpCodeVal;\
   static constexpr const char *Name = "iload_"#Value;\
-  static constexpr uint8_t Val = Value;\
+  static constexpr IdxType Val = Value;\
 }
 
 #define DEF_ISTORE(Value, OpCodeVal) \
@@ -306,7 +334,7 @@ class istore_##Value final: public NoIndex<istore_##Value> { \
 public:\
   static constexpr uint8_t OpCode = OpCodeVal;\
   static constexpr const char *Name = "istore_"#Value;\
-  static constexpr uint8_t Val = Value;\
+  static constexpr IdxType Val = Value;\
 }
 
 DEF_ILOAD(0, 0x1a); DEF_ISTORE(0, 0x3b);
@@ -334,14 +362,14 @@ public:
 };
 
 class iload_val final:
-    public ValueInstWrapper<iload, iload_0, iload_1, iload_2, iload_3> {
+    public ValueInstWrapper<iload_0, iload_1, iload_2, iload_3> {
 public:
   using ValueInstWrapper::ValueInstWrapper;
   iload_val(const iload &Inst): ValueInstWrapper(from_idx, Inst) {}
 };
 
 class istore_val final:
-    public ValueInstWrapper<istore, istore_0, istore_1, istore_2, istore_3> {
+    public ValueInstWrapper<istore_0, istore_1, istore_2, istore_3> {
 public:
   using ValueInstWrapper::ValueInstWrapper;
   istore_val(const istore &Inst): ValueInstWrapper(from_idx, Inst) {}
