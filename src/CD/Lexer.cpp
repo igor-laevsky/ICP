@@ -51,6 +51,44 @@ Token Token::Id(std::string Data) {
   return Token(ID, std::move(Data));
 }
 
+// Trims spaces and comments from the beginning of the string. Stops at the new
+// line. Hand rolled solution is much faster than the regexp based one.
+static std::string trimSpacesAndComments(const std::string &Input) {
+  std::size_t new_start = 0;
+  bool in_comment = false;
+
+  while (new_start < Input.size()) {
+    // Check new line
+    if (Input.substr(new_start, std::string::npos) == "\r\n") {
+      new_start += 2;
+      break;
+    }
+    if (Input[new_start] == '\n' || Input[new_start] == '\r') {
+      ++new_start;
+      break;
+    }
+
+    // Skip comments
+    if (Input.substr(new_start, 2) == "//") {
+      in_comment = true;
+    }
+    if (in_comment) {
+      ++new_start;
+      continue;
+    }
+
+    // Skip whitespaces
+    if (std::isblank(Input[new_start])) {
+      ++new_start;
+      continue;
+    }
+
+    // Nothing to skip
+    break;
+  }
+  return Input.substr(new_start, std::string::npos);
+}
+
 Lexer::Lexer(std::string &&Input) {
   // Merge all patterns into single regular expression in the form of
   // "^(token1)|(token2)|..."
@@ -72,19 +110,12 @@ Lexer::Lexer(std::string &&Input) {
     std::smatch Matches;
 
     // Count new lines.
-    // This is probably slow but whatever.
     auto old_len = Input.length();
-    Input = std::regex_replace(Input, NewLine, "");
+    Input = trimSpacesAndComments(Input);
     if (old_len != Input.length()) {
       cur_line++;
       continue;
     }
-
-    // Skip whitespaces and comments
-    old_len = Input.length();
-    Input = std::regex_replace(Input, Spaces, "");
-    if (old_len != Input.length())
-      continue;
 
     // Parse token
     std::regex_search(Input, Matches, Pattern,
