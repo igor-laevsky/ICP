@@ -68,13 +68,13 @@ using OffsetIndex = SingleIndex<ConcreteType, BciOffsetType>;
 // types - signed, unsigend, wide. Results in a substitution failure if at least
 // one of the instructions is not indexed.
 template<class... Ts>
-using InstrIdxType = std::common_type_t<
+using InstIdxType = std::common_type_t<
     std::result_of_t<decltype(&Ts::getIdx)(Ts)>...>;
 
 // Determine value type of the given instruction. Substitution failure if at
 // least one of the instructions is not indexed.
 template<class... Ts>
-using InstrValType = std::common_type_t<decltype(Ts::Val)...>;
+using InstValType = std::common_type_t<decltype(Ts::Val)...>;
 
 
 
@@ -84,11 +84,12 @@ template<class Arg, class... Args>
 inline constexpr bool contains =
   std::disjunction<std::is_same<Arg, Args>...>::value;
 
-// Utility class which wraps number of instructions with values encoded into
-// their opcodes and provides uniform access to them.
+// Wraps number of instruction with values. It is used to simplify instruction
+// visitor which can now accept a single wrapper instead of a set of almost
+// identical instructions.
 template<class... Ts> class ValueInstWrapper {
 private:
-  using ThisValType = InstrValType<Ts...>;
+  using ThisValType = InstValType<Ts...>;
 
 public:
   template<
@@ -97,14 +98,15 @@ public:
       class X = std::enable_if_t<contains<InstT, Ts...>>,
       // Check that instruction has the expected value type.
       class Y = std::enable_if_t<
-          std::is_same_v<InstrValType<InstT>, ThisValType>>>
+          std::is_same_v<InstValType<InstT>, ThisValType>>>
   constexpr ValueInstWrapper(const InstT& Inst) noexcept:
       Inst(Inst),
       Val(InstT::Val) {
     ;
   }
 
-  // Get this instruction's value from it's index
+  // Get this instruction's value from it's index. This is used to uniformly
+  // handle such instructions as 'aload' and 'aload_n'.
   struct from_idx_t {
     explicit from_idx_t() = default;
   };
@@ -114,7 +116,7 @@ public:
       class InstT,
       // Check that index of this instruction has the same type as values of
       // all the other instructions.
-      class Y = std::enable_if_t<std::is_same_v<InstrIdxType<InstT>, ThisValType>>>
+      class Y = std::enable_if_t<std::is_same_v<InstIdxType<InstT>, ThisValType>>>
   constexpr ValueInstWrapper(from_idx_t, const InstT& Inst) noexcept:
       Inst(Inst),
       Val(Inst.getIdx()) {
@@ -129,19 +131,18 @@ protected:
   const ThisValType Val = 0;
 };
 
-// Extension of the ValueInstWrapper. Additionally provides access to the
-// instruction index. Only possible to use with SingleIndex instructions.
+// Wraps number of indexed instructions and provides uniform access to their
+// index. Mainly needed for the 'ValueIdxWrapper'.
 template<class... Ts>
-class ValueIdxWrapper: public ValueInstWrapper<Ts...> {
+class IdxInstWrapper {
 private:
-  using ThisIdxType = InstrIdxType<Ts...>;
+  using ThisIdxType = InstIdxType<Ts...>;
 
 public:
   template<
       class InstT,
       class X = std::enable_if_t<contains<InstT, Ts...>>>
-  constexpr ValueIdxWrapper(const InstT &Inst):
-      ValueInstWrapper<Ts...>(Inst),
+  constexpr IdxInstWrapper(const InstT &Inst):
       Idx(Inst.getIdx()) {
     ;
   }
@@ -151,6 +152,22 @@ public:
 private:
   const ThisIdxType Idx;
 };
+
+// Wraps instructions which are both indexed and have values. Main motivation is
+// to provide access to the instruction indexes while keeping them wrapped into
+// value wrapper.
+template<class... Ts>
+class ValueIdxWrapper:
+    public ValueInstWrapper<Ts...>, public IdxInstWrapper<Ts...> {
+public:
+  template<class InstT, class X = std::enable_if_t<contains<InstT, Ts...>>>
+  ValueIdxWrapper(const InstT &Inst):
+      ValueInstWrapper<Ts...>(Inst),
+      IdxInstWrapper<Ts...>(Inst) {
+    ;
+  }
+};
+
 
 
 
