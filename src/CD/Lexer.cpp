@@ -51,15 +51,16 @@ Token Token::Id(std::string Data) {
   return Token(ID, std::move(Data));
 }
 
-// Trims spaces and comments from the beginning of the string. Stops at the new
-// line. Hand rolled solution is much faster than the regexp based one.
+// Trims spaces and comments from the beginning of the string. Stops at the next
+// character after the first new line. Hand rolled solution is much faster than
+// the regexp based one.
 static std::string trimSpacesAndComments(const std::string &Input) {
   std::size_t new_start = 0;
   bool in_comment = false;
 
   while (new_start < Input.size()) {
     // Check new line
-    if (Input.substr(new_start, std::string::npos) == "\r\n") {
+    if (Input.substr(new_start, 2) == "\r\n") {
       new_start += 2;
       break;
     }
@@ -69,11 +70,13 @@ static std::string trimSpacesAndComments(const std::string &Input) {
     }
 
     // Skip comments
-    if (Input.substr(new_start, 2) == "//") {
-      in_comment = true;
-    }
     if (in_comment) {
       ++new_start;
+      continue;
+    }
+    if (Input.substr(new_start, 2) == "//") {
+      in_comment = true;
+      new_start += 2;
       continue;
     }
 
@@ -109,7 +112,7 @@ Lexer::Lexer(std::string &&Input) {
   while (!Input.empty()) {
     std::smatch Matches;
 
-    // Count new lines.
+    // Skip spaces while counting new lines
     auto old_len = Input.length();
     Input = trimSpacesAndComments(Input);
     if (old_len != Input.length()) {

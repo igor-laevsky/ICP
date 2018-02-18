@@ -10,6 +10,15 @@
 
 namespace Utils {
 
+// Determine if the given iterator is constant or not.
+// Infers this information from the return type of the 'operator*'
+template<typename T>
+inline constexpr bool IsConstIter =
+    std::is_const_v<
+        std::remove_reference_t<
+            decltype(*std::declval<T>())>>;
+
+
 // This class wraps around random access iterator for the container with smart
 // pointers and unwraps each element using .get() function.
 // For example:
@@ -35,6 +44,7 @@ public:
 
   reference operator*() const {
     assert(It->get() != nullptr);
+    // assume that get is a smart pointer method
     return *It->get();
   }
   pointer operator->() const {

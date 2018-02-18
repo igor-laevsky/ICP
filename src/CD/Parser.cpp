@@ -384,7 +384,7 @@ static void parseBytecode(
 
       // Index is an offset from the current bci
       int64_t offset = static_cast<int64_t>(Label2Bci[InstInfo.Label]) - cur_bci;
-      auto trunc_offset = static_cast<int16_t>(offset);
+      auto trunc_offset = static_cast<Bytecode::BciOffsetType>(offset);
       // offset should completely fit into index
       assert(offset == trunc_offset);
 

@@ -53,7 +53,8 @@ set(SOURCE_FILES
         src/Runtime/ClassManager.cpp
         src/Runtime/ClassManager.h
         src/JavaTypes/StackMapTable.h
-        src/JavaTypes/StackMapTable.cpp)
+        src/JavaTypes/StackMapTable.cpp
+        src/Bytecode/BciMap.h)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
@@ -74,7 +75,8 @@ set (TEST_FILES
         tests/Runtime/ValueTests.cpp
         tests/Runtime/ObjectsTests.cpp
         tests/Runtime/ClassManagerTests.cpp
-        tests/JavaTypes/StackMapTableTests.cpp)
+        tests/JavaTypes/StackMapTableTests.cpp
+        tests/Bytecode/BciMapTests.cpp)
 
 add_library(ICP_LIB ${SOURCE_FILES})
 

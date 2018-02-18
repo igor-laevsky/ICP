@@ -83,6 +83,9 @@ using InstValType = std::common_type_t<decltype(Ts::Val)...>;
 template<class Arg, class... Args>
 inline constexpr bool contains =
   std::disjunction<std::is_same<Arg, Args>...>::value;
+template<class Arg>
+inline constexpr bool contains<Arg> = false;
+
 
 // Wraps number of instruction with values. It is used to simplify instruction
 // visitor which can now accept a single wrapper instead of a set of almost
