@@ -7,51 +7,14 @@
 
 #include "Bytecode/BytecodeFwd.h"
 #include "JavaTypes/StackFrame.h"
+#include "Bytecode/BciMap.h"
 
 namespace JavaTypes {
 
 class StackMapTable {
 public:
-  // One element of the stack map table. Records bci and frame at the bci.
-  using Container = std::vector<std::pair<Bytecode::BciType, StackFrame>>;
-
-  // Iterates over all stack maps in the method in order of their bci's.
-  // Doesn't allow any modifications.
-  class Iterator {
-  public:
-    Iterator() = default;
-
-    explicit Iterator(Container::const_iterator Start): It(Start) {
-      ; // Empty
-    }
-
-    Bytecode::BciType getBci() const { return It->first; }
-
-    Iterator &operator++() {
-      It++;
-      return *this;
-    }
-
-    Iterator operator++(int) {
-      Iterator Old(*this);
-      It++;
-      return Old;
-    }
-
-    const StackFrame &operator*() const {
-      return It->second;
-    }
-
-    bool operator==(const Iterator &Other) const {
-      return It == Other.It;
-    }
-    bool operator!=(const Iterator &Other) const {
-      return It != Other.It;
-    }
-
-  private:
-    Container::const_iterator It;
-  };
+  using Container = Bytecode::BciMap<StackFrame>;
+  using const_iterator = Container::const_iterator;
 
 public:
   StackMapTable() = default;
@@ -61,16 +24,12 @@ public:
   StackMapTable(StackMapTable &&) = default;
   StackMapTable &operator=(StackMapTable &&) = default;
 
-  bool hasBci(Bytecode::BciType Bci) const {
-    return std::any_of(
-        frames().begin(), frames().end(),
-        [&](const auto &a) { return a.first == Bci; });
+  const_iterator findAtBci(Bytecode::BciType Bci) const {
+    return frames().find(Bci);
   }
 
-  Iterator findAtBci(Bytecode::BciType Bci) const;
-
-  Iterator begin() const { return Iterator(Frames.begin()); }
-  Iterator end() const { return Iterator(Frames.end()); }
+  const_iterator begin() const { return Frames.begin(); }
+  const_iterator end() const { return Frames.end(); }
 
 private:
   // Only called from the StackMapBuilder.

@@ -164,7 +164,7 @@ private:
   Type ReturnType = Types::Top;
 
   StackMapTable StackMap;
-  StackMapTable::Iterator StackMapIt;
+  StackMapTable::const_iterator StackMapIt;
 
   // If tru we need to load new stack frame
   bool afterGoto = false;

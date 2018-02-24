@@ -28,7 +28,8 @@ private:
         Utils::IsConstIter<UnderlyingItType>, const value_type*, value_type*>;
 
   public:
-    explicit IteratorImpl(UnderlyingItType NewIt):
+    IteratorImpl() = default;
+    IteratorImpl(UnderlyingItType NewIt):
         It(NewIt) {
       ;
     }
@@ -86,11 +87,11 @@ public:
 public:
   BciMap() = default;
 
-  // No copies, no moves
+  // No copies
   BciMap(const BciMap&) = delete;
   BciMap &operator=(const BciMap&) = delete;
-  BciMap(BciMap&&) = delete;
-  BciMap &operator=(BciMap&&) = delete;
+  BciMap(BciMap&&) = default;
+  BciMap &operator=(BciMap&&) = default;
 
   /// Insert new element into the map.
   /// \return true if new element was added, false otherwise.
@@ -98,57 +99,38 @@ public:
     return storage().insert(std::make_pair(Bci, std::forward<T>(El))).second;
   }
 
+  /// This should be used when inserting instruction in a sorted order.
+  /// The order shouldn't be precise and will only affect speed of the operation.
+  template <class... Args>
+  iterator emplace_back( BciType Bci, Args&&... args ) {
+    return storage().emplace_hint(storage().end(), Bci, std::forward<Args>(args)...);
+  }
+  template <class... Args>
+  iterator insert_back( BciType Bci, Args&&... args ) {
+    return storage().insert_hint(storage().end(), Bci, std::forward<Args>(args)...);
+  }
+
   /// Handful accessors mirroring default std containers
   std::size_t size() const { return storage().size(); }
   bool empty() const { return storage().empty(); }
 
-  iterator begin() { return iterator(storage().begin()); }
-  const_iterator begin() const { return const_iterator(storage().begin()); }
-  const_iterator cbegin() const { return const_iterator(storage().begin()); }
+  iterator begin() { return storage().begin(); }
+  const_iterator begin() const { return storage().begin(); }
+  const_iterator cbegin() const { return storage().begin(); }
 
-  iterator end() { return iterator(storage().end()); }
-  const_iterator end() const { return const_iterator(storage().end()); }
-  const_iterator cend() const { return const_iterator(storage().end()); }
-
+  iterator end() { return storage().end(); }
+  const_iterator end() const { return storage().end(); }
+  const_iterator cend() const { return storage().end(); }
+  
   iterator offsetTo(iterator It, BciOffsetType Off) {
-    return offsetToImpl(It, Off, begin(), end());
+    return storage().find(It.getBci() + Off);
   }
-
   const_iterator offsetTo(const_iterator It, BciOffsetType Off) const {
-    return offsetToImpl(It, Off, begin(), end());
+    return storage().find(It.getBci() + Off);
   }
 
-  const_iterator findAtBci(BciType Bci) const {
-    return const_iterator(storage().find(Bci));
-  }
-
-private:
-  // Template function in order to support const and non-const iterators.
-  template<typename ItType, typename OwnerIt>
-  ItType offsetToImpl(ItType It, BciOffsetType Off, OwnerIt Beg, OwnerIt End) const {
-    auto ret = It;
-    auto target_bci = It.getBci() + Off;
-
-    if (Off == 0 || It == End)
-      return ret;
-
-    auto real_end = Off > 0 ? End : Beg;
-
-    while (ret != real_end) {
-      if (ret.getBci() == target_bci)
-        break;
-
-      if (Off > 0) {
-        ret++;
-      } else {
-        ret--;
-      }
-    }
-
-    if (ret != End && ret.getBci() == target_bci)
-      return ret;
-    return End;
-  }
+  iterator find(BciType Bci) { return storage().find(Bci); }
+  const_iterator find(BciType Bci) const { return storage().find(Bci); }
 
 private:
   StorageType &storage() { return Storage; }

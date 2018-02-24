@@ -18,6 +18,9 @@ static_assert(sizeof(IdxType) == sizeof(BciOffsetType), "offsets are encoded as 
 using Container = std::vector<uint8_t>;
 using ContainerIterator = Container::const_iterator;
 
+template<typename T>
+class BciMap;
+
 class Instruction;
 
 template<class T> class NoIndex;
