@@ -28,10 +28,11 @@ TEST_CASE("Basic BciMap", "[Bytecode][BciMap]") {
   REQUIRE(!M.empty());
 
 
-  auto It = M.begin();
+  auto It = M.cbegin();
 
   REQUIRE(It.getBci() == 0);
   REQUIRE(*It == 'a');
+  REQUIRE(M.findAtBci(0) == M.cbegin());
   It++;
   REQUIRE(It.getBci() == 1);
   REQUIRE(*It == 'b');
@@ -41,13 +42,14 @@ TEST_CASE("Basic BciMap", "[Bytecode][BciMap]") {
   ++It;
   REQUIRE(It.getBci() == 6);
   REQUIRE(*It == 'd');
+  REQUIRE(M.findAtBci(6) == It);
   It++;
   REQUIRE(It.getBci() == 10);
   REQUIRE(*It == 'e');
   ++It;
-  REQUIRE(It == M.end());
+  REQUIRE(It == M.cend());
 
-  It = M.begin();
+  It = M.cbegin();
 
   It = M.offsetTo(It, 1);
   REQUIRE(It.getBci() == 1);
@@ -64,7 +66,7 @@ TEST_CASE("Basic BciMap", "[Bytecode][BciMap]") {
   REQUIRE(It.getBci() == 6);
   REQUIRE(*It == 'd');
 
-  REQUIRE(M.offsetTo(It, -1) == M.end());
+  REQUIRE(M.offsetTo(It, -1) == M.cend());
   It = M.offsetTo(It, -5);
   REQUIRE(It.getBci() == 1);
   REQUIRE(*It == 'b');
@@ -74,9 +76,11 @@ TEST_CASE("Basic BciMap", "[Bytecode][BciMap]") {
   REQUIRE(*It == 'b');
 
   // No offset past the beginning of the map.
-  REQUIRE(M.offsetTo(It, -10) == M.end());
+  REQUIRE(M.offsetTo(It, -10) == M.cend());
   // Can't offset past the end of a map.
-  REQUIRE(M.offsetTo(It, 100) == M.end());
+  REQUIRE(M.offsetTo(It, 100) == M.cend());
+
+  REQUIRE(M.findAtBci(100) == M.cend());
 }
 
 TEST_CASE("Const BciMap", "[Bytecode][BciMap]") {

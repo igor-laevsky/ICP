@@ -104,9 +104,11 @@ public:
 
   iterator begin() { return iterator(storage().begin()); }
   const_iterator begin() const { return const_iterator(storage().begin()); }
+  const_iterator cbegin() const { return const_iterator(storage().begin()); }
 
   iterator end() { return iterator(storage().end()); }
   const_iterator end() const { return const_iterator(storage().end()); }
+  const_iterator cend() const { return const_iterator(storage().end()); }
 
   iterator offsetTo(iterator It, BciOffsetType Off) {
     return offsetToImpl(It, Off, begin(), end());
@@ -114,6 +116,10 @@ public:
 
   const_iterator offsetTo(const_iterator It, BciOffsetType Off) const {
     return offsetToImpl(It, Off, begin(), end());
+  }
+
+  const_iterator findAtBci(BciType Bci) const {
+    return const_iterator(storage().find(Bci));
   }
 
 private:
