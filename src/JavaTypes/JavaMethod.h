@@ -108,9 +108,10 @@ public:
 
   const StackMapTableBuilder &getStackMapBuilder() const { return StackMapBuilder; }
 
-  // Get code iterator for the given bci.
-  // \throws WrongBci if no such instruction is found.
-  CodeIterator getCodeIterAtBci(Bytecode::BciType Bci) const;
+  CodeIterator getInstrAtOffset(
+      CodeIterator It, Bytecode::BciOffsetType Off) const {
+    return Code.offsetTo(It, Off);
+  }
 
   // Support ranged-for iteration over instructions.
   CodeIterator begin() const { return CodeIterator(Code.cbegin()); }

@@ -51,18 +51,3 @@ void JavaMethod::print(std::ostream &Out) const {
     (*It)->print(Out);
   }
 }
-
-JavaMethod::CodeIterator
-JavaMethod::getCodeIterAtBci(Bytecode::BciType Bci) const {
-  BciType cur_bci = 0;
-
-  // This should be optimized
-  for (auto It = begin(), End = end(); It != End; ++It) {
-    if (cur_bci == Bci)
-      return It;
-    cur_bci += (*It)->getLength();
-  }
-
-  assert(false); // trying to get instruction at non existent bci
-  return this->end();
-}

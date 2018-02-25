@@ -57,8 +57,8 @@ public:
   }
 
   void jumpToBciOffset(BciOffsetType Offset) {
-    const BciType new_bci = CurInstr.getBci() + Offset;
-    CurInstr = Method.getCodeIterAtBci(new_bci);
+    assert(CurInstr != Method.end());
+    CurInstr = Method.getInstrAtOffset(CurInstr, Offset);
     assert(CurInstr != Method.end());
   }
 
