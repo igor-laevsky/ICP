@@ -99,11 +99,6 @@ protected:
   Instruction() = default;
 };
 
-// Two instructions are identical if their addresses are identical.
-inline bool operator==(const Instruction &Lhs, const Instruction &Rhs) {
-  return &Lhs == &Rhs;
-}
-
 // This class is used as a base in CRTP to simplify visitor implementation
 template<class ConcreteType>
 class VisitableInstruction: public Instruction {

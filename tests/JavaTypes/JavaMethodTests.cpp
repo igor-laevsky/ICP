@@ -36,12 +36,12 @@ TEST_CASE("Basic method interface", "[JavaMethod]") {
   REQUIRE(Ret.isA<java_return>());
 
   // Check that code iterator works
-  std::vector<std::reference_wrapper<const Instruction>> Instrs;
+  std::vector<const Instruction*> Instrs;
   for (const auto *Instr: *Method)
-    Instrs.emplace_back(*Instr);
+    Instrs.emplace_back(Instr);
 
-  std::vector<std::reference_wrapper<const Instruction>> InstrsExpected =
-      {Aload, Invoke, Ret};
+  std::vector<const Instruction*> InstrsExpected =
+      {&Aload, &Invoke, &Ret};
   REQUIRE(Instrs == InstrsExpected);
 }
 
