@@ -66,8 +66,3 @@ JavaMethod::getCodeIterAtBci(Bytecode::BciType Bci) const {
   assert(false); // trying to get instruction at non existent bci
   return this->end();
 }
-
-Bytecode::Instruction &
-JavaMethod::getInstrAtBci(Bytecode::BciType Bci) const {
-  return **getCodeIterAtBci(Bci);
-}

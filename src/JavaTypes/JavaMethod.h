@@ -108,10 +108,6 @@ public:
 
   const StackMapTableBuilder &getStackMapBuilder() const { return StackMapBuilder; }
 
-  // Get instruction at specified bci.
-  // \throws WrongBci if no such instruction is found.
-  Bytecode::Instruction &getInstrAtBci(Bytecode::BciType Bci) const;
-
   // Get code iterator for the given bci.
   // \throws WrongBci if no such instruction is found.
   CodeIterator getCodeIterAtBci(Bytecode::BciType Bci) const;

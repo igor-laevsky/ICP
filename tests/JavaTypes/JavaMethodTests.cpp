@@ -18,18 +18,16 @@ using namespace Bytecode;
 TEST_CASE("Basic method interface", "[JavaMethod]") {
   auto Method = TestUtils::createTrivialMethod();
 
-  // Check bci access
-  const auto &Aload = Method->getInstrAtBci(0);
-  const auto &Invoke = Method->getInstrAtBci(1);
-  const auto &Ret = Method->getInstrAtBci(4);
-
   // Check that bci's are correctly calculated
   auto It = Method->begin();
   REQUIRE(It.getBci() == 0);
+  const auto &Aload = **It;
   ++It;
   REQUIRE(It.getBci() == 1);
+  const auto &Invoke = **It;
   ++It;
   REQUIRE(It.getBci() == 4);
+  const auto &Ret = **It;
 
   // Check that instructions are parsed correctly
   REQUIRE(Aload.isA<aload_0>());
