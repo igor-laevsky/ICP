@@ -24,9 +24,12 @@ TEST_CASE("Basic method interface", "[JavaMethod]") {
   const auto &Ret = Method->getInstrAtBci(4);
 
   // Check that bci's are correctly calculated
-  REQUIRE(Method->getBciForInst(Aload) == 0);
-  REQUIRE(Method->getBciForInst(Invoke) == 1);
-  REQUIRE(Method->getBciForInst(Ret) == 4);
+  auto It = Method->begin();
+  REQUIRE(It.getBci() == 0);
+  ++It;
+  REQUIRE(It.getBci() == 1);
+  ++It;
+  REQUIRE(It.getBci() == 4);
 
   // Check that instructions are parsed correctly
   REQUIRE(Aload.isA<aload_0>());

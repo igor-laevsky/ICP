@@ -46,10 +46,18 @@ public:
       locals().resize(Method.getMaxLocals());
   }
 
-  const Instruction &getCurInstr() const { return **CurInstr; }
+  const Instruction &getCurInstr() const {
+    assert(CurInstr != Method.end());
+    return **CurInstr;
+  }
+
+  BciType getCurBci() const {
+    assert(CurInstr != Method.end());
+    return CurInstr.getBci();
+  }
 
   void jumpToBciOffset(BciOffsetType Offset) {
-    const BciType new_bci = Method.getBciForInst(getCurInstr()) + Offset;
+    const BciType new_bci = CurInstr.getBci() + Offset;
     CurInstr = Method.getCodeIterAtBci(new_bci);
     assert(CurInstr != Method.end());
   }
@@ -213,6 +221,7 @@ public:
   // Accessors for the current interpreter state
   bool isStackEmpty() { return stack().empty(); }
   const Instruction &getCurInstr() const { return curFrame().getCurInstr(); }
+  BciType getCurBci() const { return curFrame().getCurBci(); }
   Value getRetVal() { return RetVal; }
 
   // Print state of the interpreter. Inteded for the debugging purposes.
@@ -418,7 +427,7 @@ Value SlowInterpreter::interpret(
 
   do {
     if (Debug) {
-      std::cout << "#" << Method.getBciForInst(I.getCurInstr()) << " ";
+      std::cout << "#" << I.getCurBci() << " ";
       I.getCurInstr().print(std::cout);
       I.print();
     }

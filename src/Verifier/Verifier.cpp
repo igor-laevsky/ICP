@@ -47,6 +47,20 @@ public:
 
     CurrentFrame = StackFrame(LocalTypes, {});
     CurrentFrame.resizeLocals(Method.getMaxLocals());
+
+    CurInstr = Method.begin();
+  }
+
+  bool runSungleInstr() {
+    if (CurInstr == Method.end())
+      return false;
+
+    runPreConditions();
+    getCurInstr().accept(*this);
+    runPostConditions();
+
+    ++CurInstr;
+    return true;
   }
 
   void visit(const aload_0 &) override;
@@ -67,12 +81,10 @@ public:
   void visit(const iadd &) override;
 
   // Runs before visiting instruction.
-  void runPreConditions(const Instruction &CurInstr) {
-    const auto cur_bci = Method.getBciForInst(CurInstr);
-
+  void runPreConditions() {
     // Must have stack map if after goto
     if (afterGoto) {
-      if (StackMapIt == StackMap.end() || StackMapIt.getBci() != cur_bci)
+      if (StackMapIt == StackMap.end() || StackMapIt.getBci() != getCurBci())
         throwErr("Couldn't find stack map after goto");
 
       CurrentFrame = *StackMapIt;
@@ -88,7 +100,7 @@ public:
       return;
 
     // Don't have stack map for the current bci - nothing to do.
-    if (StackMapIt.getBci() != cur_bci)
+    if (StackMapIt.getBci() != getCurBci())
       return;
 
     const auto &map_frame = *StackMapIt;
@@ -136,7 +148,7 @@ private:
   }
 
   // Checks if we can jump to this target from the current state.
-  void targetIsTypeSafe(Bytecode::BciType Bci);
+  void targetIsTypeSafe(Bytecode::BciOffsetType Bci);
 
   // Helper to throw a varification error.
   void throwErr(std::string_view Str) const {
@@ -155,12 +167,23 @@ private:
       throwErr("Incorrect local variable index " + std::to_string(Idx));
   }
 
+  const Instruction &getCurInstr() const {
+    assert(CurInstr != Method.end());
+    return **CurInstr;
+  }
+
+  BciType getCurBci() const {
+    assert(CurInstr != Method.end());
+    return CurInstr.getBci();
+  }
+
 private:
   const JavaMethod &Method;
   const ConstantPool &CP;
 
-  StackFrame CurrentFrame{{},
-                          {}};
+  JavaMethod::CodeIterator CurInstr;
+
+  StackFrame CurrentFrame{{}, {}};
   Type ReturnType = Types::Top;
 
   StackMapTable StackMap;
@@ -273,8 +296,9 @@ void MethodVerifier::visit(const getstatic &Inst) {
   CurrentFrame.pushList({FieldType});
 }
 
-void MethodVerifier::targetIsTypeSafe(Bytecode::BciType Bci) {
-  const auto target_frame = StackMap.findAtBci(Bci);
+void MethodVerifier::targetIsTypeSafe(Bytecode::BciOffsetType Off) {
+  auto target_bci = getCurBci() + Off;
+  auto target_frame = StackMap.findAtBci(target_bci);
 
   if (target_frame == StackMap.end())
     throwErr("Unable to find stack map table entry for the target bci");
@@ -285,7 +309,7 @@ void MethodVerifier::targetIsTypeSafe(Bytecode::BciType Bci) {
 
 void MethodVerifier::visit(const if_icmp_op &Inst) {
   tryPop({Types::Int, Types::Int}, "Incorrect if_icmp operands");
-  targetIsTypeSafe(Method.getBciForInst(Inst.getInst()) + Inst.getIdx());
+  targetIsTypeSafe(Inst.getIdx());
 }
 
 void MethodVerifier::visit(const iload_val &Inst) {
@@ -305,7 +329,7 @@ void MethodVerifier::visit(const iinc &Inst) {
 }
 
 void MethodVerifier::visit(const java_goto &Inst) {
-  targetIsTypeSafe(Method.getBciForInst(Inst) + Inst.getIdx());
+  targetIsTypeSafe(Inst.getIdx());
   afterGoto = true;
   // Reset frame to avoid unfortunate accidents
   CurrentFrame = StackFrame({}, {});
@@ -321,12 +345,8 @@ void Verifier::verifyMethod(const JavaMethod &Method) {
   // TODO: Add method level verification
 
   MethodVerifier V(Method);
-  for (const auto *Instr: Method) {
-    V.runPreConditions(*Instr);
-
-    Instr->accept(V);
-
-    V.runPostConditions();
+  while (V.runSungleInstr()) {
+    ; // May add debug output here
   }
 }
 

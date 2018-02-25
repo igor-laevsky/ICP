@@ -46,24 +46,10 @@ void JavaMethod::print(std::ostream &Out) const {
   Out << "MaxStack: " << getMaxStack() << " MaxLocals: " << getMaxLocals() << "\n";
   Out << "Code:\n";
 
-  for (const auto *Instr: *this) {
-    Out << "  " << getBciForInst(*Instr) << ": ";
-    Instr->print(Out);
+  for (auto It = this->begin(), End = this->end(); It != End; ++It) {
+    Out << "  " << It.getBci() << ": ";
+    (*It)->print(Out);
   }
-}
-
-BciType JavaMethod::getBciForInst(const Instruction &Inst) const {
-  BciType cur_bci = 0;
-
-  // TODO: This should be optimized
-  for (const auto *CurInst: *this) {
-    if (*CurInst == Inst)
-      return cur_bci;
-    cur_bci += CurInst->getLength();
-  }
-
-  assert(false); // trying to get bci for the non existent instruction.
-  return 0;
 }
 
 JavaMethod::CodeIterator
