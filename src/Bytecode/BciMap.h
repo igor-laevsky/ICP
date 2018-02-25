@@ -62,7 +62,7 @@ private:
       return It->second;
     }
     pointer operator->() const {
-      return &It->second;
+      return std::addressof(It->second);
     }
 
     bool operator==(const IteratorImpl &Other) const {
@@ -105,9 +105,8 @@ public:
   iterator emplace_back( BciType Bci, Args&&... args ) {
     return storage().emplace_hint(storage().end(), Bci, std::forward<Args>(args)...);
   }
-  template <class... Args>
-  iterator insert_back( BciType Bci, Args&&... args ) {
-    return storage().insert_hint(storage().end(), Bci, std::forward<Args>(args)...);
+  iterator insert_back( BciType Bci,  T&& El ) {
+    return storage().insert(storage().end(), std::make_pair(Bci, std::forward<T>(El)));
   }
 
   /// Handful accessors mirroring default std containers

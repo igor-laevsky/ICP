@@ -36,8 +36,8 @@ TEST_CASE("Basic method interface", "[JavaMethod]") {
 
   // Check that code iterator works
   std::vector<std::reference_wrapper<const Instruction>> Instrs;
-  for (const auto &Instr: *Method)
-    Instrs.emplace_back(Instr);
+  for (const auto *Instr: *Method)
+    Instrs.emplace_back(*Instr);
 
   std::vector<std::reference_wrapper<const Instruction>> InstrsExpected =
       {Aload, Invoke, Ret};

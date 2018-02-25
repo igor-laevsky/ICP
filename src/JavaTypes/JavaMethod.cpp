@@ -23,13 +23,16 @@ JavaMethod::JavaMethod(JavaMethod::MethodConstructorParameters &&Params) :
     Descriptor(checkRecord(Params.Descriptor)),
     MaxStack(Params.MaxStack),
     MaxLocals(Params.MaxLocals),
-    Code(std::move(Params.Code)),
+    CodeOwner(std::move(Params.Code)),
     StackMapBuilder(std::move(Params.StackMapBuilder))
 {
-  // Null check all instructions
-  assert(std::all_of(
-      Code.begin(), Code.end(),
-      [](const auto &Inst) { return Inst != nullptr; }));
+  // Fill code viewer
+  BciType cur_bci = 0;
+  for (auto &Inst: CodeOwner) {
+    assert(Inst != nullptr);
+    this->Code.insert_back(cur_bci, Inst.get());
+    cur_bci += Inst->getLength();
+  }
 
   // Other flags are not supported currently
   assert(
@@ -43,9 +46,9 @@ void JavaMethod::print(std::ostream &Out) const {
   Out << "MaxStack: " << getMaxStack() << " MaxLocals: " << getMaxLocals() << "\n";
   Out << "Code:\n";
 
-  for (const auto &Instr: *this) {
-    Out << "  " << getBciForInst(Instr) << ": ";
-    Instr.print(Out);
+  for (const auto *Instr: *this) {
+    Out << "  " << getBciForInst(*Instr) << ": ";
+    Instr->print(Out);
   }
 }
 
@@ -53,10 +56,10 @@ BciType JavaMethod::getBciForInst(const Instruction &Inst) const {
   BciType cur_bci = 0;
 
   // TODO: This should be optimized
-  for (const auto &CurInst: *this) {
-    if (CurInst == Inst)
+  for (const auto *CurInst: *this) {
+    if (*CurInst == Inst)
       return cur_bci;
-    cur_bci += CurInst.getLength();
+    cur_bci += CurInst->getLength();
   }
 
   assert(false); // trying to get bci for the non existent instruction.
@@ -71,14 +74,14 @@ JavaMethod::getCodeIterAtBci(Bytecode::BciType Bci) const {
   for (auto It = begin(), End = end(); It != End; ++It) {
     if (cur_bci == Bci)
       return It;
-    cur_bci += It->getLength();
+    cur_bci += (*It)->getLength();
   }
 
   assert(false); // trying to get instruction at non existent bci
   return this->end();
 }
 
-const Bytecode::Instruction &
+Bytecode::Instruction &
 JavaMethod::getInstrAtBci(Bytecode::BciType Bci) const {
-  return *getCodeIterAtBci(Bci);
+  return **getCodeIterAtBci(Bci);
 }

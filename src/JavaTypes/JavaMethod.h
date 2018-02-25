@@ -11,6 +11,7 @@
 #include "Utils/Iterators.h"
 #include "StackFrame.h"
 #include "StackMapTable.h"
+#include "Bytecode/BciMap.h"
 
 namespace JavaTypes {
 
@@ -20,7 +21,15 @@ class JavaMethod final {
 public:
   using CodeOwnerType =
     std::vector<std::unique_ptr<Bytecode::Instruction>>;
-  using CodeIterator = Utils::SmartPtrIterator<CodeOwnerType::const_iterator>;
+
+  // We want to expose BciMap iterator to the user.
+  // However we also want to store instructions as a unique pointers which
+  // shouldn't be exposed to the user. In order to do achieve this we use
+  // separate code viewer which mirrors code owner but doesn't store unique
+  // pointers. So far it's the simplest solution without introducing deep and
+  // hard to understand iterator nesting.
+  using CodeViewerType = Bytecode::BciMap<Bytecode::Instruction*>;
+  using CodeIterator = CodeViewerType::const_iterator;
 
   enum class AccessFlags: uint16_t {
     ACC_NONE = 0x0000,
@@ -104,7 +113,7 @@ public:
 
   // Get instruction at specified bci.
   // \throws WrongBci if no such instruction is found.
-  const Bytecode::Instruction &getInstrAtBci(Bytecode::BciType Bci) const;
+  Bytecode::Instruction &getInstrAtBci(Bytecode::BciType Bci) const;
 
   // Get code iterator for the given bci.
   // \throws WrongBci if no such instruction is found.
@@ -131,7 +140,8 @@ private:
   const uint16_t MaxStack;
   const uint16_t MaxLocals;
 
-  CodeOwnerType Code;
+  CodeOwnerType CodeOwner;
+  CodeViewerType Code;
 
   StackMapTableBuilder StackMapBuilder;
 };

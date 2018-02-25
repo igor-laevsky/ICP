@@ -46,7 +46,7 @@ public:
       locals().resize(Method.getMaxLocals());
   }
 
-  const Instruction &getCurInstr() const { return *CurInstr; }
+  const Instruction &getCurInstr() const { return **CurInstr; }
 
   void jumpToBciOffset(BciOffsetType Offset) {
     const BciType new_bci = Method.getBciForInst(getCurInstr()) + Offset;

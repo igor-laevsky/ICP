@@ -321,10 +321,10 @@ void Verifier::verifyMethod(const JavaMethod &Method) {
   // TODO: Add method level verification
 
   MethodVerifier V(Method);
-  for (const auto &Instr: Method) {
-    V.runPreConditions(Instr);
+  for (const auto *Instr: Method) {
+    V.runPreConditions(*Instr);
 
-    Instr.accept(V);
+    Instr->accept(V);
 
     V.runPostConditions();
   }
@@ -333,7 +333,7 @@ void Verifier::verifyMethod(const JavaMethod &Method) {
 void Verifier::verify(const JavaClass &Class) {
   // TODO: Add class level verification
 
-  for (const auto& Method: Class.methods()) {
+  for (const auto &Method: Class.methods()) {
     verifyMethod(*Method);
   }
 }
