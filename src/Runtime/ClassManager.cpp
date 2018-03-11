@@ -8,22 +8,22 @@
 
 using namespace Runtime;
 
-ClassManager &Runtime::getClassManager() {
-  static ClassManager CM;
+OldClassManager &Runtime::getClassManager() {
+  static OldClassManager CM;
   return CM;
 }
 
-void ClassManager::registerClass(ClassObject &CO) {
+void OldClassManager::registerClass(ClassObject &CO) {
   Classes[CO.getClass().getClassName()] = &CO;
 }
 
-ClassObject &ClassManager::getClassObject(const Utf8String &Name) {
+ClassObject &OldClassManager::getClassObject(const Utf8String &Name) {
   assert(Classes.count(Name) == 1);
   assert(Classes.at(Name) != nullptr);
 
   return *Classes.at(Name);
 }
 
-void ClassManager::reset() {
+void OldClassManager::reset() {
   Classes.clear();
 }

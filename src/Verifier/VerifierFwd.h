@@ -7,7 +7,7 @@
 
 namespace Verifier {
 
-// Empty
+class VerificationError;
 
 }
 

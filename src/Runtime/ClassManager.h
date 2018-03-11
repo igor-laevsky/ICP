@@ -12,12 +12,12 @@
 
 namespace Runtime {
 
-class ClassManager {
+class OldClassManager {
 public:
-  friend ClassManager &getClassManager();
+  friend OldClassManager &getClassManager();
 
-  ClassManager(const ClassManager&) = delete;
-  ClassManager &operator=(const ClassManager&) = delete;
+  OldClassManager(const OldClassManager&) = delete;
+  OldClassManager &operator=(const OldClassManager&) = delete;
 
   void registerClass(ClassObject &CO);
 
@@ -28,13 +28,13 @@ public:
   void reset();
 
 private:
-  ClassManager() = default;
+  OldClassManager() = default;
 
 private:
   std::map<Utf8String, ClassObject*> Classes;
 };
 
-ClassManager &getClassManager();
+OldClassManager &getClassManager();
 
 }
 

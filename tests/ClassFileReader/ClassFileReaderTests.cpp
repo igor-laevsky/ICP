@@ -19,7 +19,7 @@ TEST_CASE("Throw exception if file not found", "[ClassFileReader]") {
 }
 
 TEST_CASE("Read verify and interpret simple class", "[ClassFileReader]") {
-  auto NewClass = ClassFileReader::loadClassFromFile("./Simple.class");
+  auto NewClass = ClassFileReader::loadClassFromFile("./examples/Simple.class");
   assert(NewClass != nullptr);
 
   Verifier::verify(*NewClass);
@@ -33,7 +33,7 @@ TEST_CASE("Read verify and interpret simple class", "[ClassFileReader]") {
 }
 
 TEST_CASE("Read verify and interpret fields class", "[ClassFileReader]") {
-  auto NewClass = ClassFileReader::loadClassFromFile("./Fields.class");
+  auto NewClass = ClassFileReader::loadClassFromFile("./examples/Fields.class");
   assert(NewClass != nullptr);
 
   Runtime::getClassManager().registerClass(
@@ -51,7 +51,7 @@ TEST_CASE("Read verify and interpret fields class", "[ClassFileReader]") {
 }
 
 TEST_CASE("Read verify and interpret branches class", "[ClassFileReader]") {
-  auto NewClass = ClassFileReader::loadClassFromFile("./Branches.class");
+  auto NewClass = ClassFileReader::loadClassFromFile("./examples/Branches.class");
   assert(NewClass != nullptr);
 
   Runtime::getClassManager().registerClass(
@@ -74,7 +74,7 @@ TEST_CASE("Read verify and interpret branches class", "[ClassFileReader]") {
 }
 
 TEST_CASE("Read verify and interpret loop class", "[ClassFileReader]") {
-  auto NewClass = ClassFileReader::loadClassFromFile("./Loop.class");
+  auto NewClass = ClassFileReader::loadClassFromFile("./examples/Loop.class");
   assert(NewClass != nullptr);
 
   Runtime::getClassManager().registerClass(

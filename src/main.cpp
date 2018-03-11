@@ -3,7 +3,7 @@
 #include "Verifier/Verifier.h"
 #include "SlowInterpreter/SlowInterpreter.h"
 #include "Runtime/Value.h"
-#include "Runtime/ClassManager.h"
+#include "Runtime/OldClassManager.h"
 #include "Runtime/Objects.h"
 
 #include <iostream>
