@@ -87,12 +87,12 @@ TEST_CASE("Class manager correct preparation", "[Runtime][ClassManager]") {
   REQUIRE(O.getField("F2").getAs<JavaDouble>() == 0);
 }
 
-//TEST_CASE("Class manager correct initialization", "[Runtime][ClassManager]") {
-//  ClassManager CM;
-//  const auto &C = CM.getClass("examples/Branches");
-//  const auto &O = CM.getClassObject(C);
-//
-//  REQUIRE(O.getField("a").getAs<JavaInt>() == 1);
-//  REQUIRE(O.getField("b").getAs<JavaInt>() == 2);
-//  REQUIRE(O.getField("c").getAs<JavaInt>() == 3);
-//}
+TEST_CASE("Class manager correct initialization", "[Runtime][ClassManager]") {
+  ClassManager CM;
+  const auto &C = CM.getClass("examples/Branches");
+  const auto &O = CM.getClassObject(C);
+
+  REQUIRE(O.getField("a").getAs<JavaInt>() == 1);
+  REQUIRE(O.getField("b").getAs<JavaInt>() == 2);
+  REQUIRE(O.getField("c").getAs<JavaInt>() == 3);
+}

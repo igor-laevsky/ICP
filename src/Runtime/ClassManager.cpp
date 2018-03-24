@@ -47,29 +47,28 @@ const JavaTypes::JavaClass &ClassManager::getClass(
 Runtime::ClassObject &ClassManager::getClassObject(
     const JavaTypes::JavaClass &Class) {
 
-  // TODO: Detect recursive initialization
-
   auto &meta_info = getMetaInfoForClass(Class);
 
-  // If we already have this object - just return it
-  if (meta_info.Object)
+  // If we already have this object - just return it. Also prevent recursive
+  // initialization.
+  if (meta_info.State == ClassMetaInfo::INITIALIZED ||
+      meta_info.State == ClassMetaInfo::INIT_IN_PROGRESS) {
+    assert(meta_info.Object); // should have this object
     return *meta_info.Object;
+  }
 
-  // 1. Verify class (throws VerificationError)
+  // Verify class (throws VerificationError)
   Verifier::verify(Class);
 
-  // 2. Create object
-  std::unique_ptr<ClassObject> Object(new ClassObject(Class));
+  // Prepare. Happens automatically in the ClassObject constructor
+  meta_info.Object = std::unique_ptr<ClassObject>(new ClassObject(Class));
 
-  // 3. Preapre object
-  // (done automatically in the ClassObject constructor)
+  // Initialize the object
+  meta_info.State = ClassMetaInfo::INIT_IN_PROGRESS;
+  if (const auto *method = meta_info.Object->getMethod("<clinit>"))
+    SlowInterpreter::interpret(*method, {}, *this);
+  meta_info.State = ClassMetaInfo::INITIALIZED;
 
-  // 4. Initialize object
-  // TODO: Teach interpreter to use class loader
-//  if (const auto *method = Object->getMethod("<clinit>"))
-//    SlowInterpreter::interpret(*method, {});
-
-  meta_info.Object = std::move(Object);
   return *meta_info.Object;
 }
 
@@ -93,7 +92,8 @@ JavaTypes::JavaClass &ClassManager::defineClass(
   //assert(RealName == Name);
 
   // Record the new class
-  ClassMetaInfo meta_info{DefLoader, std::move(Class), nullptr};
+  ClassMetaInfo meta_info{
+      DefLoader, std::move(Class), nullptr, ClassMetaInfo::LOADED};
 
   auto It = Classes.insert(std::make_pair(RealName, std::move(meta_info)));
   ClassesInitLoaders[std::make_pair(RealName, &DefLoader)] = &It->second;

@@ -81,6 +81,9 @@ private:
     const ClassLoader &DefLoader;
     std::unique_ptr<JavaTypes::JavaClass> Class;
     std::unique_ptr<ClassObject> Object;
+    enum {
+      LOADED, INIT_IN_PROGRESS, INITIALIZED
+    } State;
   };
 
 private:
