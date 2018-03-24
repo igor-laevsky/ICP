@@ -19,28 +19,23 @@ using namespace JavaTypes;
 // CM.loadClass -> Loader.loadClass -> (create stream, CM.defineClass(*this)) -> (Loader.deriveClass(), record init and deref class)
 
 const JavaTypes::JavaClass &ClassManager::getClass(
-    const Utf8String &Name, const ClassLoader *ILoader/* = nullptr*/) {
-
-  // Choose bootstrap loader by default
-  if (ILoader == nullptr) {
-    ILoader = getBootstrapLoader();
-  }
+    const Utf8String &Name, const ClassLoader &ILoader) {
 
   // If we already loaded such class - just return it.
-  if (const auto *meta_info = getMetaInfoForInitLoader(Name, *ILoader))
+  if (const auto *meta_info = getMetaInfoForInitLoader(Name, ILoader))
     return *meta_info->Class;
 
   // Otherwise call a class loader to find and define this class
   // It will callback into class manager in order to properly register this class.
-  const auto &Class = ILoader->loadClass(Name, *this);
+  const auto &Class = ILoader.loadClass(Name, *this);
 
   // Register this class as it's initiating loader
-  ClassesInitLoaders[std::make_pair(Class.getClassName(), ILoader)] =
+  ClassesInitLoaders[std::make_pair(Class.getClassName(), &ILoader)] =
       &getMetaInfoForClass(Class);
 
   // TODO: This is temporary measure due to the fact that some times class name
   // might not be the same as the file from which it was loaded.
-  ClassesInitLoaders[std::make_pair(Name, ILoader)] = &getMetaInfoForClass(Class);
+  ClassesInitLoaders[std::make_pair(Name, &ILoader)] = &getMetaInfoForClass(Class);
   return Class;
 }
 
@@ -168,12 +163,12 @@ class TestLoader: public BootstrapLoader {
 };
 }
 
-const ClassLoader *Runtime::getBootstrapLoader() {
+const ClassLoader &Runtime::getBootstrapLoader() {
   static BootstrapLoader l;
-  return &l;
+  return l;
 }
 
-const ClassLoader *Runtime::getTestLoader() {
+const ClassLoader &Runtime::getTestLoader() {
   static TestLoader l;
-  return &l;
+  return l;
 }

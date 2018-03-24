@@ -34,8 +34,8 @@ public:
       std::istream &Bytes) const = 0;
 };
 
-const ClassLoader *getBootstrapLoader();
-const ClassLoader *getTestLoader();
+const ClassLoader &getBootstrapLoader();
+const ClassLoader &getTestLoader();
 
 
 // TODO: This should be thread safe and it's not
@@ -55,7 +55,7 @@ public:
   // \throws ClassNotFoundException
   // \throws LinkageError
   const JavaTypes::JavaClass &getClass(
-      const Utf8String &Name, const ClassLoader *ILoader = nullptr);
+      const Utf8String &Name, const ClassLoader &ILoader);
 
   // Create object for the loaded class.
   // This involves verification. preparation and initialization.
@@ -66,7 +66,7 @@ public:
   // Additionaly may cause class loading.
   Runtime::ClassObject &getClassObject(
       const Utf8String &Name, const ClassLoader &ILoader) {
-    return getClassObject(getClass(Name, &ILoader));
+    return getClassObject(getClass(Name, ILoader));
   }
 
   const ClassLoader *getDefLoader(const JavaTypes::JavaClass &Class) const;

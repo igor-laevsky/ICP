@@ -17,7 +17,7 @@ TEST_CASE("Class manager basic linking and initialization", "[Runtime][ClassMana
   // Load the classes
   const auto &C1 = CM.getClass("tests/SlowInterpreter/get_put_static", getTestLoader());
   REQUIRE(C1.getClassName() == "PutGetStatic");
-  const auto &C2 = CM.getClass("examples/Fields");
+  const auto &C2 = CM.getClass("examples/Fields", getBootstrapLoader());
   REQUIRE(C2.getClassName() == "Fields");
 
   // Different references for the different classes
@@ -44,12 +44,12 @@ TEST_CASE("Class manager bootstrap class loader", "[Runtime][ClassManager]") {
 
   ClassManager CM;
 
-  REQUIRE_THROWS_AS(CM.getClass("NotFound"), ClassNotFoundException);
-  auto &C = CM.getClass("examples/Simple");
-  auto &C1 = CM.getClass("examples/Simple");
+  REQUIRE_THROWS_AS(CM.getClass("NotFound", Runtime::getBootstrapLoader()), ClassNotFoundException);
+  auto &C = CM.getClass("examples/Simple", getBootstrapLoader());
+  auto &C1 = CM.getClass("examples/Simple", getBootstrapLoader());
   REQUIRE(&C == &C1);
 
-  REQUIRE(CM.getDefLoader(C1) == getBootstrapLoader());
+  REQUIRE(CM.getDefLoader(C1) == &getBootstrapLoader());
 }
 
 TEST_CASE("Class manager test class loader", "[Runtime][ClassManager]") {
@@ -60,12 +60,12 @@ TEST_CASE("Class manager test class loader", "[Runtime][ClassManager]") {
   REQUIRE_THROWS_AS(CM.getClass("NotFound", getTestLoader()), ClassNotFoundException);
   auto &C = CM.getClass("tests/SlowInterpreter/get_put_static", getTestLoader());
   auto &C1 = CM.getClass("tests/SlowInterpreter/get_put_static", getTestLoader());
-  auto &C2 = CM.getClass("examples/Simple");
+  auto &C2 = CM.getClass("examples/Simple", getBootstrapLoader());
   REQUIRE(&C == &C1);
   REQUIRE(&C != &C2);
 
-  REQUIRE(CM.getDefLoader(C1) == getTestLoader());
-  REQUIRE(CM.getDefLoader(C2) == getBootstrapLoader());
+  REQUIRE(CM.getDefLoader(C1) == &getTestLoader());
+  REQUIRE(CM.getDefLoader(C2) == &getBootstrapLoader());
 }
 
 TEST_CASE("Class manager verification failure", "[Runtime][ClassManager]") {
@@ -89,7 +89,7 @@ TEST_CASE("Class manager correct preparation", "[Runtime][ClassManager]") {
 
 TEST_CASE("Class manager correct initialization", "[Runtime][ClassManager]") {
   ClassManager CM;
-  const auto &C = CM.getClass("examples/Branches");
+  const auto &C = CM.getClass("examples/Branches", getBootstrapLoader());
   const auto &O = CM.getClassObject(C);
 
   REQUIRE(O.getField("a").getAs<JavaInt>() == 1);

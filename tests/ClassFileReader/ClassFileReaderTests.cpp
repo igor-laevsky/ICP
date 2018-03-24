@@ -21,7 +21,7 @@ TEST_CASE("Throw exception if file not found", "[ClassFileReader]") {
 
 TEST_CASE("Read verify and interpret simple class", "[ClassFileReader]") {
   Runtime::ClassManager CM;
-  auto &NewClass = CM.getClass("./examples/Simple");
+  auto &NewClass = CM.getClass("./examples/Simple", Runtime::getBootstrapLoader());
 
   Verifier::verify(NewClass);
 
@@ -34,7 +34,7 @@ TEST_CASE("Read verify and interpret simple class", "[ClassFileReader]") {
 
 TEST_CASE("Read verify and interpret fields class", "[ClassFileReader]") {
   Runtime::ClassManager CM;
-  auto &NewClass = CM.getClass("./examples/Fields");
+  auto &NewClass = CM.getClass("./examples/Fields", Runtime::getBootstrapLoader());
 
   Verifier::verify(NewClass);
 
@@ -47,7 +47,7 @@ TEST_CASE("Read verify and interpret fields class", "[ClassFileReader]") {
 
 TEST_CASE("Read verify and interpret branches class", "[ClassFileReader]") {
   Runtime::ClassManager CM;
-  auto &NewClass = CM.getClass("./examples/Branches");
+  auto &NewClass = CM.getClass("./examples/Branches", Runtime::getBootstrapLoader());
 
   Verifier::verify(NewClass);
 
@@ -60,7 +60,7 @@ TEST_CASE("Read verify and interpret branches class", "[ClassFileReader]") {
 
 TEST_CASE("Read verify and interpret loop class", "[ClassFileReader]") {
   Runtime::ClassManager CM;
-  auto &NewClass = CM.getClass("./examples/Loop");
+  auto &NewClass = CM.getClass("./examples/Loop", Runtime::getBootstrapLoader());
 
   Verifier::verify(NewClass);
 
