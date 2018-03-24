@@ -29,7 +29,6 @@ private:
   friend class Instruction;
 };
 
-
 // Utility class for three byte instructions. First byte is opcode,
 // second two represent constant pool index.
 template<class ConcreteType, class T = IdxType>

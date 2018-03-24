@@ -65,3 +65,7 @@ void ClassObject::setField(const Utf8String &Name, const Value &V) {
   std::tie(Field, Offset) = findFieldAndOffset(Name);
   Value::toMemory(fields().data() + Offset, V, Field->getType());
 }
+
+const JavaMethod *ClassObject::getMethod(const Utf8String &Name) const {
+  return getClass().getMethod(Name);
+}

@@ -72,6 +72,9 @@ public:
 
   const JavaTypes::JavaClass &getClass() const { return Class; }
 
+  // Resolve the method
+  const JavaTypes::JavaMethod *getMethod(const Utf8String &Name) const;
+
 private:
   explicit ClassObject(const JavaTypes::JavaClass &Class);
 
@@ -84,6 +87,8 @@ private:
 private:
   const JavaTypes::JavaClass &Class;
   std::vector<uint8_t> Fields;
+
+  friend class ClassManager;
 };
 
 }

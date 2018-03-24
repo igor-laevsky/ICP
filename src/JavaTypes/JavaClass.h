@@ -85,7 +85,8 @@ public:
   const std::vector<JavaField> &fields() const { return Fields; }
 
   // Finds method by name or return null if nothing found
-  // TODO: Support overloading
+  // It's a trivial getter. Fll resolutin logic is located inside ClassObject
+  // and InstanceObject.
   const JavaMethod *getMethod(const Utf8String &Name) const;
 
   // Only valid to call when there is super class

@@ -319,7 +319,7 @@ static void parseBytecode(
   consumeOrThrow(Token::LBrace, Lex);
 
   // Since we need to support forward declared labels we will need two passes
-  // over the bytecode. First on it to gather all instructions and calculate
+  // over the bytecode. First - to gather all instructions and calculate
   // offsets. Second is to actually create bytecode with correct labels.
 
   struct ParsedInst {
