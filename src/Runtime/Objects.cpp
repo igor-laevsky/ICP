@@ -9,11 +9,6 @@
 using namespace Runtime;
 using namespace JavaTypes;
 
-JavaRef ClassObject::create(const JavaTypes::JavaClass &Class) {
-  // TODO: This is going to leak. Implement GC.
-  return new ClassObject(Class);
-}
-
 ClassObject::ClassObject(const JavaTypes::JavaClass &Class):
   Class(Class) {
 

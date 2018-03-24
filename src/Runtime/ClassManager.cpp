@@ -61,7 +61,7 @@ Runtime::ClassObject &ClassManager::getClassObject(
   Verifier::verify(Class);
 
   // Prepare. Happens automatically in the ClassObject constructor
-  meta_info.Object = std::unique_ptr<ClassObject>(new ClassObject(Class));
+  meta_info.Object = std::make_unique<ClassObject>(Class);
 
   // Initialize the object
   meta_info.State = ClassMetaInfo::INIT_IN_PROGRESS;

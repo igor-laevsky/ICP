@@ -57,10 +57,8 @@ public:
   class UnrecognizedField: public std::exception { };
 
 public:
-  /// Creates class and zero initializes it. So far this ignores java rules of
-  /// the class loading and initialization.
-  /// This may become private and go in into the separate class manager.
-  static JavaRef create(const JavaTypes::JavaClass &Class);
+  /// Create the class and zero-initializes it's static fields
+  explicit ClassObject(const JavaTypes::JavaClass &Class);
 
   /// Get static field from this class.
   /// \throws UnrecognizedField If no field was found.
@@ -76,8 +74,6 @@ public:
   const JavaTypes::JavaMethod *getMethod(const Utf8String &Name) const;
 
 private:
-  explicit ClassObject(const JavaTypes::JavaClass &Class);
-
   const std::vector<uint8_t> &fields() const { return Fields; }
   std::vector<uint8_t> &fields() { return Fields; }
 
@@ -87,8 +83,6 @@ private:
 private:
   const JavaTypes::JavaClass &Class;
   std::vector<uint8_t> Fields;
-
-  friend class ClassManager;
 };
 
 }

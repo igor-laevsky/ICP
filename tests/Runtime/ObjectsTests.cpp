@@ -14,7 +14,7 @@ TEST_CASE("Class objects static fields", "[Runtime][Value]") {
   auto C = CD::parseFromFile("tests/SlowInterpreter/get_put_static.cd");
 
   // Create class with static fields
-  JavaRef ClassRef = ClassObject::create(*C);
+  auto ClassRef = std::make_unique<ClassObject>(*C);
 
   // Ensure polymorphic behavior
   REQUIRE(ClassRef->isA<ClassObject>());
