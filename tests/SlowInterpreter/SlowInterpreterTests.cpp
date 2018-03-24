@@ -20,7 +20,8 @@ template<typename ResT>
 static ResT testWithMethod(
     const JavaClass &Class,
     const Utf8String &Name,
-    const std::vector<Value>& InputArgs) {
+    const std::vector<Value>& InputArgs,
+    ClassManager &CM) {
 
   auto Method = Class.getMethod(Name);
   assert(Method != nullptr);
@@ -29,7 +30,7 @@ static ResT testWithMethod(
   Verifier::verifyMethod(*Method);
 #endif
 
-  auto Res = SlowInterpreter::interpret(*Method, InputArgs);
+  auto Res = SlowInterpreter::interpret(*Method, InputArgs, CM);
   return Res.getAs<ResT>();
 }
 
@@ -39,9 +40,10 @@ static bool runAutoTest(
     bool Debug = false) {
 
   auto Class = CD::parseFromFile("tests/SlowInterpreter/" + FileName);
+  ClassManager CM;
 
   for (const auto &method: Class->methods()) {
-    ResT res = SlowInterpreter::interpret(*method, InputArgs, Debug).getAs<ResT>();
+    ResT res = SlowInterpreter::interpret(*method, InputArgs, CM, Debug).getAs<ResT>();
     if (res != 0) {
       std::cerr << "Wrong interpreter result: " << res <<
                    " for " << method->getName() << "\n";
@@ -53,62 +55,60 @@ static bool runAutoTest(
 }
 
 TEST_CASE("interpret iconst with ireturn", "[SlowInterpreter]") {
-  auto Class =
-      CD::parseFromFile("tests/SlowInterpreter/iconst_ireturn.cd");
+  ClassManager CM;
+  const auto &Class =
+      CM.getClass("tests/SlowInterpreter/iconst_ireturn", getTestLoader());
 
   REQUIRE(testWithMethod<Runtime::JavaInt>(
-      *Class, "test1", {}) == 0);
+      Class, "test1", {}, CM) == 0);
 
   REQUIRE(testWithMethod<Runtime::JavaInt>(
-      *Class, "test2", {}) == 0);
+      Class, "test2", {}, CM) == 0);
 
   REQUIRE(testWithMethod<Runtime::JavaInt>(
-      *Class, "test3", {}) == 1);
+      Class, "test3", {}, CM) == 1);
 
   REQUIRE(testWithMethod<Runtime::JavaInt>(
-      *Class, "test4", {}) == 5);
+      Class, "test4", {}, CM) == 5);
 
   REQUIRE(testWithMethod<Runtime::JavaInt>(
-      *Class, "test5", {}) == -1);
+      Class, "test5", {}, CM) == -1);
 }
 
 TEST_CASE("interpret dconst with dreturn", "[SlowInterpreter]") {
-  auto Class =
-      CD::parseFromFile("tests/SlowInterpreter/dconst_dreturn.cd");
+  ClassManager CM;
+  const auto &Class =
+      CM.getClass("tests/SlowInterpreter/dconst_dreturn", getTestLoader());
 
   REQUIRE(testWithMethod<Runtime::JavaDouble>(
-      *Class, "test1", {}) == 0);
+      Class, "test1", {}, CM) == 0);
 
   REQUIRE(testWithMethod<Runtime::JavaDouble>(
-      *Class, "test2", {}) == 1);
+      Class, "test2", {}, CM) == 1);
 
   REQUIRE(testWithMethod<Runtime::JavaDouble>(
-      *Class, "test3", {}) == 1);
+      Class, "test3", {}, CM) == 1);
 
   REQUIRE(testWithMethod<Runtime::JavaInt>(
-      *Class, "test4", {}) == 1);
+      Class, "test4", {}, CM) == 1);
 }
 
 TEST_CASE("interpret get put static", "[SlowInterpreter]") {
-  auto Class =
-      CD::parseFromFile("tests/SlowInterpreter/get_put_static.cd");
-
-  getClassManager().registerClass(
-      ClassObject::create(*Class)->getAs<ClassObject>());
+  ClassManager CM;
+  const auto &Class =
+      CM.getClass("tests/SlowInterpreter/get_put_static", getTestLoader());
 
   REQUIRE(testWithMethod<Runtime::JavaInt>(
-      *Class, "test1", {}) == 0);
+      Class, "test1", {}, CM) == 0);
 
   REQUIRE(testWithMethod<Runtime::JavaDouble>(
-      *Class, "test2", {}) == 0);
+      Class, "test2", {}, CM) == 0);
 
   REQUIRE(testWithMethod<Runtime::JavaInt>(
-      *Class, "test3", {}) == 1);
+      Class, "test3", {}, CM) == 1);
 
   REQUIRE(testWithMethod<Runtime::JavaDouble>(
-      *Class, "test4", {}) == 1);
-
-  getClassManager().reset();
+      Class, "test4", {}, CM) == 1);
 }
 
 TEST_CASE("interpret comparisons", "[SlowInterpreter][comparisons]") {

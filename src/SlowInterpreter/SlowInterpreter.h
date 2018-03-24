@@ -11,6 +11,7 @@
 
 #include "JavaTypes/JavaTypesFwd.h"
 #include "Runtime/Value.h"
+#include "Runtime/ClassManager.h"
 
 namespace SlowInterpreter {
 
@@ -18,6 +19,7 @@ namespace SlowInterpreter {
 Runtime::Value interpret(
     const JavaTypes::JavaMethod &Method,
     const std::vector<Runtime::Value> &InputArguments,
+    Runtime::ClassManager &CM,
     bool Debug = false);
 
 }

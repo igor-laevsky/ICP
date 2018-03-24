@@ -62,6 +62,13 @@ public:
   // \throws VerificationError
   Runtime::ClassObject &getClassObject(const JavaTypes::JavaClass &Class);
 
+  // Same as previous but uses class name instead of it's object.
+  // Additionaly may cause class loading.
+  Runtime::ClassObject &getClassObject(
+      const Utf8String &Name, const ClassLoader &ILoader) {
+    return getClassObject(getClass(Name, &ILoader));
+  }
+
   const ClassLoader *getDefLoader(const JavaTypes::JavaClass &Class) const;
 
   // Helper method for the class loaders.
@@ -92,32 +99,6 @@ private:
   std::map<std::pair<Utf8String, const ClassLoader*>, const ClassMetaInfo*>
       ClassesInitLoaders;
 };
-
-
-
-class OldClassManager {
-public:
-  friend OldClassManager &getClassManager();
-
-  OldClassManager(const OldClassManager&) = delete;
-  OldClassManager &operator=(const OldClassManager&) = delete;
-
-  void registerClass(ClassObject &CO);
-
-  ClassObject &getClassObject(const Utf8String &Name);
-
-  // Mainly required for the sane testing. Need to avoid it once this class
-  // becomes more advanced.
-  void reset();
-
-private:
-  OldClassManager() = default;
-
-private:
-  std::map<Utf8String, ClassObject*> Classes;
-};
-
-OldClassManager &getClassManager();
 
 }
 

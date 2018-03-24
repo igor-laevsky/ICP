@@ -209,7 +209,8 @@ class Interpreter final: public Bytecode::InstructionVisitor {
 public:
   Interpreter(
       const JavaMethod &Method,
-      std::vector<Value> Arguments) {
+      std::vector<Value> Arguments,
+      ClassManager &CM): CM(CM) {
     stack().enter_function(Method, std::move(Arguments));
   }
 
@@ -257,6 +258,13 @@ private:
   const InterpreterFrame &curFrame() const { return stack().currentFrame(); }
 
   const JavaMethod &curMethod() const { return curFrame().method(); }
+  const JavaClass &curClass() const { return curFrame().method().getOwner(); }
+  const ClassLoader &curLoader() const {
+    const auto *loader = CM.getDefLoader(curFrame().method().getOwner());
+    assert(loader); // current class should be loaded
+    return *loader;
+  }
+
   const ConstantPool &CP() {
     return curMethod().getOwner().getConstantPool();
   }
@@ -273,6 +281,8 @@ private:
   // Bci offset of the next instruction to execute.
   // Empty means jump to the next instruction.
   std::optional<BciOffsetType> NextOffset;
+
+  ClassManager &CM;
 };
 
 }
@@ -338,14 +348,14 @@ void Interpreter::visit(const aload &) {
 
 void Interpreter::visit(const putstatic &Inst) {
   const auto &FRef = CP().getAs<ConstantPoolRecords::FieldRef>(Inst.getIdx());
-  auto &class_obj = getClassManager().getClassObject(FRef.getClassName());
+  auto &class_obj = CM.getClassObject(FRef.getClassName(), curLoader());
 
   class_obj.setField(FRef.getName(), curFrame().pop());
 }
 
 void Interpreter::visit(const getstatic &Inst) {
   const auto &FRef = CP().getAs<ConstantPoolRecords::FieldRef>(Inst.getIdx());
-  auto &class_obj = getClassManager().getClassObject(FRef.getClassName());
+  auto &class_obj = CM.getClassObject(FRef.getClassName(), curLoader());
 
   curFrame().push(class_obj.getField(FRef.getName()));
 }
@@ -419,9 +429,10 @@ void Interpreter::visit(const iadd &) {
 Value SlowInterpreter::interpret(
     const JavaTypes::JavaMethod &Method,
     const std::vector<Value> &InputArguments,
+    Runtime::ClassManager &CM,
     bool Debug /*= false*/) {
 
-  Interpreter I(Method, InputArguments);
+  Interpreter I(Method, InputArguments, CM);
 
   // TODO: assert that all required arguments are specified
 

@@ -8,6 +8,7 @@
 #include "Runtime/Value.h"
 #include "Runtime/ClassManager.h"
 #include "Runtime/Objects.h"
+#include "Runtime/ClassManager.h"
 #include "ClassFileReader/ClassFileReader.h"
 #include "Verifier/Verifier.h"
 
@@ -19,79 +20,63 @@ TEST_CASE("Throw exception if file not found", "[ClassFileReader]") {
 }
 
 TEST_CASE("Read verify and interpret simple class", "[ClassFileReader]") {
-  auto NewClass = ClassFileReader::loadClassFromFile("./examples/Simple.class");
-  assert(NewClass != nullptr);
+  Runtime::ClassManager CM;
+  auto &NewClass = CM.getClass("./examples/Simple");
 
-  Verifier::verify(*NewClass);
+  Verifier::verify(NewClass);
 
-  auto Method = NewClass->getMethod("main");
+  auto *Method = NewClass.getMethod("main");
   REQUIRE(Method != nullptr);
 
-  auto Ret = SlowInterpreter::interpret(*Method, {});
-
+  auto Ret = SlowInterpreter::interpret(*Method, {}, CM);
   REQUIRE(Ret.getAs<Runtime::JavaInt>() == 0);
 }
 
 TEST_CASE("Read verify and interpret fields class", "[ClassFileReader]") {
-  auto NewClass = ClassFileReader::loadClassFromFile("./examples/Fields.class");
-  assert(NewClass != nullptr);
+  Runtime::ClassManager CM;
+  auto &NewClass = CM.getClass("./examples/Fields");
 
-  Runtime::getClassManager().registerClass(
-      Runtime::ClassObject::create(*NewClass)->getAs<Runtime::ClassObject>());
+  Verifier::verify(NewClass);
 
-  Verifier::verify(*NewClass);
-
-  auto Method = NewClass->getMethod("main");
+  auto *Method = NewClass.getMethod("main");
   REQUIRE(Method != nullptr);
-  auto Ret = SlowInterpreter::interpret(*Method, {});
+  auto Ret = SlowInterpreter::interpret(*Method, {}, CM);
 
   REQUIRE(Ret.getAs<Runtime::JavaInt>() == 1);
-
-  Runtime::getClassManager().reset();
 }
 
 TEST_CASE("Read verify and interpret branches class", "[ClassFileReader]") {
-  auto NewClass = ClassFileReader::loadClassFromFile("./examples/Branches.class");
-  assert(NewClass != nullptr);
+  Runtime::ClassManager CM;
+  auto &NewClass = CM.getClass("./examples/Branches");
 
-  Runtime::getClassManager().registerClass(
-      Runtime::ClassObject::create(*NewClass)->getAs<Runtime::ClassObject>());
-
-  Verifier::verify(*NewClass);
+  Verifier::verify(NewClass);
 
   // TODO: This should go away with normal class manager
-  auto ClInit = NewClass->getMethod("<clinit>");
+  auto *ClInit = NewClass.getMethod("<clinit>");
   REQUIRE(ClInit != nullptr);
-  SlowInterpreter::interpret(*ClInit, {});
+  SlowInterpreter::interpret(*ClInit, {}, CM);
 
-  auto Method = NewClass->getMethod("main");
+  auto *Method = NewClass.getMethod("main");
   REQUIRE(Method != nullptr);
-  auto Ret = SlowInterpreter::interpret(*Method, {});
+  auto Ret = SlowInterpreter::interpret(*Method, {}, CM);
 
   REQUIRE(Ret.getAs<Runtime::JavaInt>() == 1);
-
-  Runtime::getClassManager().reset();
 }
 
 TEST_CASE("Read verify and interpret loop class", "[ClassFileReader]") {
-  auto NewClass = ClassFileReader::loadClassFromFile("./examples/Loop.class");
-  assert(NewClass != nullptr);
+  Runtime::ClassManager CM;
+  auto &NewClass = CM.getClass("./examples/Loop");
 
-  Runtime::getClassManager().registerClass(
-      Runtime::ClassObject::create(*NewClass)->getAs<Runtime::ClassObject>());
-
-  Verifier::verify(*NewClass);
+  Verifier::verify(NewClass);
 
   // TODO: This should go away with normal class manager
-  auto ClInit = NewClass->getMethod("<clinit>");
+  auto *ClInit = NewClass.getMethod("<clinit>");
   REQUIRE(ClInit != nullptr);
-  SlowInterpreter::interpret(*ClInit, {});
+  SlowInterpreter::interpret(*ClInit, {}, CM);
 
-  auto Method = NewClass->getMethod("main");
+  auto *Method = NewClass.getMethod("main");
   REQUIRE(Method != nullptr);
-  auto Ret = SlowInterpreter::interpret(*Method, {});
+  auto Ret = SlowInterpreter::interpret(*Method, {}, CM);
 
   REQUIRE(Ret.getAs<Runtime::JavaInt>() == 6);
-
-  Runtime::getClassManager().reset();
 }

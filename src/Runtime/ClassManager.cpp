@@ -177,25 +177,3 @@ const ClassLoader *Runtime::getTestLoader() {
   static TestLoader l;
   return &l;
 }
-
-
-
-OldClassManager &Runtime::getClassManager() {
-  static OldClassManager CM;
-  return CM;
-}
-
-void OldClassManager::registerClass(ClassObject &CO) {
-  Classes[CO.getClass().getClassName()] = &CO;
-}
-
-ClassObject &OldClassManager::getClassObject(const Utf8String &Name) {
-  assert(Classes.count(Name) == 1);
-  assert(Classes.at(Name) != nullptr);
-
-  return *Classes.at(Name);
-}
-
-void OldClassManager::reset() {
-  Classes.clear();
-}

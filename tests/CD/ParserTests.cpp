@@ -83,7 +83,9 @@ TEST_CASE("CD parser for the simple case", "[CD][Parser]") {
 
   REQUIRE_NOTHROW(Verifier::verify(*C));
 
-  auto Res = SlowInterpreter::interpret(*C->getMethod("main"), {});
+  Runtime::ClassManager CM;
+
+  auto Res = SlowInterpreter::interpret(*C->getMethod("main"), {}, CM);
   REQUIRE(Res.getAs<Runtime::JavaInt>() == 0);
 }
 
