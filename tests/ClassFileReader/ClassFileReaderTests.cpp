@@ -51,11 +51,6 @@ TEST_CASE("Read verify and interpret branches class", "[ClassFileReader]") {
 
   Verifier::verify(NewClass);
 
-  // TODO: This should go away with normal class manager
-  auto *ClInit = NewClass.getMethod("<clinit>");
-  REQUIRE(ClInit != nullptr);
-  SlowInterpreter::interpret(*ClInit, {}, CM);
-
   auto *Method = NewClass.getMethod("main");
   REQUIRE(Method != nullptr);
   auto Ret = SlowInterpreter::interpret(*Method, {}, CM);
@@ -68,11 +63,6 @@ TEST_CASE("Read verify and interpret loop class", "[ClassFileReader]") {
   auto &NewClass = CM.getClass("./examples/Loop");
 
   Verifier::verify(NewClass);
-
-  // TODO: This should go away with normal class manager
-  auto *ClInit = NewClass.getMethod("<clinit>");
-  REQUIRE(ClInit != nullptr);
-  SlowInterpreter::interpret(*ClInit, {}, CM);
 
   auto *Method = NewClass.getMethod("main");
   REQUIRE(Method != nullptr);
