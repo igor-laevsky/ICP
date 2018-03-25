@@ -1,0 +1,59 @@
+class {
+  constant_pool {
+    1: ClassInfo "tests/Verifier/New"
+    2: ClassInfo "java/lang/Object"
+
+    3: NameAndType "<init>" "()V"
+    4: MethodRef #1 #3
+
+    5: NameAndType "not_init" "()V"
+    6: MethodRef #1 #5
+
+    auto: "ok"
+    auto: "wrong_not_init"
+    auto: "wrong_no_init"
+    auto: "()I"
+  }
+
+  Name: #1
+  Super: #2
+
+  // Should pass verification
+  method "ok" "()I" {
+    Flags: public, static
+    MaxStack: 2
+    MaxLocals: 1
+
+    bytecode {
+      new #1 // Class this
+      invokespecial #4 // Method "<init>":()V
+      iconst_1
+      ireturn
+    }
+  }
+
+  method "wrong_not_init" "()I" {
+    Flags: public, static
+    MaxStack: 2
+    MaxLocals: 1
+
+    bytecode {
+      new #1 // Class this
+      invokespecial #6  // Method "not_init":()V
+      iconst_1
+      ireturn
+    }
+  }
+
+  method "wrong_no_init" "()I" {
+    Flags: public, static
+    MaxStack: 2
+    MaxLocals: 1
+
+    bytecode {
+      new #1 // Class this
+      iconst_1
+      ireturn
+    }
+  }
+}

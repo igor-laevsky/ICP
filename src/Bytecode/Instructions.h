@@ -432,6 +432,14 @@ public:
   static constexpr const char *Name = "iadd";
 };
 
+class java_new final: public SingleIndex<java_new> {
+  using SingleIndex::SingleIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0xbb;
+  static constexpr const char *Name = "new";
+};
+
 
 }
 

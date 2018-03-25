@@ -412,3 +412,7 @@ TEST_CASE("verifier iiinc", "[Verifier][iinc]") {
 TEST_CASE("verifier goto", "[Verifier][goto]") {
   runAutoTest("goto.cd");
 }
+
+TEST_CASE("verifier new", "[Verifier][new]") {
+  runAutoTest("new.cd");
+}

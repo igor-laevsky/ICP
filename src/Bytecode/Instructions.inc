@@ -1,10 +1,3 @@
-// Enumerate all instructions
-
-// Enumerate all wrappers
-
-// Instructions with direct visits
-// Instructions with forwarding visits
-
 #ifndef HANDLE_INSTR_ALL
   #define HANDLE_INSTR_ALL(ClassName)
 #endif
@@ -67,6 +60,8 @@ HANDLE_INSTR_WRAPPED(istore_3)
 HANDLE_INSTR(iinc)
 
 HANDLE_INSTR(iadd)
+
+HANDLE_INSTR(java_new)
              
 HANDLE_WRAPPER(if_icmp_op)
 HANDLE_WRAPPER(iconst_val)
