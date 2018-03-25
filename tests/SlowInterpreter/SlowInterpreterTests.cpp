@@ -43,6 +43,9 @@ static bool runAutoTest(
   const auto &Class = CM.getClass("tests/SlowInterpreter/" + FileName, getTestLoader());
 
   for (const auto &method: Class.methods()) {
+    if (method->getName() == "<init>")
+      continue;
+
     ResT res = SlowInterpreter::interpret(*method, InputArgs, CM, Debug).getAs<ResT>();
     if (res != 0) {
       std::cerr << "Wrong interpreter result: " << res <<
@@ -134,3 +137,8 @@ TEST_CASE("interpret iadd", "[SlowInterpreter][iadd]") {
   REQUIRE(runAutoTest<Runtime::JavaInt>("iadd",
       {Value::create<JavaInt>(-5), Value::create<JavaInt>(5)}));
 }
+
+//TEST_CASE("interpret new", "[SlowInterpreter][new]") {
+//  REQUIRE(runAutoTest<Runtime::JavaInt>("new",
+//      {Value::create<JavaInt>(-5), Value::create<JavaInt>(5)}));
+//}

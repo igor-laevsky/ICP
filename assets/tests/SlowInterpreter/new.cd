@@ -1,0 +1,54 @@
+class {
+  constant_pool {
+    1: ClassInfo "tests/SlowInterpreter/New"
+    2: ClassInfo "java/lang/Object"
+
+    3: NameAndType "<init>" "()V"
+    4: MethodRef #1 #3
+
+    5: NameAndType "F1" "I"
+    6: FieldRef #1 #5
+
+    auto: "test1"
+    auto: "()I"
+  }
+
+  Name: #1
+  Super: #2
+
+  fields {
+    public static "I": "F1"
+  }
+
+  // Always stores zero to the F1. Each test uses F1 to check that we called
+  // this method.
+  method "<init>" "()V" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iconst_0
+      putstatic #6 // Field F1:I
+      java_return
+    }
+  } 
+
+  // Should pass verification
+  method "test1" "()I" {
+    Flags: public, static
+    MaxStack: 2
+    MaxLocals: 1
+
+    bytecode {
+      iconst_1
+      putstatic #6 // Field F1:I
+    
+      new #1 // Class this
+      invokespecial #4 // Method "<init>":()V
+
+      getstatic #6 // Field F1:I
+      ireturn
+    }
+  }
+}
