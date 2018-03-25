@@ -8,10 +8,11 @@ using namespace JavaTypes;
 
 void StackFrame::computeFlags() {
   // Look for uninitializedThis in locals
-  Flags =
-      std::find(
-          Locals.begin(), Locals.end(),
-          JavaTypes::Types::UninitializedThis) != Locals.end();
+  Flags = std::any_of(
+              Locals.begin(), Locals.end(),
+              [&](const Type &Arg) {
+                return Arg == Types::UninitializedThis;
+              });
 }
 
 std::vector<Type> StackFrame::expandTypes(const std::vector<Type> &Src) {
@@ -178,4 +179,25 @@ bool StackFrame::transformInto(const StackFrame &NextFrame) {
   assert(verifyTypeEncoding());
 
   return true;
+}
+
+void StackFrame::substituteLocals(const Type &From, const Type &To) {
+  for (std::size_t i = 0; i < numLocals(); ++i) {
+    if (getLocal(i) == From)
+      setLocal(i, To);
+  }
+  assert(verifyTypeEncoding());
+}
+
+void StackFrame::substituteStack(const Type &From, const Type &To) {
+  for (std::size_t i = 0; i < numStack(); ++i) {
+    if (stack()[i] == From)
+      stack()[i] = To;
+  }
+  assert(verifyTypeEncoding());
+}
+
+bool StackFrame::stackContains(const Type &T) const {
+  return std::any_of(stack().begin(), stack().end(),
+      [&](const Type &Arg) { return T == Arg; });
 }

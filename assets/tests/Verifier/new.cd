@@ -11,7 +11,7 @@ class {
 
     auto: "ok"
     auto: "wrong_not_init"
-    auto: "wrong_no_init"
+    auto: "ok_no_init"
     auto: "()I"
   }
 
@@ -45,7 +45,7 @@ class {
     }
   }
 
-  method "wrong_no_init" "()I" {
+  method "ok_no_init" "()I" {
     Flags: public, static
     MaxStack: 2
     MaxLocals: 1

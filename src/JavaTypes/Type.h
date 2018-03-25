@@ -118,13 +118,13 @@ private:
   friend struct Types;
 };
 
-// Definitions for the all available types.
+// Definitions for all the available types.
 // Types with parameters are constructed via static functions. Functions without
-// parameters return type which exactly matches same type with any parameter.
-// I.e UninitializedOffset() will exactly match UninitializedOffset(10).
-// Which represents uninitializedOffset(_) from the JVM specification.
+// parameters construct type which exactly matches the same type with any parameter.
+// I.e UninitializedOffset() will exactly match UninitializedOffset(10). But
+// UninitializedOffset(10) will not match UnitializedOffset(20).
 // This struct also contains utility functions to work on 'Type' objects, which
-// is done mainly for the sake of uniformity in the used code.
+// is done mainly for the sake of uniformity in the user code.
 
 // Implementation note:
 // Goal here is to make all this types constexpr, so they can be used in a
@@ -135,8 +135,7 @@ private:
 //     complete the 'Type', then define all the variables.
 //  2. 'struct' is used instead of 'namespace'. We want to keep 'Type'
 //     constructor private. However we need to somehow construct this objects
-//     out-of-line. Hence we used 'struct' which is a friend of 'Type' class.
-// TODO: Add parameters for the class and array types
+//     out-of-line. Hence we used 'struct' which is a friend of the 'Type' class.
 struct Types final {
   // This is a null object. It doesn't reflect any real world type and should
   // be used to indicate that type is unknown.
@@ -189,7 +188,7 @@ struct Types final {
   static constexpr Type toStackType(const Type &From) noexcept;
 
 
-  // This struct is used as a namespace, it's not allowed to construct it.
+  // This struct is used as a namespace, can't construct it.
   Types() = delete;
 };
 
@@ -238,8 +237,7 @@ constexpr bool Types::isAssignable(const Type &From, const Type &To) noexcept {
   if (From == Types::Null)
     return isAssignable(Types::Class, To) || isAssignable(Types::Array, To);
 
-  // TODO: assert from constexpr function is not possible due to the bug in MinGW
-  //assert(false); // All types should be covered
+  assert(false); // All types should be covered
   return false;
 }
 
@@ -251,8 +249,7 @@ constexpr std::size_t Types::sizeOf(const Type &T) noexcept {
   else if (isAssignable(T, Types::TwoWord))
     return 2;
 
-  // TODO: assert from constexpr function is not possible due to the bug in MinGW
-  //assert(false); // should cover all types
+  assert(false); // should cover all types
   return 0;
 }
 

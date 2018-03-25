@@ -66,13 +66,24 @@ public:
 
   void setLocal(std::size_t Idx, JavaTypes::Type T);
 
+  void substituteLocals(const Type &From, const Type &To);
 
   // Methods to work with stack
   //
 
-  auto numStack() const { return Stack.size(); }
+  std::size_t numStack() const { return Stack.size(); }
+  bool stackEmpty() const { return Stack.empty(); }
 
   const std::vector<Type> &stack() const { return Stack; }
+
+  Type top() const {
+    assert(!stack().empty());
+    return stack().back();
+  }
+
+  void substituteStack(const Type &From, const Type &To);
+
+  bool stackContains(const Type &T) const;
 
   // It's possible to pop list of types if each corresponding stack slot is
   // assignable to the given type.
@@ -112,12 +123,11 @@ private:
   static std::vector<JavaTypes::Type> expandTypes(
       const std::vector<JavaTypes::Type> &Src);
 
-  // There is no need for user to access the stack directly, hence it's a
-  // private functions.
-  std::vector<Type> &stack() { return Stack; }
-
-  // Private non const accessor for locals.
+  // Private non const accessor for locals and stack.
+  // This class internally maintains "expanded type" encoding and it is dangerous
+  // to allow user to directly modify either locals or stack.
   std::vector<Type> &locals() { return Locals; }
+  std::vector<Type> &stack() { return Stack; }
 
   // This is low level method which doesn't check if this operation is
   // logically valid.

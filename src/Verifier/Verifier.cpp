@@ -39,7 +39,7 @@ public:
     }
 
     if (LocalTypes.size() > Method.getMaxLocals())
-      throwErr("Too much locals");
+      throwErr("Too many locals");
 
     // Materialize stack map
     StackMap = Method.getStackMapBuilder().createTable(LocalTypes);
@@ -79,6 +79,7 @@ public:
   void visit(const iinc &) override;
   void visit(const java_goto &) override;
   void visit(const iadd &) override;
+  void visit(const java_new &) override;
 
   // Runs before visiting instruction.
   void runPreConditions() {
@@ -207,9 +208,11 @@ void MethodVerifier::visit(const invokespecial &Inst) {
   const auto *MRef =
       CP.getAsOrNull<ConstantPoolRecords::MethodRef>(Inst.getIdx());
   if (MRef == nullptr)
-    throw VerificationError("Incorrect CP index at invokespecial");
+    throwErr("Incorrect CP index at invokespecial");
 
-  assert(MRef->getName() == "<init>"); // other calls are not yet supported
+  if (MRef->getName() != "<init>") {
+    throwErr("Private or super methods is not yet supported");
+  }
 
   std::vector<Type> ArgTypes;
   Type CallRetType = Types::Void;
@@ -217,24 +220,30 @@ void MethodVerifier::visit(const invokespecial &Inst) {
     Type::parseMethodDescriptor(MRef->getDescriptor());
 
   if (CallRetType != Types::Void)
-    throw VerificationError("<init> method should have void return type");
+    throwErr("<init> method should have void return type");
 
   // Pop method arguments
   std::reverse(ArgTypes.begin(), ArgTypes.end());
   tryPop(ArgTypes, "Unable to pop arguments");
 
   // Pop UninitializedArg
-  // TODO: Support uninitialized(Address)
-  Type UninitializedArg = Types::UninitializedThis;
+  if (CurrentFrame.stackEmpty()) {
+    throwErr("Unable to pop uninitialized arg: stack is empty");
+  }
+  Type UninitializedArg = CurrentFrame.top();
+  if (UninitializedArg != Types::UninitializedOffset() &&
+      UninitializedArg != Types::UninitializedThis) {
+    throwErr("Expected uninitialized arg on the stack");
+  }
+
+  // TODO: This should choose class which was symbolically referenced by the
+  // invokespecial instruction.
   Type UninitializedRepl = Types::Class;
   tryPop({UninitializedArg}, "Unable to pop uninitializedThis");
 
-  // Replace UninitializedArg in locals
-  for (std::size_t i = 0; i < CurrentFrame.numLocals(); ++i)
-    if (CurrentFrame.getLocal(i) == UninitializedArg)
-      CurrentFrame.setLocal(i, UninitializedRepl);
-
-  // TODO: Replace UninitializedArg on the stack
+  // Replace UninitializedArg in locals and on the stack
+  CurrentFrame.substituteLocals(UninitializedArg, UninitializedRepl);
+  CurrentFrame.substituteStack(UninitializedArg, UninitializedRepl);
 }
 
 void MethodVerifier::visit(const java_return &) {
@@ -337,6 +346,29 @@ void MethodVerifier::visit(const java_goto &Inst) {
 
 void MethodVerifier::visit(const iadd &) {
   tryTypeTransition({Types::Int, Types::Int}, Types::Int);
+}
+
+void MethodVerifier::visit(const java_new &Inst) {
+  // Check constant pool index
+  const auto *cp_ref = CP.getAsOrNull<ConstantPoolRecords::ClassInfo>(Inst.getIdx());
+  if (!cp_ref) {
+    throwErr("Constant pool index should point to the ClassInfo " +
+             std::to_string(Inst.getIdx()));
+  }
+
+  Type new_item = Types::UninitializedOffset(getCurBci());
+
+  // Check that we didn't start initialization at the same offset already
+  if (CurrentFrame.stackContains(new_item)) {
+    throwErr("Already initializing new item at offset " +
+             std::to_string(getCurBci()));
+  }
+
+  // Replace new_item with Top in the Locals array
+  CurrentFrame.substituteLocals(new_item, Types::Top);
+
+  // Push uninitialized(Offset)
+  CurrentFrame.pushList({new_item});
 }
 
 
