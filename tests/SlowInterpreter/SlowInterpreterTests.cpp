@@ -39,10 +39,10 @@ static bool runAutoTest(
     const std::string &FileName, const std::vector<Value> &InputArgs,
     bool Debug = false) {
 
-  auto Class = CD::parseFromFile("tests/SlowInterpreter/" + FileName);
   ClassManager CM;
+  const auto &Class = CM.getClass("tests/SlowInterpreter/" + FileName, getTestLoader());
 
-  for (const auto &method: Class->methods()) {
+  for (const auto &method: Class.methods()) {
     ResT res = SlowInterpreter::interpret(*method, InputArgs, CM, Debug).getAs<ResT>();
     if (res != 0) {
       std::cerr << "Wrong interpreter result: " << res <<
@@ -112,25 +112,25 @@ TEST_CASE("interpret get put static", "[SlowInterpreter]") {
 }
 
 TEST_CASE("interpret comparisons", "[SlowInterpreter][comparisons]") {
-  REQUIRE(runAutoTest<Runtime::JavaInt>("ifcmp.cd", {}));
+  REQUIRE(runAutoTest<Runtime::JavaInt>("ifcmp", {}));
 }
 
 TEST_CASE("interpret iload istore", "[SlowInterpreter][iload_istore]") {
-  REQUIRE(runAutoTest<Runtime::JavaInt>("iload_istore.cd",
+  REQUIRE(runAutoTest<Runtime::JavaInt>("iload_istore",
       {Value::create<JavaInt>(5), Value::create<JavaInt>(0)}));
 }
 
 TEST_CASE("interpret iinc", "[SlowInterpreter][iinc]") {
-  REQUIRE(runAutoTest<Runtime::JavaInt>("iinc.cd",
+  REQUIRE(runAutoTest<Runtime::JavaInt>("iinc",
       {Value::create<JavaInt>(-5), Value::create<JavaInt>(-12)}));
 }
 
 TEST_CASE("interpret goto", "[SlowInterpreter][goto]") {
-  REQUIRE(runAutoTest<Runtime::JavaInt>("goto.cd",
+  REQUIRE(runAutoTest<Runtime::JavaInt>("goto",
       {Value::create<JavaInt>(-5), Value::create<JavaInt>(-12)}));
 }
 
 TEST_CASE("interpret iadd", "[SlowInterpreter][iadd]") {
-  REQUIRE(runAutoTest<Runtime::JavaInt>("iadd.cd",
+  REQUIRE(runAutoTest<Runtime::JavaInt>("iadd",
       {Value::create<JavaInt>(-5), Value::create<JavaInt>(5)}));
 }
