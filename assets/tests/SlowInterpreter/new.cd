@@ -30,7 +30,7 @@ class {
     bytecode {
       iconst_0
       putstatic #6 // Field F1:I
-      java_return
+      return
     }
   } 
 

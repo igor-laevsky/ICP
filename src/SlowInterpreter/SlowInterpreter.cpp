@@ -46,6 +46,8 @@ public:
       locals().resize(Method.getMaxLocals());
   }
 
+  bool empty() const { return stack().empty(); }
+
   const Instruction &getCurInstr() const {
     assert(CurInstr != Method.end());
     return **CurInstr;
@@ -156,15 +158,15 @@ public:
   }
 
   void exit_function() {
-    assert(!stack().empty());
+    assert(!stack().empty()); // can't exit if no functions were called
     stack().pop_back();
   }
 
-  const auto &currentFrame() const {
+  const InterpreterFrame &currentFrame() const {
     assert(!stack().empty());
     return stack().back();
   }
-  auto &currentFrame() {
+  InterpreterFrame &currentFrame() {
     return const_cast<InterpreterFrame &>(
         const_cast<const InterpreterStack&>(*this).currentFrame());
   }
@@ -249,6 +251,7 @@ public:
 
   void visit(const java_goto &) override;
   void visit(const iadd &) override;
+  void visit(const java_new &) override;
 
 private:
   InterpreterStack &stack() { return Stack; }
@@ -269,7 +272,7 @@ private:
     return curMethod().getOwner().getConstantPool();
   }
 
-  void returnFromFunction(bool DoPop);
+  void returnFromFunction();
 
   // Schedules bci jump which is performed in the 'runSingleInstr' method.
   void jumpToBciOffset(BciOffsetType Offset) { NextOffset = Offset; }
@@ -280,6 +283,7 @@ private:
 
   // Bci offset of the next instruction to execute.
   // Empty means jump to the next instruction.
+  // Zero value means do not jump anywhere.
   std::optional<BciOffsetType> NextOffset;
 
   ClassManager &CM;
@@ -313,33 +317,68 @@ void Interpreter::visit(const dconst_val &Inst) {
   curFrame().push<JavaDouble>(Inst.getVal());
 }
 
-void Interpreter::returnFromFunction(bool DoPop) {
-  // TODO: pop frame and push result to stack
-  assert(stack().numFrames() == 1); // function calls are not supported
+void Interpreter::returnFromFunction() {
+  // Pop the result value
+  std::optional<Value> result = std::nullopt;
+  if (!curFrame().empty())
+    result = curFrame().pop();
 
-  if (DoPop)
-    RetVal = curFrame().pop();
+  // Pop stack frame (which should be empty by now)
   stack().exit_function();
+
+  // If has the result - push it onto the previous stack frame
+  if (!result)
+    return;
+
+  if (isStackEmpty()) {
+    RetVal = *result;
+  } else {
+    curFrame().push(*result);
+  }
 }
 
 void Interpreter::visit(const ireturn &) {
-  returnFromFunction(true);
+  returnFromFunction();
 }
 
 void Interpreter::visit(const dreturn &) {
-  returnFromFunction(true);
+  returnFromFunction();
 }
 
 void Interpreter::visit(const java_return &) {
-  returnFromFunction(false);
+  returnFromFunction();
 }
 
 void Interpreter::visit(const aload_0 &) {
   assert(false); // Not implemented
 }
 
-void Interpreter::visit(const invokespecial &) {
-  assert(false); // Not implemented
+void Interpreter::visit(const invokespecial &Inst) {
+  const auto &m_ref = CP().getAs<ConstantPoolRecords::MethodRef>(Inst.getIdx());
+
+  // Resolve the class
+  auto &class_obj = CM.getClassObject(m_ref.getClassName(), curLoader());
+
+  // Resolve the method (so far only instance init methods)
+  // TODO: This should be a proper resolution with proper exceptions
+  assert(m_ref.getName() == "<init>");
+  const auto *method = class_obj.getClass().getMethod("<init>");
+  assert(method); // should be present
+
+  // Gather arguments
+  Type RetTy = Types::Void;
+  std::vector<Type> ArgTypes;
+  std::tie(RetTy, ArgTypes) = Type::parseMethodDescriptor(method->getDescriptor());
+  std::vector<Value> ArgVals;
+
+  ArgVals.reserve(ArgTypes.size());
+  for (std::size_t i = 0; i < ArgTypes.size(); ++i) {
+    ArgVals.push_back(curFrame().pop());
+  }
+
+  // Start new function
+  stack().enter_function(*method, std::move(ArgVals));
+  NextOffset = 0;
 }
 
 void Interpreter::visit(const aload &) {
@@ -422,6 +461,17 @@ void Interpreter::visit(const iadd &) {
 
   // TODO: Should properly handle overflow
   curFrame().push<JavaInt>(val1 + val2);
+}
+
+void Interpreter::visit(const java_new &Inst) {
+  const auto &class_ref = CP().getAs<ConstantPoolRecords::ClassInfo>(Inst.getIdx());
+
+  // Resolve the class (also load, verify and initialize it if necessary)
+  auto &class_obj = CM.getClassObject(class_ref.getName(), curLoader());
+
+  // Create new instance of this class and push it on the stack
+  JavaRef instance = InstanceObject::create(class_obj);
+  curFrame().push<JavaRef>(instance);
 }
 
 

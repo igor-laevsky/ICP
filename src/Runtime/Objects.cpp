@@ -64,3 +64,11 @@ void ClassObject::setField(const Utf8String &Name, const Value &V) {
 const JavaMethod *ClassObject::getMethod(const Utf8String &Name) const {
   return getClass().getMethod(Name);
 }
+
+InstanceObject *InstanceObject::create(ClassObject &Class) {
+  return new InstanceObject(Class);
+}
+
+InstanceObject::InstanceObject(ClassObject &ClassObj): ClassObj(ClassObj) {
+  (void)this->ClassObj;
+}

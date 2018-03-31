@@ -138,7 +138,7 @@ TEST_CASE("interpret iadd", "[SlowInterpreter][iadd]") {
       {Value::create<JavaInt>(-5), Value::create<JavaInt>(5)}));
 }
 
-//TEST_CASE("interpret new", "[SlowInterpreter][new]") {
-//  REQUIRE(runAutoTest<Runtime::JavaInt>("new",
-//      {Value::create<JavaInt>(-5), Value::create<JavaInt>(5)}));
-//}
+TEST_CASE("interpret new", "[SlowInterpreter][new]") {
+  REQUIRE(runAutoTest<Runtime::JavaInt>("new",
+      {Value::create<JavaInt>(-5), Value::create<JavaInt>(5)}));
+}

@@ -57,6 +57,13 @@ public:
   class UnrecognizedField: public std::exception { };
 
 public:
+  // No copies
+  ClassObject(const ClassObject &) = delete;
+  ClassObject &operator=(const ClassObject &) = delete;
+  // No moves
+  ClassObject(ClassObject &&) = delete;
+  ClassObject &operator=(ClassObject &&) = delete;
+
   /// Create the class and zero-initializes it's static fields
   explicit ClassObject(const JavaTypes::JavaClass &Class);
 
@@ -83,6 +90,19 @@ private:
 private:
   const JavaTypes::JavaClass &Class;
   std::vector<uint8_t> Fields;
+};
+
+/// Class which represents instance of the java class (ClassObject)
+class InstanceObject: public Object {
+public:
+  // TODO: This should return gc managed pointer someday
+  static InstanceObject *create(ClassObject &Class);
+
+private:
+  explicit InstanceObject(ClassObject &ClassObj);
+
+private:
+  ClassObject &ClassObj;
 };
 
 }
