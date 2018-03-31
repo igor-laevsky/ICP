@@ -222,7 +222,7 @@ public:
   bool runSingleInstr();
 
   // Accessors for the current interpreter state
-  bool isStackEmpty() { return stack().empty(); }
+  bool empty() { return stack().empty(); }
   const Instruction &getCurInstr() const { return curFrame().getCurInstr(); }
   BciType getCurBci() const { return curFrame().getCurBci(); }
   Value getRetVal() { return RetVal; }
@@ -296,7 +296,7 @@ bool Interpreter::runSingleInstr() {
   getCurInstr().accept(*this);
 
   // If we exited the last function - we are done.
-  if (isStackEmpty())
+  if (empty())
     return false;
 
   // Jump to the next instruction.
@@ -330,7 +330,7 @@ void Interpreter::returnFromFunction() {
   if (!result)
     return;
 
-  if (isStackEmpty()) {
+  if (empty()) {
     RetVal = *result;
   } else {
     curFrame().push(*result);
@@ -494,6 +494,6 @@ Value SlowInterpreter::interpret(
     }
   } while (I.runSingleInstr());
 
-  assert(I.isStackEmpty()); // should exit all functions
+  assert(I.empty()); // should exit all functions
   return I.getRetVal();
 }
