@@ -1,0 +1,116 @@
+class {
+  constant_pool {
+    1: ClassInfo "tests/Verifier/PutGetField"
+    2: ClassInfo "java/lang/Object"
+    3: NameAndType "F2" "D"
+    4: NameAndType "F1" "I"
+    5: FieldRef #1 #3
+    6: FieldRef #1 #4
+
+    auto: "<init>"
+    auto: "(II)V"
+    auto: "()V"
+    auto: "ok"
+    auto: "ok_get"
+    auto: "wrong_get_put"
+    auto: "wrong_get_put2"
+  }
+
+  Name: #1
+  Super: #2
+
+  fields {
+    public "I": "F1"
+    public "D": "F2"
+  }
+
+  // Init method - should pass verification
+  method "<init>" "(II)V" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      aload_0
+      iconst_1
+      putfield #6 // Field F1:I
+      aload #0
+      dconst_1
+      putfield #5 // Field F2:D 
+      return
+    }
+  }
+
+  method "ok" "()V" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      new #1
+      astore #5
+
+      aload #5
+      dconst_1
+      putfield #5 // Field F2:D
+
+      aload #5
+      iconst_1
+      putfield #6 // Field F1:I
+      return
+    }
+  }
+
+  method "ok_get" "()V" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      new #1
+      astore #5
+
+      aload #5
+      getfield #5 // Field F2:D
+      aload #5
+      putfield #5 // Field F2:D
+
+      aload #5
+      getfield #6 // Field F1:I
+      aload #5
+      putfield #6 // Field F1:I
+    }
+  }
+
+  method "wrong_get_put" "()V" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      new #1
+      astore #5
+
+      aload #5
+      getfield #6 // Field F2:D
+      aload #5
+      putfield #5 // Field F2:D
+    }
+  }
+
+  method "wrong_get_put2" "()V" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      new #1
+      astore #5
+
+      aload #5
+      getfield #5 // Field F2:D
+      aload #5
+      putfield #6 // Field F2:D
+    }
+  }
+}
