@@ -424,6 +424,21 @@ public:
   static constexpr const char *Name = "new";
 };
 
+class getfield final: public SingleIndex<getfield> {
+  using SingleIndex::SingleIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0xb4;
+  static constexpr const char *Name = "getfield";
+};
+
+class putfield final: public SingleIndex<putfield> {
+  using SingleIndex::SingleIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0xb5;
+  static constexpr const char *Name = "putfield";
+};
 
 ///
 /// Aload astore

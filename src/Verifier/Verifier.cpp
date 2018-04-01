@@ -72,6 +72,8 @@ public:
   void visit(const dreturn &) override;
   void visit(const putstatic &) override;
   void visit(const getstatic &) override;
+  void visit(const putfield &) override;
+  void visit(const getfield &) override;
   void visit(const dconst_val &) override;
   void visit(const if_icmp_op &) override;
   void visit(const iload_val &) override;
@@ -125,27 +127,26 @@ public:
 
 private:
   // Load type 'T' from the loacal variable Idx.
-  void loadFromLocal(Bytecode::IdxType Idx, Type ToT) {
+  void loadFromLocal(Bytecode::IdxType Idx, Type T) {
     checkLocalIdx(Idx);
 
-    Type FromType = CurrentFrame.getLocal(Idx);
-    if (!Types::isAssignable(FromType, ToT))
+    Type ActualType = CurrentFrame.getLocal(Idx);
+    if (!Types::isAssignable(ActualType, T))
       throwErr("Local variable has incompatible load type at index " +
                std::to_string(Idx));
 
-    CurrentFrame.pushList({FromType});
+    CurrentFrame.pushList({ActualType});
   }
 
   // Store type 'T' into local variable Idx.
-  void storeToLocal(Bytecode::IdxType Idx, Type FromT) {
+  void storeToLocal(Bytecode::IdxType Idx, Type T) {
     checkLocalIdx(Idx);
 
-    Type ToT = CurrentFrame.getLocal(Idx);
-    if (!Types::isAssignable(FromT, ToT))
-      throwErr("Local variable has incompatible store type at index " +
-               std::to_string(Idx));
+    std::optional<Type> actual_type = CurrentFrame.popMatchingType(T);
+    if (!actual_type)
+      throwErr("Unable to pop type for local " + std::to_string(Idx));
 
-    CurrentFrame.setLocal(Idx, FromT);
+    CurrentFrame.setLocal(Idx, *actual_type);
   }
 
   // Checks if we can jump to this target from the current state.
@@ -279,7 +280,7 @@ void MethodVerifier::visit(const dreturn &) {
 }
 
 // Helper with common parts of the get and put static bytecodes
-Type getFieldType(ConstantPool::IndexType Idx, const ConstantPool &CP) {
+static Type getFieldType(ConstantPool::IndexType Idx, const ConstantPool &CP) {
   const auto *CPRef = CP.getAsOrNull<ConstantPoolRecords::FieldRef>(Idx);
   if (!CPRef)
     throw VerificationError("Incorrect CP index");
@@ -305,6 +306,30 @@ void MethodVerifier::visit(const getstatic &Inst) {
   CurrentFrame.pushList({FieldType});
 }
 
+void MethodVerifier::visit(const putfield &Inst) {
+  auto field_type = getFieldType(Inst.getIdx(), CP);
+
+  tryPop({field_type}, "Incompatible type in put field instruction");
+
+  // TODO: Protected checks
+
+  if (CurrentFrame.stackEmpty())
+    throwErr("Unable to pop field class: empty stack");
+
+  if (CurrentFrame.top() == Types::UninitializedThis) {
+    bool ok = CurrentFrame.popMatchingList({Types::UninitializedThis});
+    (void)ok; assert(ok); // just checked
+  } else {
+    tryPop({Types::Class}, "Unable to pop field holder");
+  }
+}
+
+void MethodVerifier::visit(const getfield &Inst) {
+  auto field_type = getFieldType(Inst.getIdx(), CP);
+  tryTypeTransition({Types::Class}, field_type);
+  // TODO: Protected checks
+}
+
 void MethodVerifier::targetIsTypeSafe(Bytecode::BciOffsetType Off) {
   auto target_bci = getCurBci() + Off;
   auto target_frame = StackMap.findAtBci(target_bci);
@@ -326,7 +351,6 @@ void MethodVerifier::visit(const iload_val &Inst) {
 }
 
 void MethodVerifier::visit(const istore_val &Inst) {
-  tryPop({Types::Int}, "Expected integer on the stack");
   storeToLocal(Inst.getVal(), Types::Int);
 }
 

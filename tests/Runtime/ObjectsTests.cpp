@@ -6,6 +6,7 @@
 
 #include "Runtime/Objects.h"
 #include "Runtime/Value.h"
+#include "Runtime/RuntimeFwd.h"
 #include "CD/Parser.h"
 
 using namespace Runtime;
@@ -28,7 +29,7 @@ TEST_CASE("Class objects static fields", "[Runtime][Value]") {
   Value F2 = Class.getField("F2");
   Value F3 = Class.getField("F3");
   Value Ref = Class.getField("Ref");
-  REQUIRE_THROWS_AS(Class.getField("asd"), ClassObject::UnrecognizedField);
+  REQUIRE_THROWS_AS(Class.getField("asd"), UnrecognizedField);
 
   // Ensure that by default memory is zero initialized and correctly typed
   REQUIRE(F1.isA<JavaInt>());

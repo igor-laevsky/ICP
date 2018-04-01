@@ -51,7 +51,7 @@ static void runAutoTest(const std::string &FileName) {
     assert(method.get() != nullptr); // should never happen
     const JavaMethod &M = *method.get();
 
-    if (starts_with(M.getName(), "ok")) {
+    if (starts_with(M.getName(), "ok") || M.getName() == "<init>") {
       REQUIRE_NOTHROW(verifyMethod(M));
     } else if (starts_with(M.getName(), "wrong")) {
       REQUIRE_THROWS_AS(verifyMethod(M), VerificationError);
@@ -415,4 +415,8 @@ TEST_CASE("verifier goto", "[Verifier][goto]") {
 
 TEST_CASE("verifier new", "[Verifier][new]") {
   runAutoTest("new.cd");
+}
+
+TEST_CASE("verifier getputfield", "[Verifier][getputfield]") {
+  runAutoTest("putfield_getfield.cd");
 }

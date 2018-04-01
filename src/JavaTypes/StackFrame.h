@@ -85,6 +85,10 @@ public:
 
   bool stackContains(const Type &T) const;
 
+  // Return none if unable to pop the type.
+  // Otherwise return type which was actually popped.
+  std::optional<Type> popMatchingType(const JavaTypes::Type &T);
+
   // It's possible to pop list of types if each corresponding stack slot is
   // assignable to the given type.
   // Function has no effect if not all types can be popped.
@@ -142,6 +146,8 @@ private:
 
   // Checks that all two word types are correctly encoded.
   bool verifyTypeEncoding();
+
+  bool isTwoWordType(std::size_t Idx) const;
 
 private:
   std::vector<Type> Locals;

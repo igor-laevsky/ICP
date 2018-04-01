@@ -70,6 +70,9 @@ HANDLE_INSTR(iinc)
 HANDLE_INSTR(iadd)
 
 HANDLE_INSTR(java_new)
+
+HANDLE_INSTR(getfield)
+HANDLE_INSTR(putfield)
              
 HANDLE_WRAPPER(if_icmp_op)
 HANDLE_WRAPPER(iconst_val)

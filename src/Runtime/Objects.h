@@ -7,8 +7,9 @@
 #define ICP_OBJECTS_H
 
 #include "JavaTypes/JavaTypesFwd.h"
-#include "Value.h"
+#include "Runtime/Value.h"
 #include "Utils/Utf8String.h"
+#include "Runtime/FieldStorage.h"
 
 namespace Runtime {
 
@@ -54,9 +55,6 @@ protected:
 /// Class which represents the loaded java class itself.
 class ClassObject: public Object {
 public:
-  class UnrecognizedField: public std::exception { };
-
-public:
   // No copies
   ClassObject(const ClassObject &) = delete;
   ClassObject &operator=(const ClassObject &) = delete;
@@ -65,15 +63,23 @@ public:
   ClassObject &operator=(ClassObject &&) = delete;
 
   /// Create the class and zero-initializes it's static fields
-  explicit ClassObject(const JavaTypes::JavaClass &Class);
+  explicit ClassObject(const JavaTypes::JavaClass &Class) :
+    Class(Class),
+    Fields(Class, /*is_static**/true) {
+    ;
+  }
 
   /// Get static field from this class.
   /// \throws UnrecognizedField If no field was found.
-  Value getField(const Utf8String &Name) const;
+  Value getField(const Utf8String &Name) const {
+    return Fields.getField(Name);
+  }
 
   /// Set static field or throw an exception if no such field is found.
   /// \throws UnrecognizedField If no field was found.
-  void setField(const Utf8String &Name, const Value &V);
+  void setField(const Utf8String &Name, const Value &V) {
+    return Fields.setField(Name, V);
+  }
 
   const JavaTypes::JavaClass &getClass() const { return Class; }
 
@@ -81,15 +87,8 @@ public:
   const JavaTypes::JavaMethod *getMethod(const Utf8String &Name) const;
 
 private:
-  const std::vector<uint8_t> &fields() const { return Fields; }
-  std::vector<uint8_t> &fields() { return Fields; }
-
-  std::pair<const JavaTypes::JavaField*, std::size_t>
-  findFieldAndOffset(const Utf8String &Name) const;
-
-private:
   const JavaTypes::JavaClass &Class;
-  std::vector<uint8_t> Fields;
+  FieldStorage Fields;
 };
 
 /// Class which represents instance of the java class (ClassObject)
@@ -97,6 +96,14 @@ class InstanceObject: public Object {
 public:
   // TODO: This should return gc managed pointer someday
   static InstanceObject *create(ClassObject &Class);
+
+  /// Get instance field from this class.
+  /// \throws UnrecognizedField If no field was found.
+  Value getField(const Utf8String &Name) const;
+
+  /// Set instance field or throw an exception if no such field is found.
+  /// \throws UnrecognizedField If no field was found.
+  void setField(const Utf8String &Name, const Value &V);
 
 private:
   explicit InstanceObject(ClassObject &ClassObj);

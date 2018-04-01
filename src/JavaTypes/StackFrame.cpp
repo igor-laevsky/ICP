@@ -28,15 +28,39 @@ std::vector<Type> StackFrame::expandTypes(const std::vector<Type> &Src) {
   return Ret;
 }
 
+bool StackFrame::isTwoWordType(std::size_t Idx) const {
+  return Idx >= 1 &&
+         stack()[Idx] == Types::Top &&
+         Types::sizeOf(stack()[Idx - 1]) == 2;
+}
+
+std::optional<Type> StackFrame::popMatchingType(const JavaTypes::Type &T) {
+  Type actual_type = Types::Void;
+
+  if (stackEmpty()) {
+    return std::nullopt;
+  }
+
+  if (isTwoWordType(stack().size() - 1)) {
+    actual_type = stack()[stack().size() - 2];
+  } else {
+    actual_type = top();
+  }
+
+  if (!Types::isAssignable(actual_type, T)) {
+    return std::nullopt;
+  }
+
+  if (Types::sizeOf(actual_type) == 2) {
+    pop();
+  }
+  pop();
+  return actual_type;
+}
+
 bool StackFrame::popMatchingList(const std::vector<Type> &Types) {
   if (stack().empty())
     return Types.empty();
-
-  auto IsTwoWordType = [&] (auto Idx) {
-    return Idx >= 1 &&
-        stack()[Idx] == Types::Top &&
-        Types::sizeOf(stack()[Idx - 1]) == 2;
-  };
 
   // First check that we can pop all the types
   int TopIdx = static_cast<int>(stack().size()) - 1;
@@ -46,7 +70,7 @@ bool StackFrame::popMatchingList(const std::vector<Type> &Types) {
       return false;
 
     // This is two word type
-    if (IsTwoWordType(TopIdx)) {
+    if (isTwoWordType(TopIdx)) {
       --TopIdx;
       assert(TopIdx >= 0);
     }
@@ -60,7 +84,7 @@ bool StackFrame::popMatchingList(const std::vector<Type> &Types) {
   // Actually pop all the types. No additional checks are needed.
   for (std::size_t i = 0; i < Types.size(); ++i) {
     // Additional pop for two word types
-    if (IsTwoWordType(stack().size() - 1))
+    if (isTwoWordType(stack().size() - 1))
       pop();
     pop();
   }

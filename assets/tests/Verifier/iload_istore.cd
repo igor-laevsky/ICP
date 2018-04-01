@@ -10,7 +10,7 @@ class {
     auto: "ok_store_to_uninit"
     auto: "ok_stack_pop"
     auto: "wrong_type_load"
-    auto: "wrong_type_store"
+    auto: "ok_type_store"
     auto: "wrong_uninit_load"
     auto: "wrong_uninit_load2"
     auto: "(II)I"
@@ -112,19 +112,6 @@ class {
     }
   }
 
-  method "wrong_type_store" "(JI)I" {
-    Flags: public, static
-    MaxStack: 10
-    MaxLocals: 10
-
-    bytecode {
-      iload #2
-      istore #0
-      iload #2
-      ireturn
-    }
-  }
-
   method "wrong_uninit_load" "(JI)I" {
     Flags: public, static
     MaxStack: 10
@@ -147,6 +134,19 @@ class {
       iload #5
       istore #0
       iload #2
+      ireturn
+    }
+  }
+
+  method "ok_type_store" "(JI)I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      iload #2
+      istore #0
+      iload #0
       ireturn
     }
   }

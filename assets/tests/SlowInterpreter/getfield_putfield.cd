@@ -1,0 +1,67 @@
+class {
+  constant_pool {
+    1: ClassInfo "tests/SlowInterpreter/PutGetField"
+    2: ClassInfo "java/lang/Object"
+    3: NameAndType "F2" "D"
+    4: NameAndType "F1" "I"
+    5: FieldRef #1 #3
+    6: FieldRef #1 #4
+
+    7: NameAndType "<init>" "()V"
+    8: MethodRef #2 #7
+
+    9: NameAndType "<init>" "(II)V"
+    10: MethodRef #1 #9
+
+    auto: "<init>"
+    auto: "(II)V"
+    auto: "()I"
+    auto: "test1"
+  }
+
+  Name: #1
+  Super: #2
+
+  fields {
+    public "I": "F1"
+    public "D": "F2"
+  }
+
+  // Init method - should pass verification
+  method "<init>" "(II)V" {
+    Flags: public
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      aload_0
+      iconst_1
+      putfield #6 // Field F1:I
+      aload #0
+      dconst_1
+      putfield #5 // Field F2:D 
+      aload_0
+      invokespecial #8 // Method Object.<init>
+      return
+    }
+  }
+
+  method "test1" "()I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      new #1
+      astore #5
+      aload #5
+      iconst_1
+      iconst_1
+      invokespecial #10 // Method this.<init>
+
+      aload #5
+      getfield #6 // Field F1:I
+      ireturn
+    }
+  }
+}
