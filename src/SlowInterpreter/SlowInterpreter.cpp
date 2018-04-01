@@ -231,14 +231,14 @@ public:
   void print(std::ostream &Out = std::cout) { Stack.print(Out); }
 
   // Meat of the interpreter.
-  void visit(const aload_0 &) override;
+  void visit(const aload_val &) override;
+  void visit(const astore_val &) override;
   void visit(const invokespecial &) override;
   void visit(const iconst_val &) override;
   void visit(const dconst_val &) override;
   void visit(const ireturn &) override;
   void visit(const dreturn &) override;
   void visit(const java_return &) override;
-  void visit(const aload &) override;
   void visit(const putstatic &) override;
   void visit(const getstatic &) override;
 
@@ -349,8 +349,12 @@ void Interpreter::visit(const java_return &) {
   returnFromFunction();
 }
 
-void Interpreter::visit(const aload_0 &) {
-  assert(false); // Not implemented
+void Interpreter::visit(const astore_val &Inst) {
+  curFrame().setLocal(Inst.getVal(), curFrame().pop());
+}
+
+void Interpreter::visit(const aload_val &Inst) {
+  curFrame().push(curFrame().getLocal(Inst.getVal()));
 }
 
 void Interpreter::visit(const invokespecial &Inst) {
@@ -379,10 +383,6 @@ void Interpreter::visit(const invokespecial &Inst) {
   // Start new function
   stack().enter_function(*method, std::move(ArgVals));
   NextOffset = 0;
-}
-
-void Interpreter::visit(const aload &) {
-  assert(false); // Not implemented
 }
 
 void Interpreter::visit(const putstatic &Inst) {

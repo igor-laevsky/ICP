@@ -63,8 +63,8 @@ public:
     return true;
   }
 
-  void visit(const aload_0 &) override;
-  void visit(const aload &Inst) override;
+  void visit(const aload_val &Inst) override;
+  void visit(const astore_val &Inst) override;
   void visit(const invokespecial &Inst) override;
   void visit(const java_return &) override;
   void visit(const iconst_val &) override;
@@ -196,12 +196,12 @@ private:
 
 }
 
-void MethodVerifier::visit(const aload_0 &) {
-  loadFromLocal(0, Types::Reference);
+void MethodVerifier::visit(const aload_val &Inst) {
+  loadFromLocal(Inst.getVal(), Types::Reference);
 }
 
-void MethodVerifier::visit(const aload &Inst) {
-  loadFromLocal(Inst.getIdx(), Types::Reference);
+void MethodVerifier::visit(const astore_val &Inst) {
+  storeToLocal(Inst.getVal(), Types::Reference);
 }
 
 void MethodVerifier::visit(const invokespecial &Inst) {

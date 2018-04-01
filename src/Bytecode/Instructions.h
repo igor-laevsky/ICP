@@ -173,22 +173,6 @@ public:
 
 
 
-class aload_0 final: public NoIndex<aload_0> {
-  using NoIndex::NoIndex;
-
-public:
-  static constexpr uint8_t OpCode = 0x2a;
-  static constexpr const char *Name = "aload_0";
-};
-
-class aload final: public SingleIndex<aload> {
-  using SingleIndex::SingleIndex;
-
-public:
-  static constexpr uint8_t OpCode = 0x2b;
-  static constexpr const char *Name = "aload";
-};
-
 class invokespecial final: public SingleIndex<invokespecial> {
   using SingleIndex::SingleIndex;
 
@@ -438,6 +422,70 @@ class java_new final: public SingleIndex<java_new> {
 public:
   static constexpr uint8_t OpCode = 0xbb;
   static constexpr const char *Name = "new";
+};
+
+
+///
+/// Aload astore
+///
+/// TODO: aload has single-byte index
+
+#define DEF_aload(Value, OpCodeVal) \
+class aload_##Value final: public NoIndex<aload_##Value> { \
+  using NoIndex::NoIndex; \
+\
+public:\
+  static constexpr uint8_t OpCode = OpCodeVal;\
+  static constexpr const char *Name = "aload_"#Value;\
+  static constexpr IdxType Val = Value;\
+}
+
+#define DEF_astore(Value, OpCodeVal) \
+class astore_##Value final: public NoIndex<astore_##Value> { \
+  using NoIndex::NoIndex; \
+\
+public:\
+  static constexpr uint8_t OpCode = OpCodeVal;\
+  static constexpr const char *Name = "astore_"#Value;\
+  static constexpr IdxType Val = Value;\
+}
+
+DEF_aload(0, 0x2a); DEF_astore(0, 0x4b);
+DEF_aload(1, 0x2b); DEF_astore(1, 0x4c);
+DEF_aload(2, 0x2c); DEF_astore(2, 0x4d);
+DEF_aload(3, 0x2d); DEF_astore(3, 0x4e);
+
+#undef DEF_aload
+#undef DEF_astore
+
+class aload: public SingleIndex<aload> {
+  using SingleIndex::SingleIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0x19;
+  static constexpr const char *Name = "aload";
+};
+
+class astore: public SingleIndex<astore> {
+  using SingleIndex::SingleIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0x3a;
+  static constexpr const char *Name = "astore";
+};
+
+class aload_val final:
+    public ValueInstWrapper<aload_0, aload_1, aload_2, aload_3> {
+public:
+  using ValueInstWrapper::ValueInstWrapper;
+  aload_val(const aload &Inst): ValueInstWrapper(from_idx, Inst) {}
+};
+
+class astore_val final:
+    public ValueInstWrapper<astore_0, astore_1, astore_2, astore_3> {
+public:
+  using ValueInstWrapper::ValueInstWrapper;
+  astore_val(const astore &Inst): ValueInstWrapper(from_idx, Inst) {}
 };
 
 

@@ -14,7 +14,7 @@ namespace {
 
 class TestVisitor: public InstructionVisitor {
 public:
-  void visit(const aload_0 &) override {
+  void visit(const aload_val &) override {
     seenAload = true;
   }
 
@@ -28,10 +28,6 @@ public:
 
   void visit(const ireturn &) override {
     assert(false);
-  }
-
-  void visit(const aload &) override {
-   assert(false);
   }
 
   void visit(const putstatic &) override {
