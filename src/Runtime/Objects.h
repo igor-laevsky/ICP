@@ -53,7 +53,7 @@ protected:
 };
 
 /// Class which represents the loaded java class itself.
-class ClassObject: public Object {
+class ClassObject final: public Object {
 public:
   // No copies
   ClassObject(const ClassObject &) = delete;
@@ -92,24 +92,38 @@ private:
 };
 
 /// Class which represents instance of the java class (ClassObject)
-class InstanceObject: public Object {
+class InstanceObject final: public Object {
 public:
   // TODO: This should return gc managed pointer someday
-  static InstanceObject *create(ClassObject &Class);
+  static InstanceObject *create(ClassObject &ClassObj);
 
   /// Get instance field from this class.
   /// \throws UnrecognizedField If no field was found.
-  Value getField(const Utf8String &Name) const;
+  Value getField(const Utf8String &Name) const {
+    return Fields.getField(Name);
+  }
 
   /// Set instance field or throw an exception if no such field is found.
   /// \throws UnrecognizedField If no field was found.
-  void setField(const Utf8String &Name, const Value &V);
+  void setField(const Utf8String &Name, const Value &V) {
+    Fields.setField(Name, V);
+  }
+
+  ClassObject &getClassObj() { return ClassObj; }
+  const ClassObject &getClassObj() const { return ClassObj; }
+
+  const JavaTypes::JavaClass &getClass() const { return ClassObj.getClass(); }
 
 private:
-  explicit InstanceObject(ClassObject &ClassObj);
+  explicit InstanceObject(ClassObject &ClassObj):
+    ClassObj(ClassObj),
+    Fields(ClassObj.getClass(), /*is_static*/false) {
+    ;
+  }
 
 private:
   ClassObject &ClassObj;
+  FieldStorage Fields;
 };
 
 }

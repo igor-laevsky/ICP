@@ -241,6 +241,8 @@ public:
   void visit(const java_return &) override;
   void visit(const putstatic &) override;
   void visit(const getstatic &) override;
+  void visit(const putfield &) override;
+  void visit(const getfield &) override;
 
   void visit(const if_icmp_op &) override;
 
@@ -360,6 +362,11 @@ void Interpreter::visit(const aload_val &Inst) {
 void Interpreter::visit(const invokespecial &Inst) {
   const auto &m_ref = CP().getAs<ConstantPoolRecords::MethodRef>(Inst.getIdx());
 
+  // TODO: This is a hack due to the lack of proper bootstrap classes
+  if (m_ref.getClassName() == "java/lang/Object") {
+    return;
+  }
+
   // Resolve the class
   auto &class_obj = CM.getClassObject(m_ref.getClassName(), curLoader());
 
@@ -368,20 +375,24 @@ void Interpreter::visit(const invokespecial &Inst) {
   assert(m_ref.getName() == "<init>");
   const auto *method = class_obj.getClass().getMethod("<init>");
   assert(method); // should be present
+  assert(!method->isStatic()); // should be
 
   // Gather arguments
-  Type RetTy = Types::Void;
-  std::vector<Type> ArgTypes;
-  std::tie(RetTy, ArgTypes) = Type::parseMethodDescriptor(method->getDescriptor());
-  std::vector<Value> ArgVals;
+  Type ret_ty = Types::Void;
+  std::vector<Type> arg_types;
+  std::tie(ret_ty, arg_types) = Type::parseMethodDescriptor(method->getDescriptor());
+  std::vector<Value> arg_vals;
 
-  ArgVals.reserve(ArgTypes.size());
-  for (std::size_t i = 0; i < ArgTypes.size(); ++i) {
-    ArgVals.push_back(curFrame().pop());
+  arg_vals.reserve(arg_types.size() + 1);
+  for (std::size_t i = 0; i < arg_types.size(); ++i) {
+    arg_vals.push_back(curFrame().pop());
   }
+  // Add "this" argument
+  arg_vals.push_back(curFrame().pop());
+  std::reverse(arg_vals.begin(), arg_vals.end());
 
   // Start new function
-  stack().enter_function(*method, std::move(ArgVals));
+  stack().enter_function(*method, std::move(arg_vals));
   NextOffset = 0;
 }
 
@@ -398,6 +409,23 @@ void Interpreter::visit(const getstatic &Inst) {
 
   curFrame().push(class_obj.getField(FRef.getName()));
 }
+
+void Interpreter::visit(const putfield &Inst) {
+  const auto &FRef = CP().getAs<ConstantPoolRecords::FieldRef>(Inst.getIdx());
+
+  Value field_val = curFrame().pop();
+  auto &class_inst = curFrame().pop<JavaRef>()->getAs<InstanceObject>();
+
+  class_inst.setField(FRef.getName(), field_val);
+}
+
+void Interpreter::visit(const getfield &Inst) {
+  const auto &FRef = CP().getAs<ConstantPoolRecords::FieldRef>(Inst.getIdx());
+  auto &class_inst = curFrame().pop<JavaRef>()->getAs<InstanceObject>();
+
+  curFrame().push(class_inst.getField(FRef.getName()));
+}
+
 
 // Helper for the comparison operators. Receives two stack values and calls
 // relevant c++ operator on them.

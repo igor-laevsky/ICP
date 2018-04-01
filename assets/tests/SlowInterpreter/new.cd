@@ -9,6 +9,9 @@ class {
     5: NameAndType "F1" "I"
     6: FieldRef #1 #5
 
+    7: NameAndType "<init>" "()V"
+    8: MethodRef #2 #7
+
     auto: "test1"
     auto: "()I"
   }
@@ -23,13 +26,16 @@ class {
   // Always stores zero to the F1. Each test uses F1 to check that we called
   // this method.
   method "<init>" "()V" {
-    Flags: public, static
+    Flags: public
     MaxStack: 10
     MaxLocals: 10
 
     bytecode {
       iconst_0
       putstatic #6 // Field F1:I
+
+      aload_0
+      invokespecial #8 // Method Object.<init>
       return
     }
   } 

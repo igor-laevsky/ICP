@@ -16,7 +16,3 @@ const JavaMethod *ClassObject::getMethod(const Utf8String &Name) const {
 InstanceObject *InstanceObject::create(ClassObject &Class) {
   return new InstanceObject(Class);
 }
-
-InstanceObject::InstanceObject(ClassObject &ClassObj): ClassObj(ClassObj) {
-  (void)this->ClassObj;
-}

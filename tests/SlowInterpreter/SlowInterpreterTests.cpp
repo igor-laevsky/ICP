@@ -37,6 +37,7 @@ static ResT testWithMethod(
 template<class ResT>
 static bool runAutoTest(
     const std::string &FileName, const std::vector<Value> &InputArgs,
+    ResT ExpectedAns = 0,
     bool Debug = false) {
 
   ClassManager CM;
@@ -47,7 +48,7 @@ static bool runAutoTest(
       continue;
 
     ResT res = SlowInterpreter::interpret(*method, InputArgs, CM, Debug).getAs<ResT>();
-    if (res != 0) {
+    if (res != ExpectedAns) {
       std::cerr << "Wrong interpreter result: " << res <<
                    " for " << method->getName() << "\n";
       return false;
@@ -143,7 +144,7 @@ TEST_CASE("interpret new", "[SlowInterpreter][new]") {
       {Value::create<JavaInt>(-5), Value::create<JavaInt>(5)}));
 }
 
-//TEST_CASE("interpret getputfield", "[SlowInterpreter][getputfield]") {
-//  REQUIRE(runAutoTest<Runtime::JavaInt>("getfield_putfield",
-//      {Value::create<JavaInt>(-5), Value::create<JavaInt>(5)}));
-//}
+TEST_CASE("interpret getputfield", "[SlowInterpreter][getputfield]") {
+  REQUIRE(runAutoTest<Runtime::JavaInt>("getfield_putfield",
+      {Value::create<JavaInt>(-5), Value::create<JavaInt>(5)}, 1));
+}

@@ -121,6 +121,8 @@ public:
     return static_cast<Bytecode::BciType>(Code.size());
   }
 
+  bool isStatic() const { return Flags & AccessFlags::ACC_STATIC; }
+
   void print(std::ostream &Out) const;
 
 private:
