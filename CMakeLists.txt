@@ -54,7 +54,10 @@ set(SOURCE_FILES
         src/Runtime/ClassManager.h
         src/JavaTypes/StackMapTable.h
         src/JavaTypes/StackMapTable.cpp
-        src/Bytecode/BciMap.h src/Runtime/FieldStorage.cpp src/Runtime/FieldStorage.h src/Runtime/RuntimeFwd.h)
+        src/Bytecode/BciMap.h src/Runtime/FieldStorage.cpp
+        src/Runtime/FieldStorage.h
+        src/Runtime/RuntimeFwd.h
+        src/Bytecode/InstructionUtils.h)
 
 set (TEST_FILES
         tests/ClassFileReader/ClassFileReaderTests.cpp
