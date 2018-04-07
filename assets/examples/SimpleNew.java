@@ -4,7 +4,7 @@ public class SimpleNew {
 
   public int a, b;
 
-  SimpleNew(int aa, int bb) {
+  public SimpleNew(int aa, int bb) {
     a = aa;
     b = bb;
   }

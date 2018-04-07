@@ -1,6 +1,6 @@
 Classfile /home/igor/work/ICP/assets/examples/SimpleNew.class
-  Last modified Mar 10, 2018; size 493 bytes
-  MD5 checksum 979a81244ef86f202a32aec3e5f73d20
+  Last modified Apr 7, 2018; size 493 bytes
+  MD5 checksum 3bbfe6bd99e45211b42b6c0f2b561077
   Compiled from "SimpleNew.java"
 public class SimpleNew
   minor version: 0
@@ -55,9 +55,9 @@ Constant pool:
     descriptor: I
     flags: ACC_PUBLIC
 
-  SimpleNew(int, int);
+  public SimpleNew(int, int);
     descriptor: (II)V
-    flags:
+    flags: ACC_PUBLIC
     Code:
       stack=2, locals=3, args_size=3
          0: aload_0

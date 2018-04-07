@@ -19,9 +19,10 @@ TEST_CASE("Throw exception if file not found", "[ClassFileReader]") {
     ClassFileReader::FileNotFound);
 }
 
-TEST_CASE("Read verify and interpret simple class", "[ClassFileReader]") {
+template<class ResT = Runtime::JavaInt>
+ResT testSingleClass(const std::string &ClassName) {
   Runtime::ClassManager CM;
-  auto &NewClass = CM.getClass("./examples/Simple", Runtime::getBootstrapLoader());
+  auto &NewClass = CM.getClass(ClassName, Runtime::getBootstrapLoader());
 
   Verifier::verify(NewClass);
 
@@ -29,44 +30,25 @@ TEST_CASE("Read verify and interpret simple class", "[ClassFileReader]") {
   REQUIRE(Method != nullptr);
 
   auto Ret = SlowInterpreter::interpret(*Method, {}, CM);
-  REQUIRE(Ret.getAs<Runtime::JavaInt>() == 0);
+  return Ret.getAs<Runtime::JavaInt>();
+}
+
+TEST_CASE("Read verify and interpret simple class", "[ClassFileReader]") {
+  REQUIRE(testSingleClass("./examples/Simple") == 0);
 }
 
 TEST_CASE("Read verify and interpret fields class", "[ClassFileReader]") {
-  Runtime::ClassManager CM;
-  auto &NewClass = CM.getClass("./examples/Fields", Runtime::getBootstrapLoader());
-
-  Verifier::verify(NewClass);
-
-  auto *Method = NewClass.getMethod("main");
-  REQUIRE(Method != nullptr);
-  auto Ret = SlowInterpreter::interpret(*Method, {}, CM);
-
-  REQUIRE(Ret.getAs<Runtime::JavaInt>() == 1);
+  REQUIRE(testSingleClass("./examples/Fields") == 1);
 }
 
 TEST_CASE("Read verify and interpret branches class", "[ClassFileReader]") {
-  Runtime::ClassManager CM;
-  auto &NewClass = CM.getClass("./examples/Branches", Runtime::getBootstrapLoader());
-
-  Verifier::verify(NewClass);
-
-  auto *Method = NewClass.getMethod("main");
-  REQUIRE(Method != nullptr);
-  auto Ret = SlowInterpreter::interpret(*Method, {}, CM);
-
-  REQUIRE(Ret.getAs<Runtime::JavaInt>() == 1);
+  REQUIRE(testSingleClass("./examples/Branches") == 1);
 }
 
 TEST_CASE("Read verify and interpret loop class", "[ClassFileReader]") {
-  Runtime::ClassManager CM;
-  auto &NewClass = CM.getClass("./examples/Loop", Runtime::getBootstrapLoader());
+  REQUIRE(testSingleClass("./examples/Loop") == 6);
+}
 
-  Verifier::verify(NewClass);
-
-  auto *Method = NewClass.getMethod("main");
-  REQUIRE(Method != nullptr);
-  auto Ret = SlowInterpreter::interpret(*Method, {}, CM);
-
-  REQUIRE(Ret.getAs<Runtime::JavaInt>() == 6);
+TEST_CASE("Read verify and interpret simple new class", "[ClassFileReader]") {
+  REQUIRE(testSingleClass("./examples/SimpleNew") == 50);
 }
