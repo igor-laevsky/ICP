@@ -12,6 +12,7 @@ namespace Bytecode {
 
 using BciType = uint32_t;
 using IdxType = uint16_t;
+using ByteIdxType = uint8_t;
 using BciOffsetType = int16_t;
 static_assert(sizeof(IdxType) == sizeof(BciOffsetType), "offsets are encoded as indexes");
 

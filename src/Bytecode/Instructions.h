@@ -34,7 +34,8 @@ private:
 template<class ConcreteType, class T = IdxType>
 class SingleIndex: public VisitableInstruction<ConcreteType> {
 public:
-  static constexpr uint8_t Length = 3;
+  static constexpr uint8_t Length = 1 + sizeof(T);
+  static_assert(Length == 2 || Length == 3);
 
 public:
   T getIdx() const {
@@ -46,22 +47,36 @@ public:
   }
 
 private:
+  static T parseIdx(ContainerIterator It) {
+    if (Length == 2) {
+      return *(It + 1);
+    } else if (Length == 3) {
+      return (*(It + 1) << 8) | *(It + 2);
+    } else {
+      assert(false); // unhandled length
+    }
+  }
+
   explicit SingleIndex(ContainerIterator It):
-      Idx((*(It + 1) << 8) | *(It + 2)) {
-    ;
+    Idx(parseIdx(It)) {
+    ; // Empty
   }
 
   // Allow calling constructor from the Instruction::create functions
   friend class Instruction;
 
 private:
-  static_assert(sizeof(T) == 2, "other sizes are not supported");
   const T Idx;
 };
 
 // Same as SingleIndex but has signed index type.
 template<class ConcreteType>
 using OffsetIndex = SingleIndex<ConcreteType, BciOffsetType>;
+
+// Same as SingleIndex but has one byte index instead.
+template<class ConcreteType>
+using ByteIndex = SingleIndex<ConcreteType, ByteIdxType>;
+
 
 // Determine index type of the given instruction. We can have different index
 // types - signed, unsigend, wide. Results in a substitution failure if at least
@@ -327,7 +342,7 @@ class iload_##Value final: public NoIndex<iload_##Value> { \
 public:\
   static constexpr uint8_t OpCode = OpCodeVal;\
   static constexpr const char *Name = "iload_"#Value;\
-  static constexpr IdxType Val = Value;\
+  static constexpr ByteIdxType Val = Value;\
 }
 
 #define DEF_ISTORE(Value, OpCodeVal) \
@@ -337,7 +352,7 @@ class istore_##Value final: public NoIndex<istore_##Value> { \
 public:\
   static constexpr uint8_t OpCode = OpCodeVal;\
   static constexpr const char *Name = "istore_"#Value;\
-  static constexpr IdxType Val = Value;\
+  static constexpr ByteIdxType Val = Value;\
 }
 
 DEF_ILOAD(0, 0x1a); DEF_ISTORE(0, 0x3b);
@@ -348,7 +363,7 @@ DEF_ILOAD(3, 0x1d); DEF_ISTORE(3, 0x3e);
 #undef DEF_ILOAD
 #undef DEF_ISTORE
 
-class iload: public SingleIndex<iload> {
+class iload: public ByteIndex<iload> {
   using SingleIndex::SingleIndex;
 
 public:
@@ -356,7 +371,7 @@ public:
   static constexpr const char *Name = "iload";
 };
 
-class istore: public SingleIndex<istore> {
+class istore: public ByteIndex<istore> {
   using SingleIndex::SingleIndex;
 
 public:
@@ -452,7 +467,7 @@ class aload_##Value final: public NoIndex<aload_##Value> { \
 public:\
   static constexpr uint8_t OpCode = OpCodeVal;\
   static constexpr const char *Name = "aload_"#Value;\
-  static constexpr IdxType Val = Value;\
+  static constexpr ByteIdxType Val = Value;\
 }
 
 #define DEF_astore(Value, OpCodeVal) \
@@ -462,7 +477,7 @@ class astore_##Value final: public NoIndex<astore_##Value> { \
 public:\
   static constexpr uint8_t OpCode = OpCodeVal;\
   static constexpr const char *Name = "astore_"#Value;\
-  static constexpr IdxType Val = Value;\
+  static constexpr ByteIdxType Val = Value;\
 }
 
 DEF_aload(0, 0x2a); DEF_astore(0, 0x4b);
@@ -473,7 +488,7 @@ DEF_aload(3, 0x2d); DEF_astore(3, 0x4e);
 #undef DEF_aload
 #undef DEF_astore
 
-class aload: public SingleIndex<aload> {
+class aload: public ByteIndex<aload> {
   using SingleIndex::SingleIndex;
 
 public:
@@ -481,7 +496,7 @@ public:
   static constexpr const char *Name = "aload";
 };
 
-class astore: public SingleIndex<astore> {
+class astore: public ByteIndex<astore> {
   using SingleIndex::SingleIndex;
 
 public:

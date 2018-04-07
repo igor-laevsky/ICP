@@ -235,7 +235,7 @@ TEST_CASE("invokespecial", "[Verifier]") {
       8, // (Ljava/lang/Object;)V
       {
           Bytecode::aload_0::OpCode,
-          Bytecode::aload::OpCode, 0x00, 1,
+          Bytecode::aload::OpCode, 1,
           Bytecode::iconst_0::OpCode,
           Bytecode::invokespecial::OpCode, 0x00, 17, // java/lang/Object.<init>:(Ljava/lang/Object;I)V
           Bytecode::java_return::OpCode,
@@ -252,7 +252,7 @@ TEST_CASE("invokespecial", "[Verifier]") {
       {
           Bytecode::aload_0::OpCode,
           Bytecode::iconst_0::OpCode,
-          Bytecode::aload::OpCode, 0x00, 1,
+          Bytecode::aload::OpCode, 1,
           Bytecode::invokespecial::OpCode, 0x00, 17, // java/lang/Object.<init>:(Ljava/lang/Object;I)V
           Bytecode::java_return::OpCode,
       }
@@ -309,7 +309,7 @@ TEST_CASE("aload", "[Verifier]") {
       11, // <init>
       5, // ()V
       {
-          Bytecode::aload::OpCode, 0x00, 10,
+          Bytecode::aload::OpCode, 10,
           Bytecode::invokespecial::OpCode, 0x00,
           14, // java/lang/Object."<init>":()V
           Bytecode::java_return::OpCode,
