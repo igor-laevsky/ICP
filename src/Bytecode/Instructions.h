@@ -347,6 +347,15 @@ public:
   static constexpr const char *Name = "dup";
 };
 
+class bipush: public ByteIndex<bipush> {
+  using SingleIndex::SingleIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0x10;
+  static constexpr const char *Name = "bipush";
+};
+
+
 }
 
 #endif //ICP_INSTRUCTIONS_H

@@ -34,7 +34,7 @@ class {
 
     bytecode {
       aload_0
-      iconst_1
+      bipush #1
       putfield #6 // Field F1:I
       aload #0
       dconst_1

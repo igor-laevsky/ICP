@@ -75,6 +75,7 @@ HANDLE_INSTR(getfield)
 HANDLE_INSTR(putfield)
 
 HANDLE_INSTR(dup)
+HANDLE_INSTR(bipush)
              
 HANDLE_WRAPPER(if_icmp_op)
 HANDLE_WRAPPER(iconst_val)

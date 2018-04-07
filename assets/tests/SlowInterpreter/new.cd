@@ -31,7 +31,7 @@ class {
     MaxLocals: 10
 
     bytecode {
-      iconst_0
+      bipush #0
       putstatic #6 // Field F1:I
 
       aload_0

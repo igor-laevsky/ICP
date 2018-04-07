@@ -261,6 +261,7 @@ public:
   void visit(const java_new &) override;
 
   void visit(const dup &) override;
+  void visit(const bipush &) override;
 
 private:
   InterpreterStack &stack() { return Stack; }
@@ -511,6 +512,10 @@ void Interpreter::visit(const java_new &Inst) {
 
 void Interpreter::visit(const dup &) {
   curFrame().push(curFrame().top());
+}
+
+void Interpreter::visit(const bipush &Inst) {
+  curFrame().push<JavaByte>(Inst.getIdx());
 }
 
 

@@ -83,6 +83,7 @@ public:
   void visit(const iadd &) override;
   void visit(const java_new &) override;
   void visit(const dup &Inst) override;
+  void visit(const bipush &) override;
 
   // Runs before visiting instruction.
   void runPreConditions() {
@@ -405,6 +406,10 @@ void MethodVerifier::visit(const dup &) {
     throwErr("Can only dup values from category 1");
 
   CurrentFrame.pushList({actual_type});
+}
+
+void MethodVerifier::visit(const bipush &) {
+  CurrentFrame.pushList({Types::Int});
 }
 
 

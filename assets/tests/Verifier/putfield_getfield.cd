@@ -128,7 +128,7 @@ class {
       astore #5
       aload #5
       iconst_1
-      iconst_1
+      bipush #1
       invokespecial #10 // Method this.<init>
 
       aload #5
