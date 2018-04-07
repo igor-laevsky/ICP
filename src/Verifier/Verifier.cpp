@@ -82,6 +82,7 @@ public:
   void visit(const java_goto &) override;
   void visit(const iadd &) override;
   void visit(const java_new &) override;
+  void visit(const dup &Inst) override;
 
   // Runs before visiting instruction.
   void runPreConditions() {
@@ -395,6 +396,16 @@ void MethodVerifier::visit(const java_new &Inst) {
   CurrentFrame.pushList({new_item});
 }
 
+void MethodVerifier::visit(const dup &) {
+  if (CurrentFrame.stackEmpty())
+    throwErr("Can't dup from an empty stack");
+
+  const auto actual_type = CurrentFrame.top();
+  if (Types::sizeOf(actual_type) != 1)
+    throwErr("Can only dup values from category 1");
+
+  CurrentFrame.pushList({actual_type});
+}
 
 
 void Verifier::verifyMethod(const JavaMethod &Method) {

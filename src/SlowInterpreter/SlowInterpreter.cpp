@@ -87,6 +87,11 @@ public:
     setLocal(Idx, Value::create<T>(NewVal));
   }
 
+  Value top() {
+    assert(!stack().empty());
+    return stack().back();
+  }
+
   Value pop() {
     assert(!stack().empty());
 
@@ -254,6 +259,8 @@ public:
   void visit(const java_goto &) override;
   void visit(const iadd &) override;
   void visit(const java_new &) override;
+
+  void visit(const dup &) override;
 
 private:
   InterpreterStack &stack() { return Stack; }
@@ -500,6 +507,10 @@ void Interpreter::visit(const java_new &Inst) {
   // Create new instance of this class and push it on the stack
   JavaRef instance = InstanceObject::create(class_obj);
   curFrame().push<JavaRef>(instance);
+}
+
+void Interpreter::visit(const dup &) {
+  curFrame().push(curFrame().top());
 }
 
 

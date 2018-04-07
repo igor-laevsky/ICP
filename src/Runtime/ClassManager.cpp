@@ -33,7 +33,7 @@ const JavaTypes::JavaClass &ClassManager::getClass(
   ClassesInitLoaders[std::make_pair(Class.getClassName(), &ILoader)] =
       &getMetaInfoForClass(Class);
 
-  // TODO: This is temporary measure due to the fact that some times class name
+  // TODO: This is temporary measure due to the fact that sometimes class name
   // might not be the same as the file from which it was loaded.
   ClassesInitLoaders[std::make_pair(Name, &ILoader)] = &getMetaInfoForClass(Class);
   return Class;

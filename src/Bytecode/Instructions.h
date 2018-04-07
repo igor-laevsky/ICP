@@ -503,6 +503,13 @@ public:
   astore_val(const astore &Inst): ValueInstWrapper(from_idx, Inst) {}
 };
 
+class dup: public NoIndex<dup> {
+  using NoIndex::NoIndex;
+
+public:
+  static constexpr uint8_t OpCode = 0x59;
+  static constexpr const char *Name = "dup";
+};
 
 }
 

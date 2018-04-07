@@ -12,6 +12,8 @@ class {
     auto: "ok"
     auto: "wrong_not_init"
     auto: "ok_no_init"
+    auto: "ok_dup"
+    auto: "wrong_dup"
     auto: "()I"
   }
 
@@ -52,6 +54,36 @@ class {
 
     bytecode {
       new #1 // Class this
+      iconst_1
+      ireturn
+    }
+  }
+
+  method "ok_dup" "()I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      new #1 // Class this
+      dup
+      invokespecial #4 // Method "<init>":()V
+      astore #5
+      iconst_1
+      ireturn
+    }
+  }
+
+  method "wrong_dup" "()I" {
+    Flags: public, static
+    MaxStack: 10
+    MaxLocals: 10
+
+    bytecode {
+      new #1 // Class this
+      dup
+      invokespecial #4 // Method "<init>":()V
+      istore #5
       iconst_1
       ireturn
     }

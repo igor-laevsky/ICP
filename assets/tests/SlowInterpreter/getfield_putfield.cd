@@ -52,8 +52,8 @@ class {
 
     bytecode {
       new #1
+      dup
       astore #5
-      aload #5
       iconst_1
       iconst_2
       invokespecial #10 // Method this.<init>

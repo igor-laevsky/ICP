@@ -87,7 +87,7 @@ class {
       invokespecial #10 // Method this.<init>
 
       aload #5
-      aload #5
+      dup
       getfield #5 // Field F2:D
       putfield #5 // Field F2:D
 
@@ -112,7 +112,7 @@ class {
       invokespecial #10 // Method this.<init>
 
       aload #5
-      aload #5
+      dup
       getfield #6 // Field F2:D
       putfield #5 // Field F2:D
     }
