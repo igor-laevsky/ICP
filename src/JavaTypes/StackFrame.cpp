@@ -15,17 +15,11 @@ void StackFrame::computeFlags() {
               });
 }
 
-std::vector<Type> StackFrame::expandTypes(const std::vector<Type> &Src) {
-  std::vector<Type> Ret;
-
-  Ret.reserve(Src.size());
-  for (const auto &T: Src) {
-    Ret.push_back(T);
-    if (Types::sizeOf(T) == 2)
-      Ret.push_back(Types::Top);
-  }
-
-  return Ret;
+// Helper method which correctly pushes single expanded type
+static void pushExpanded(std::vector<Type> &Ret, const Type &T) {
+  Ret.push_back(T);
+  if (Types::sizeOf(T) == 2)
+    Ret.push_back(Types::Top);
 }
 
 bool StackFrame::isTwoWordType(std::size_t Idx) const {
@@ -34,26 +28,52 @@ bool StackFrame::isTwoWordType(std::size_t Idx) const {
          Types::sizeOf(stack()[Idx - 1]) == 2;
 }
 
+std::vector<Type> StackFrame::expandTypes(const std::vector<Type> &Src) {
+  std::vector<Type> Ret;
+
+  Ret.reserve(Src.size());
+  for (const auto &T: Src) {
+    pushExpanded(Ret, T);
+  }
+
+  return Ret;
+}
+
+void StackFrame::pop() {
+  assert(!stack().empty());
+
+  if (isTwoWordType(stack().size() - 1)) {
+    stack().pop_back();
+  }
+  stack().pop_back();
+}
+
+void StackFrame::push(const JavaTypes::Type &T) {
+  pushExpanded(stack(), T);
+}
+
+Type StackFrame::topStack() const {
+  assert(!stack().empty());
+
+  if (isTwoWordType(stack().size() - 1)) {
+    return stack()[stack().size() - 2];
+  }
+  return stack().back();
+}
+
+
 std::optional<Type> StackFrame::popMatchingType(const JavaTypes::Type &T) {
   Type actual_type = Types::Void;
 
-  if (stackEmpty()) {
+  if (emptyStack()) {
     return std::nullopt;
   }
 
-  if (isTwoWordType(stack().size() - 1)) {
-    actual_type = stack()[stack().size() - 2];
-  } else {
-    actual_type = top();
-  }
-
+  actual_type = topStack();
   if (!Types::isAssignable(actual_type, T)) {
     return std::nullopt;
   }
 
-  if (Types::sizeOf(actual_type) == 2) {
-    pop();
-  }
   pop();
   return actual_type;
 }
@@ -63,29 +83,24 @@ bool StackFrame::popMatchingList(const std::vector<Type> &Types) {
     return Types.empty();
 
   // First check that we can pop all the types
-  int TopIdx = static_cast<int>(stack().size()) - 1;
+  auto TopIdx = stack().size();
   for (const auto &T: Types) {
     // Not enough types to pop
-    if (TopIdx < 0)
+    if (TopIdx <= 0)
       return false;
+    --TopIdx;
 
     // This is two word type
     if (isTwoWordType(TopIdx)) {
       --TopIdx;
-      assert(TopIdx >= 0);
     }
 
     if (!Types::isAssignable(stack()[TopIdx], T))
       return false;
-
-    --TopIdx;
   }
 
   // Actually pop all the types. No additional checks are needed.
   for (std::size_t i = 0; i < Types.size(); ++i) {
-    // Additional pop for two word types
-    if (isTwoWordType(stack().size() - 1))
-      pop();
     pop();
   }
 
@@ -109,8 +124,7 @@ bool StackFrame::verifyTypeEncoding() {
 void StackFrame::pushList(const std::vector<Type> &Types) {
   const auto ExpandedTypes = expandTypes(Types);
 
-  for (const auto &T: ExpandedTypes)
-    push(T);
+  stack().insert(stack().end(), ExpandedTypes.begin(), ExpandedTypes.end());
 
   assert(verifyTypeEncoding());
 }
@@ -124,8 +138,6 @@ bool StackFrame::doTypeTransition(
 
   // Push the result
   push(ToPush);
-  if (Types::sizeOf(ToPush) == 2)
-    push(Types::Top);
 
   assert(verifyTypeEncoding());
   return true;
@@ -206,6 +218,9 @@ bool StackFrame::transformInto(const StackFrame &NextFrame) {
 }
 
 void StackFrame::substituteLocals(const Type &From, const Type &To) {
+  // only support one word types
+  assert(Types::sizeOf(To) == 1 && Types::sizeOf(To) == 1);
+
   for (std::size_t i = 0; i < numLocals(); ++i) {
     if (getLocal(i) == From)
       setLocal(i, To);
@@ -214,6 +229,9 @@ void StackFrame::substituteLocals(const Type &From, const Type &To) {
 }
 
 void StackFrame::substituteStack(const Type &From, const Type &To) {
+  // only support one word types
+  assert(Types::sizeOf(To) == 1 && Types::sizeOf(To) == 1);
+
   for (std::size_t i = 0; i < numStack(); ++i) {
     if (stack()[i] == From)
       stack()[i] = To;

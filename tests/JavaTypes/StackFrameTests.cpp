@@ -11,6 +11,19 @@
 
 using namespace JavaTypes;
 
+static bool checkLocalsEquivalent(
+    const StackFrame &Frame, const std::vector<Type> &ExpandedTypes) {
+  if (Frame.numLocals() != ExpandedTypes.size())
+    return false;
+
+  for (std::size_t i = 0; i < Frame.numLocals(); ++i) {
+    if (Frame.getLocal(i) != ExpandedTypes[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 TEST_CASE("Two word extension", "[Verifier][StackFrame]") {
   // It is responsibility of the StackMap to expand two-word data types
 
@@ -24,7 +37,7 @@ TEST_CASE("Two word extension", "[Verifier][StackFrame]") {
   std::vector<Type> ExpandedTypes =
       {Types::Int, Types::Double, Types::Top, Types::Class,
        Types::Long, Types::Top};
-  REQUIRE(t1.locals() == ExpandedTypes);
+  checkLocalsEquivalent(t1, ExpandedTypes);
 }
 
 TEST_CASE("Pop matching list", "[Verifier][StackFrame]") {
@@ -146,7 +159,7 @@ TEST_CASE("Parse method descriptor", "[Verifier][StackFrame]") {
 
     REQUIRE(t.numLocals() == 1);
     REQUIRE(t.numStack() == 0);
-    REQUIRE(t.locals()[0] == Types::Array);
+    REQUIRE(t.getLocal(0) == Types::Array);
     REQUIRE(RetT == Types::Int);
   }
 
@@ -167,7 +180,7 @@ TEST_CASE("Parse method descriptor", "[Verifier][StackFrame]") {
     REQUIRE(t1.numStack() == 0);
     std::vector<Type> ExpandedTypes =
         {Types::Int, Types::Double, Types::Top, Types::Class};
-    REQUIRE(t1.locals() == ExpandedTypes);
+    checkLocalsEquivalent(t1, ExpandedTypes);
     REQUIRE(RetT == Types::Class);
   }
 

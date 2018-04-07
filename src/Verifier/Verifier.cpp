@@ -230,10 +230,10 @@ void MethodVerifier::visit(const invokespecial &Inst) {
   tryPop(ArgTypes, "Unable to pop arguments");
 
   // Pop UninitializedArg
-  if (CurrentFrame.stackEmpty()) {
+  if (CurrentFrame.emptyStack()) {
     throwErr("Unable to pop uninitialized arg: stack is empty");
   }
-  Type UninitializedArg = CurrentFrame.top();
+  Type UninitializedArg = CurrentFrame.topStack();
   if (UninitializedArg != Types::UninitializedOffset() &&
       UninitializedArg != Types::UninitializedThis) {
     throwErr("Expected uninitialized arg on the stack");
@@ -315,10 +315,10 @@ void MethodVerifier::visit(const putfield &Inst) {
 
   // TODO: Protected checks
 
-  if (CurrentFrame.stackEmpty())
+  if (CurrentFrame.emptyStack())
     throwErr("Unable to pop field class: empty stack");
 
-  if (CurrentFrame.top() == Types::UninitializedThis) {
+  if (CurrentFrame.topStack() == Types::UninitializedThis) {
     bool ok = CurrentFrame.popMatchingList({Types::UninitializedThis});
     (void)ok; assert(ok); // just checked
   } else {
@@ -398,10 +398,10 @@ void MethodVerifier::visit(const java_new &Inst) {
 }
 
 void MethodVerifier::visit(const dup &) {
-  if (CurrentFrame.stackEmpty())
+  if (CurrentFrame.emptyStack())
     throwErr("Can't dup from an empty stack");
 
-  const auto actual_type = CurrentFrame.top();
+  const auto actual_type = CurrentFrame.topStack();
   if (Types::sizeOf(actual_type) != 1)
     throwErr("Can only dup values from category 1");
 
@@ -411,6 +411,8 @@ void MethodVerifier::visit(const dup &) {
 void MethodVerifier::visit(const bipush &) {
   CurrentFrame.pushList({Types::Int});
 }
+
+
 
 
 void Verifier::verifyMethod(const JavaMethod &Method) {

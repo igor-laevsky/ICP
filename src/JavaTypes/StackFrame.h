@@ -57,8 +57,6 @@ public:
 
   auto numLocals() const { return Locals.size(); }
 
-  const std::vector<Type> &locals() const { return Locals; }
-
   JavaTypes::Type getLocal(std::size_t Idx) const {
     assert(Idx < locals().size());
     return locals()[Idx];
@@ -72,18 +70,16 @@ public:
   //
 
   std::size_t numStack() const { return Stack.size(); }
-  bool stackEmpty() const { return Stack.empty(); }
+  bool emptyStack() const { return Stack.empty(); }
 
-  const std::vector<Type> &stack() const { return Stack; }
-
-  Type top() const {
-    assert(!stack().empty());
-    return stack().back();
-  }
+  Type topStack() const;
 
   void substituteStack(const Type &From, const Type &To);
 
   bool stackContains(const Type &T) const;
+
+  // Complex methods handling various type transitions in the verifier
+  //
 
   // Return none if unable to pop the type.
   // Otherwise return type which was actually popped.
@@ -127,22 +123,21 @@ private:
   static std::vector<JavaTypes::Type> expandTypes(
       const std::vector<JavaTypes::Type> &Src);
 
-  // Private non const accessor for locals and stack.
-  // This class internally maintains "expanded type" encoding and it is dangerous
-  // to allow user to directly modify either locals or stack.
+  // Private accessors for the locals and stack.
+  // This class internally maintains "expanded type" encoding so the user should
+  // not be exposed to this plain containers.
+  const std::vector<Type> &locals() const { return Locals; }
   std::vector<Type> &locals() { return Locals; }
+  const std::vector<Type> &stack() const { return Stack; }
   std::vector<Type> &stack() { return Stack; }
 
-  // This is low level method which doesn't check if this operation is
-  // logically valid.
-  void pop() {
-    assert(!stack().empty());
-    stack().pop_back();
-  }
+  // Unconditionally pop from the stack. Preserves type encoding (i.e pops two
+  // elements for the two word type).
+  void pop();
 
-  void push(const JavaTypes::Type &T) {
-    stack().push_back(T);
-  }
+  // Unconditionally push to the stack. Preserves type encoding (i.e pops two
+  // elements for the two word type).
+  void push(const JavaTypes::Type &T);
 
   // Checks that all two word types are correctly encoded.
   bool verifyTypeEncoding();
