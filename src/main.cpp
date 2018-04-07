@@ -2,44 +2,28 @@
 #include "ClassFileReader/ClassFileReader.h"
 #include "Verifier/Verifier.h"
 #include "SlowInterpreter/SlowInterpreter.h"
-#include "Runtime/Value.h"
-#include "Runtime/OldClassManager.h"
-#include "Runtime/Objects.h"
+#include "Runtime/ClassManager.h"
 
 #include <iostream>
 #include <memory>
 
 int main() {
-  std::unique_ptr<JavaTypes::JavaClass> NewClass;
 
-  // Load class
-  try {
-    NewClass = ClassFileReader::loadClassFromFile("Branches.class");
-  } catch (ClassFileReader::FileNotFound &) {
-    std::cout << "Couldn't open class file." << "\n";
-    return 1;
-  } catch (ClassFileReader::FormatError  &e) {
-    std::cout << "Wrong class file format: "  << e.what() << "\n";
-    return 1;
-  }
-  assert(NewClass != nullptr);
+  Runtime::ClassManager CM;
 
-  Runtime::getClassManager().registerClass(
-      Runtime::ClassObject::create(*NewClass)->getAs<Runtime::ClassObject>());
-
-  NewClass->print(std::cout);
-
-  // Verify class
-  Verifier::verify(*NewClass);
+  // Load, verify and initialize the class. Throws in case of an error.
+  const auto &class_obj =
+      CM.getClassObject("./examples/SimpleNew", Runtime::getBootstrapLoader());
 
   // Interpret
-  auto Method = NewClass->getMethod("main");
-  assert(Method != nullptr);
-  
-  auto Ret = SlowInterpreter::interpret(*Method, {}, true);
+  auto *java_main = class_obj.getMethod("main");
+  if (!java_main) {
+    std::cerr << "Unable to find main entry point";
+    return 1;
+  }
 
-  std::cout << "Interpreter returned: " <<
-      Ret.getAs<Runtime::JavaInt>();
+  auto Ret = SlowInterpreter::interpret(*java_main, {}, CM, true);
+  std::cout << "Interpreter returned: " << Ret.getAs<Runtime::JavaInt>();
 
   return 0;
 }
