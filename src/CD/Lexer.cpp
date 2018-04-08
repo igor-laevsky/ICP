@@ -1,6 +1,6 @@
-//
-// Implementation of the CD lexer
-//
+///
+/// Implementation of the CD lexer.
+///
 
 #include "Lexer.h"
 
@@ -103,11 +103,11 @@ Lexer::Lexer(std::string &&Input) {
   PatternStr.pop_back();
 
   std::regex Pattern(PatternStr);
-  std::regex Spaces("^\\s*(//[^\n|\r\n|\r]*)?");
-  std::regex NewLine("^[\n|\r\n|\r]");
 
   // Match tokens until the end of string.
-  // We can modify 'Input' because it's an rvalue.
+  // TODO: This whole process creates fresh std::string each time it needs a
+  // substring. Although this doesn't show as a performance problem but
+  // allocation rate be improved using string_view or similar instrument.
   std::size_t cur_line = 1;
   while (!Input.empty()) {
     std::smatch Matches;

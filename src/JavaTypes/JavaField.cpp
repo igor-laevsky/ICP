@@ -1,5 +1,5 @@
 ///
-/// JavaField class implementation
+/// JavaField class implementation.
 ///
 
 #include "JavaField.h"

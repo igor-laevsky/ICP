@@ -1,16 +1,17 @@
-//
-//
-//
+///
+/// This represents jvm frame populated with the abstract data types. It's
+/// mainly needed for the verifier but it's part of the JavaTypes module in
+/// order to reuse it for the StackMapTable.
+///
 
 #ifndef ICP_STACKFRAME_H
 #define ICP_STACKFRAME_H
 
+#include "JavaTypes/Type.h"
+
 #include <vector>
 #include <stack>
 #include <algorithm>
-#include <cassert>
-
-#include "JavaTypes/Type.h"
 
 namespace JavaTypes {
 

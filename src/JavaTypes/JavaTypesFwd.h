@@ -1,6 +1,6 @@
-//
-// Forward declarations for the JavaTypes members
-//
+///
+/// Forward declarations for the JavaTypes members.
+///
 
 #ifndef ICP_JAVATYPESFWD_H
 #define ICP_JAVATYPESFWD_H

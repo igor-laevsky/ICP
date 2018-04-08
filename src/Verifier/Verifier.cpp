@@ -122,11 +122,6 @@ public:
       throwErr("Exceeded maximum stack size");
   };
 
-  void tryTypeTransition(const std::vector<Type> &ToPop, Type ToPush) {
-    if (!CurrentFrame.doTypeTransition(ToPop, ToPush))
-      throwErr("Incorrect type transition");
-  }
-
 private:
   // Load type 'T' from the loacal variable Idx.
   void loadFromLocal(Bytecode::IdxType Idx, Type T) {
@@ -179,6 +174,11 @@ private:
   BciType getCurBci() const {
     assert(CurInstr != Method.end());
     return CurInstr.getBci();
+  }
+
+  void tryTypeTransition(const std::vector<Type> &ToPop, Type ToPush) {
+    if (!CurrentFrame.doTypeTransition(ToPop, ToPush))
+      throwErr("Incorrect type transition");
   }
 
 private:

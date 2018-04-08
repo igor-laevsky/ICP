@@ -1,6 +1,6 @@
-//
-// Constant pool implementation
-//
+///
+/// Constant pool implementation.
+///
 
 #include "ConstantPool.h"
 

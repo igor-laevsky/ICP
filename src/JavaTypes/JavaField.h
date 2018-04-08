@@ -38,7 +38,7 @@ public:
   }
 
 public:
-  /// \throws Type::ParsingError if unable to parse field descriptor
+  // \throws Type::ParsingError if unable to parse field descriptor
   JavaField(
       const ConstantPoolRecords::Utf8 &Descr,
       const ConstantPoolRecords::Utf8 &Name,

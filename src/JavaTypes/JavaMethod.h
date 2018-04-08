@@ -1,6 +1,6 @@
-//
-// This class represents java method.
-//
+///
+/// This class represents java method.
+///
 
 #ifndef ICP_JAVAMETHOD_H
 #define ICP_JAVAMETHOD_H
@@ -24,10 +24,10 @@ public:
 
   // We want to expose BciMap iterator to the user.
   // However we also want to store instructions as a unique pointers which
-  // shouldn't be exposed to the user. In order to do achieve this we use
-  // separate code viewer which mirrors code owner but doesn't store unique
-  // pointers. So far it's the simplest solution without introducing deep and
-  // hard to understand iterator nesting.
+  // shouldn't be exposed to the user. In order to achieve this we use separate
+  // "code viewer" which mirrors code owner but doesn't store unique pointers.
+  // So far it's the simplest solution without introducing hard to understand
+  // iterator nesting.
   using CodeViewerType = Bytecode::BciMap<Bytecode::Instruction*>;
   using CodeIterator = CodeViewerType::const_iterator;
 
@@ -83,6 +83,9 @@ public:
   // No copies
   JavaMethod(const JavaMethod&) = delete;
   JavaMethod &operator=(const JavaMethod &) = delete;
+  // No moves
+  JavaMethod(JavaMethod&&) = delete;
+  JavaMethod &operator=(JavaMethod &&) = delete;
 
   const Utf8String &getName() const {
     return Name.getValue();

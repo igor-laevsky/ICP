@@ -5,6 +5,8 @@
 #ifndef ICP_RUNTIMEFWD_H
 #define ICP_RUNTIMEFWD_H
 
+#include <cstdint>
+
 namespace Runtime {
 
 class UnrecognizedField;
@@ -46,6 +48,8 @@ template<> struct promote_to_stack<JavaRef>    { using Result = JavaRef;    };
 
 template<class T>
 using promote_to_stack_t = typename promote_to_stack<T>::Result;
+
+class ClassManager;
 
 }
 

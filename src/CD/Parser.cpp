@@ -6,12 +6,6 @@
 
 #include "Parser.h"
 
-#include <fstream>
-#include <sstream>
-#include <map>
-#include <set>
-#include <variant>
-
 #include "Lexer.h"
 #include "JavaTypes/JavaClass.h"
 #include "JavaTypes/JavaMethod.h"
@@ -19,6 +13,12 @@
 #include "JavaTypes/ConstantPoolRecords.h"
 #include "JavaTypes/JavaField.h"
 #include "Utils/BinaryFiles.h"
+
+#include <fstream>
+#include <sstream>
+#include <map>
+#include <set>
+#include <variant>
 
 using namespace std::string_view_literals;
 using namespace std::string_literals;
@@ -61,7 +61,7 @@ static std::optional<ConstantPool::IndexType> tryParseCPIndex(Lexer &Lex) {
            (static_cast<uint8_t>(second_byte));
   }
 
-  // It's #<number form
+  // It's #<number> form
   const auto &res_tok = consumeOrThrow(Token::Num(), Lex);
   auto res = std::stoi(res_tok.getData());
 

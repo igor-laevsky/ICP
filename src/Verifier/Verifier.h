@@ -6,8 +6,9 @@
 #ifndef ICP_VERIFIER_H
 #define ICP_VERIFIER_H
 
-#include <stdexcept>
 #include "JavaTypes/JavaTypesFwd.h"
+
+#include <stdexcept>
 
 namespace Verifier {
 

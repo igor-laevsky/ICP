@@ -1,6 +1,6 @@
-//
-// This file defines internal bytecode representation.
-//
+///
+/// This file defines internal bytecode representation.
+///
 
 #ifndef ICP_BYTECODE_H
 #define ICP_BYTECODE_H
@@ -60,7 +60,7 @@ public:
   // \throws UnexpectedBytecodeOperation If this instruction is of the wrong type.
   template<class RetType>
   const RetType &getAs() const {
-    const RetType *Res = dynamic_cast<const RetType*>(this);
+    const auto *Res = dynamic_cast<const RetType*>(this);
     if (Res == nullptr)
       throw UnexpectedBytecodeOperation();
     return *Res;
@@ -173,7 +173,7 @@ std::unique_ptr<Instruction> parseInstruction(
 // \returns New bytecode
 // \throws UndefinedBytecode if opcode was not recognized.
 std::unique_ptr<Instruction> parseFromString(
-    const std::string_view OpCodeStr, IdxType Idx = 0);
+    std::string_view OpCodeStr, IdxType Idx = 0);
 
 }
 

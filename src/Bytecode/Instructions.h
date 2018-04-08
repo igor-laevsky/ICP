@@ -309,7 +309,7 @@ DEF_aload(3, 0x2d); DEF_astore(3, 0x4e);
 #undef DEF_aload
 #undef DEF_astore
 
-class aload: public ByteIndex<aload> {
+class aload final: public ByteIndex<aload> {
   using SingleIndex::SingleIndex;
 
 public:
@@ -317,7 +317,7 @@ public:
   static constexpr const char *Name = "aload";
 };
 
-class astore: public ByteIndex<astore> {
+class astore final: public ByteIndex<astore> {
   using SingleIndex::SingleIndex;
 
 public:
@@ -339,7 +339,7 @@ public:
   astore_val(const astore &Inst): ValueInstWrapper(from_idx, Inst) {}
 };
 
-class dup: public NoIndex<dup> {
+class dup final: public NoIndex<dup> {
   using NoIndex::NoIndex;
 
 public:
@@ -347,7 +347,7 @@ public:
   static constexpr const char *Name = "dup";
 };
 
-class bipush: public ByteIndex<bipush> {
+class bipush final: public ByteIndex<bipush> {
   using SingleIndex::SingleIndex;
 
 public:

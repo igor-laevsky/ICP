@@ -23,6 +23,8 @@ public:
   static const Token Sharp;
   static const Token Dog;
 
+  // Token which matches all strings independent from their 'Data'.
+  // Same for similar functions defined below.
   static Token String();
   static Token String(std::string Data);
 
@@ -163,18 +165,16 @@ private:
   friend class Lexer;
 };
 
-// Lexer returns references to tokens and owns them. Which means that user
-// should ensure that lifetime of the Lexer is greater than lifetime of it's
+// Lexer returns references to tokens and owns them. This means that user
+// should ensure that lifetime of the Lexer is greater than the lifetime of it's
 // tokens.
 class Lexer final {
 public:
-
   class LexerError: public std::runtime_error {
     using std::runtime_error::runtime_error;
   };
 
 public:
-
   // \throws LexerError if unable to lex the output
   // \throws std::regex_error If token patterns are invalid
   explicit Lexer(std::string &&Input);

@@ -13,7 +13,7 @@
 
 namespace Runtime {
 
-/// Base abstract class for any type of the runtime object.
+// Base abstract class for any type of the runtime object.
 class Object {
 public:
   class BadAccess: public std::exception { };
@@ -21,10 +21,10 @@ public:
 public:
   virtual ~Object() = default;
 
-  /// Type safe accessors. These are more or less transparent applications
-  /// of the default RTTI and only needed to prevent dynamic_casts from
-  /// spreading across the code.
-  /// \throws BasAccess when necesary
+  // Type safe accessors. These are more or less transparent applications
+  // of the default RTTI and only needed to prevent dynamic_casts from
+  // spreading across the code.
+  // \throws BasAccess when necesary
 
   template<class T> bool isA() const noexcept {
     return dynamic_cast<const T*>(this) != nullptr;
@@ -52,7 +52,7 @@ protected:
   Object() = default;
 };
 
-/// Class which represents the loaded java class itself.
+// Class which represents the loaded java class itself.
 class ClassObject final: public Object {
 public:
   // No copies
@@ -62,21 +62,23 @@ public:
   ClassObject(ClassObject &&) = delete;
   ClassObject &operator=(ClassObject &&) = delete;
 
-  /// Create the class and zero-initializes it's static fields
+  // Create the class and zero-initializes it's static fields
   explicit ClassObject(const JavaTypes::JavaClass &Class) :
     Class(Class),
     Fields(Class, /*is_static**/true) {
     ;
   }
 
-  /// Get static field from this class.
-  /// \throws UnrecognizedField If no field was found.
+  // Get static field from this class.
+  // \throws UnrecognizedField If no field was found.
+  // TODO: This and following similar function should be replaced with the
+  // proper resolution step.
   Value getField(const Utf8String &Name) const {
     return Fields.getField(Name);
   }
 
-  /// Set static field or throw an exception if no such field is found.
-  /// \throws UnrecognizedField If no field was found.
+  // Set static field or throw an exception if no such field is found.
+  // \throws UnrecognizedField If no field was found.
   void setField(const Utf8String &Name, const Value &V) {
     return Fields.setField(Name, V);
   }
@@ -91,20 +93,20 @@ private:
   FieldStorage Fields;
 };
 
-/// Class which represents instance of the java class (ClassObject)
+// Class which represents instance of the java class (ClassObject)
 class InstanceObject final: public Object {
 public:
   // TODO: This should return gc managed pointer someday
   static InstanceObject *create(ClassObject &ClassObj);
 
-  /// Get instance field from this class.
-  /// \throws UnrecognizedField If no field was found.
+  // Get instance field from this class.
+  // \throws UnrecognizedField If no field was found.
   Value getField(const Utf8String &Name) const {
     return Fields.getField(Name);
   }
 
-  /// Set instance field or throw an exception if no such field is found.
-  /// \throws UnrecognizedField If no field was found.
+  // Set instance field or throw an exception if no such field is found.
+  // \throws UnrecognizedField If no field was found.
   void setField(const Utf8String &Name, const Value &V) {
     Fields.setField(Name, V);
   }

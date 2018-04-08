@@ -7,12 +7,12 @@
 #ifndef ICP_PARSER_H
 #define ICP_PARSER_H
 
+#include "JavaTypes/JavaTypesFwd.h"
+#include "JavaTypes/JavaClass.h"
+
 #include <stdexcept>
 #include <istream>
 #include <memory>
-
-#include "JavaTypes/JavaTypesFwd.h"
-#include "JavaTypes/JavaClass.h"
 
 namespace CD {
 

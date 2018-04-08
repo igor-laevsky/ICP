@@ -1,15 +1,14 @@
-//
-// Main interface for the class file loading
-//
+///
+/// Main interface for the class file loading
+///
 
 #ifndef ICP_CLASSFILEREADER_H
 #define ICP_CLASSFILEREADER_H
 
+#include "JavaTypes/JavaClass.h"
+
 #include <memory>
 #include <string>
-
-#include "JavaTypes/JavaClass.h"
-#include "Utils/BinaryFiles.h"
 
 namespace ClassFileReader {
 

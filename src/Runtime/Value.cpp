@@ -1,7 +1,5 @@
 ///
 /// Implementation for the dynamic java types.
-/// The mapping between static types and dynamic types is clumsy and inefficient.
-/// This can be simplified with a bit of preprocessor magic.
 ///
 
 #include "Value.h"

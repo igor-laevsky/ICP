@@ -1,17 +1,18 @@
-//
-// Implementation of the java class file parser
-//
-
-#include <istream>
-#include <iostream>
-#include <fstream>
+///
+/// Implementation of the java class file parser.
+///
 
 #include "ClassFileReader.h"
+
 #include "Utils/BinaryFiles.h"
 #include "JavaTypes/ConstantPool.h"
 #include "JavaTypes/ConstantPoolRecords.h"
 #include "JavaTypes/JavaMethod.h"
 #include "Bytecode/Bytecode.h"
+
+#include <istream>
+#include <iostream>
+#include <fstream>
 
 using namespace std::string_literals;
 
@@ -262,22 +263,22 @@ static Type parseVerificationTypeInfo(std::istream &Input) {
   const uint8_t tag = BigEndianReading::readByte(Input);
 
   switch (tag) {
-    case 0: return Types::Top;
-    case 1: return Types::Int;
-    case 2: return Types::Float;
-    case 5: return Types::Null;
-    case 6: return Types::UninitializedThis;
-    case 7: {
-      (void)BigEndianReading::readHalf(Input);
-      return Types::Class;
-    }
-    case 8: {
-      const uint16_t offset = BigEndianReading::readHalf(Input);
-      return Types::UninitializedOffset(offset);
-    }
-    case 4: return Types::Long;
-    case 3: return Types::Double;
-    default: throw FormatError("Unrecognized verification type tag");
+  case 0: return Types::Top;
+  case 1: return Types::Int;
+  case 2: return Types::Float;
+  case 5: return Types::Null;
+  case 6: return Types::UninitializedThis;
+  case 7: {
+    (void)BigEndianReading::readHalf(Input);
+    return Types::Class;
+  }
+  case 8: {
+    const uint16_t offset = BigEndianReading::readHalf(Input);
+    return Types::UninitializedOffset(offset);
+  }
+  case 4: return Types::Long;
+  case 3: return Types::Double;
+  default: throw FormatError("Unrecognized verification type tag");
   }
 
   assert(false); // never happens

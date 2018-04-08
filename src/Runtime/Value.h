@@ -18,7 +18,9 @@ namespace Runtime {
 
 /// Type erased representation for one of the runtime data types.
 /// Internally it promotes all types shorter than 4 bytes into integer. This is
-/// to better approximate JVM specification.
+/// to better approximate JVM specification. All sign and zero extensions are
+/// handled internally. Essentially user is supposed to use precise types and not
+/// care about their on-stack representation.
 class Value final {
 public:
   class BadAccess: public std::exception { };
@@ -92,8 +94,7 @@ public:
   }
 
   /// Converts this value to it's string representation.
-  /// This is intended for the debug purposes, don't use it in any correctness
-  /// related applications, i.e tests.
+  /// This is intended for the debug purposes,
   friend std::string to_string(const Value &V);
   friend std::ostream& operator<<(std::ostream &Out, const Value &V);
 
@@ -106,7 +107,7 @@ private:
       std::enable_if_t<
           !std::is_base_of_v<Value,
               std::remove_reference_t<T>>>>
-  explicit constexpr Value(T&& Data): Data(Data) {}
+  explicit constexpr Value(T&& Data): Data(std::forward<T>(Data)) {}
 
   constexpr const DataType &data() const { return Data; }
 

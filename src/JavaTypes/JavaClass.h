@@ -1,9 +1,10 @@
-//
-// This file contains definition of the JavaClass class.
-// This class is intended to contain all information about single java class:
-// i.e constant pool, methods, fields and so on. Essentially it represents
-// parsed class file.
-//
+///
+/// This file contains definition of the JavaClass class.
+/// This class is intended to contain all information about single java class:
+/// i.e constant pool, methods, fields and so on. Essentially it represents
+/// parsed class file. Note that it's immutable and stores no runtime information
+/// like defining laoder and static field values.
+///
 
 #ifndef ICP_JAVACLASS_H
 #define ICP_JAVACLASS_H

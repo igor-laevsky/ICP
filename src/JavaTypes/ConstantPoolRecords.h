@@ -1,6 +1,6 @@
-//
-// Contains definitions of the various constant pool records.
-//
+///
+/// Contains definitions of the various constant pool records.
+///
 
 #ifndef ICP_CONSTANTPOOLRECORDS_H
 #define ICP_CONSTANTPOOLRECORDS_H
@@ -75,7 +75,8 @@ private:
 };
 
 // Common implementation of the field, method and interface ref fields
-class RefRecord : public Record {
+namespace _detail {
+class RefRecord: public Record {
 public:
   RefRecord(ConstantPool::CellReference<ClassInfo> NewClassRef,
             ConstantPool::CellReference<NameAndType> NewNameAndTypeRef) :
@@ -107,8 +108,9 @@ private:
   ConstantPool::CellReference<ClassInfo> ClassRef;
   ConstantPool::CellReference<NameAndType> NameAndTypeRef;
 };
+}
 
-class MethodRef final: public RefRecord {
+class MethodRef final: public _detail::RefRecord {
 public:
   MethodRef(ConstantPool::CellReference<ClassInfo> ClassRef,
             ConstantPool::CellReference<NameAndType> NameAndTypeRef) :
@@ -125,7 +127,7 @@ public:
   // TODO: Add descriptor verification
 };
 
-class FieldRef final: public RefRecord {
+class FieldRef final: public _detail::RefRecord {
 public:
   FieldRef(ConstantPool::CellReference<ClassInfo> ClassRef,
            ConstantPool::CellReference<NameAndType> NameAndTypeRef) :

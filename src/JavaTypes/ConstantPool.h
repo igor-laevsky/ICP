@@ -1,8 +1,8 @@
-//
-// This class represents constant pool for the single java class.
-// It is immutable and only way to construct it is by using the
-// ConstantPoolBuilder class.
-//
+///
+/// This class represents constant pool for the single java class.
+/// It is immutable and only way to construct it is by using the
+/// ConstantPoolBuilder class.
+///
 
 #ifndef ICP_CONSTANTPOOL_H
 #define ICP_CONSTANTPOOL_H
@@ -10,7 +10,6 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <cassert>
 #include <ostream>
 #include <typeinfo>
 

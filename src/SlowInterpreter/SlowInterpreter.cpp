@@ -1,6 +1,6 @@
-//
-// Implementation of the interpreter.
-//
+///
+/// Implementation of the interpreter.
+///
 
 #include "SlowInterpreter.h"
 
@@ -227,12 +227,12 @@ public:
   bool runSingleInstr();
 
   // Accessors for the current interpreter state
-  bool empty() { return stack().empty(); }
+  bool completed() { return stack().empty(); }
   const Instruction &getCurInstr() const { return curFrame().getCurInstr(); }
   BciType getCurBci() const { return curFrame().getCurBci(); }
   Value getRetVal() { return RetVal; }
 
-  // Print state of the interpreter. Inteded for the debugging purposes.
+  // Print state of the interpreter. Intended for the debugging purposes.
   void print(std::ostream &Out = std::cout) { Stack.print(Out); }
 
   // Meat of the interpreter.
@@ -271,7 +271,6 @@ private:
   const InterpreterFrame &curFrame() const { return stack().currentFrame(); }
 
   const JavaMethod &curMethod() const { return curFrame().method(); }
-  const JavaClass &curClass() const { return curFrame().method().getOwner(); }
   const ClassLoader &curLoader() const {
     const auto *loader = CM.getDefLoader(curFrame().method().getOwner());
     assert(loader); // current class should be loaded
@@ -306,7 +305,7 @@ bool Interpreter::runSingleInstr() {
   getCurInstr().accept(*this);
 
   // If we exited the last function - we are done.
-  if (empty())
+  if (completed())
     return false;
 
   // Jump to the next instruction.
@@ -333,14 +332,16 @@ void Interpreter::returnFromFunction() {
   if (!curFrame().empty())
     result = curFrame().pop();
 
-  // Pop stack frame (which should be empty by now)
+  // Pop stack frame.
+  // It's always non-empty, verifier should have checked this.
   stack().exit_function();
 
-  // If has the result - push it onto the previous stack frame
+  // No result to push - we are done.
   if (!result)
     return;
 
-  if (empty()) {
+  // If has the result - push it onto the previous stack frame.
+  if (completed()) {
     RetVal = *result;
   } else {
     curFrame().push(*result);
@@ -433,7 +434,6 @@ void Interpreter::visit(const getfield &Inst) {
 
   curFrame().push(class_inst.getField(FRef.getName()));
 }
-
 
 // Helper for the comparison operators. Receives two stack values and calls
 // relevant c++ operator on them.
@@ -538,6 +538,6 @@ Value SlowInterpreter::interpret(
     }
   } while (I.runSingleInstr());
 
-  assert(I.empty()); // should exit all functions
+  assert(I.completed()); // should exit all functions
   return I.getRetVal();
 }

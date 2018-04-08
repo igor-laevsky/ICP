@@ -1,10 +1,8 @@
-//
-// Implementation of the JavaClass
-//
+///
+/// Implementation of the JavaClass.
+///
 
 #include "JavaClass.h"
-
-#include <ostream>
 
 using namespace JavaTypes;
 

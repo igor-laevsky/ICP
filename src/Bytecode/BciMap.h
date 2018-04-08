@@ -90,6 +90,7 @@ public:
   // No copies
   BciMap(const BciMap&) = delete;
   BciMap &operator=(const BciMap&) = delete;
+  // Allow moves
   BciMap(BciMap&&) = default;
   BciMap &operator=(BciMap&&) = default;
 
@@ -102,10 +103,10 @@ public:
   /// This should be used when inserting instruction in a sorted order.
   /// The order shouldn't be precise and will only affect speed of the operation.
   template <class... Args>
-  iterator emplace_back( BciType Bci, Args&&... args ) {
+  iterator emplace_back(BciType Bci, Args&&... args) {
     return storage().emplace_hint(storage().end(), Bci, std::forward<Args>(args)...);
   }
-  iterator insert_back( BciType Bci,  T&& El ) {
+  iterator insert_back(BciType Bci,  T&& El) {
     return storage().insert(storage().end(), std::make_pair(Bci, std::forward<T>(El)));
   }
 

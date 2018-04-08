@@ -1,5 +1,5 @@
 ///
-/// Class manager implementation
+/// Class manager implementation.
 ///
 
 #include "ClassManager.h"

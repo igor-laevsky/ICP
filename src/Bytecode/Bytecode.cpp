@@ -1,6 +1,6 @@
-//
-// Implementation for the bytecode representation
-//
+///
+/// Implementation for the bytecode parsing functions.
+///
 
 #include "Bytecode.h"
 #include "Instructions.h"
@@ -44,7 +44,7 @@ std::vector<std::unique_ptr<Instruction>> Bytecode::parseInstructions(
 }
 
 std::unique_ptr<Instruction> Bytecode::parseFromString(
-    const std::string_view OpCodeStr, IdxType Idx /*= 0*/) {
+    std::string_view OpCodeStr, IdxType Idx /*= 0*/) {
 
 #define PARSE_OP(OpType) \
   if (OpCodeStr == OpType::Name) \

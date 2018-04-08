@@ -1,6 +1,6 @@
-//
-//
-//
+///
+/// StackFrame implementation.
+///
 
 #include "StackFrame.h"
 

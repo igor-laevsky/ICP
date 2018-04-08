@@ -8,8 +8,10 @@
 #include "Verifier/Verifier.h"
 #include "SlowInterpreter/SlowInterpreter.h"
 #include "Runtime/Value.h"
+#include "Runtime/ClassManager.h"
 #include "JavaTypes/JavaClass.h"
 #include "JavaTypes/JavaMethod.h"
+#include "Utils/BinaryFiles.h"
 
 using namespace CD;
 using namespace JavaTypes;
@@ -117,4 +119,21 @@ TEST_CASE("Fields", "[CD][Parser]") {
 
 TEST_CASE("FieldRef", "[CD][Parser]") {
   REQUIRE(parseFromFile("tests/CD/FieldRef.cd"));
+}
+
+TEST_CASE("is8bit is16bit utils", "[CD][Utils][Parser]") {
+  REQUIRE(Utils::is8bit<int32_t>(0));
+  REQUIRE(Utils::is16bit<int32_t>(0));
+  REQUIRE(Utils::is8bit<int32_t>(-1));
+  REQUIRE(Utils::is16bit<int32_t>(-1));
+  REQUIRE(Utils::is8bit<int32_t>(255));
+  REQUIRE(Utils::is16bit<int32_t>(255));
+  REQUIRE_FALSE(Utils::is8bit<int32_t>(256));
+  REQUIRE(Utils::is16bit<int32_t>(256));
+  REQUIRE_FALSE(Utils::is8bit<uint32_t>(-1));
+  REQUIRE_FALSE(Utils::is16bit<uint32_t>(-1));
+  REQUIRE_FALSE(Utils::is8bit<int32_t>(-130));
+  REQUIRE(Utils::is16bit<int32_t>(-130));
+  REQUIRE(Utils::is8bit<int32_t>(-128));
+  REQUIRE(Utils::is16bit<int32_t>(-128));
 }

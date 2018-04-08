@@ -1,5 +1,9 @@
 ///
-/// Class which stores stack map table for the method.
+/// Representation of the stack map table for the method.
+/// User should first create "StackMapTableBuilder", populate it with the
+/// desired building instructions and then create new "StackMapTable" based
+/// on the set of method's initial arguments. This is designed in order to
+/// better fit the JVM view of the stack maps.
 ///
 
 #ifndef ICP_STACKMAPTABLE_H

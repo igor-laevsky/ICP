@@ -1,6 +1,6 @@
-//
-// Intended to be empty. Checks successful compilation of the related header.
-//
+///
+/// Implementation for the type related methods.
+///
 
 #include "Type.h"
 

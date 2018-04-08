@@ -1,17 +1,14 @@
-//
-// Very simple interpreter for the java methods
-//
+///
+/// Very simple interpreter for the java methods.
+///
 
 #ifndef ICP_INTERPRETER_H
 #define ICP_INTERPRETER_H
 
-#include <any>
-#include <vector>
-#include <cstdint>
-
 #include "JavaTypes/JavaTypesFwd.h"
-#include "Runtime/Value.h"
-#include "Runtime/ClassManager.h"
+#include "Runtime/RuntimeFwd.h"
+
+#include <vector>
 
 namespace SlowInterpreter {
 

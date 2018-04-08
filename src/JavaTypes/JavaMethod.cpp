@@ -1,10 +1,8 @@
-//
-// JavaMethod class implementation
-//
+///
+/// JavaMethod class implementation.
+///
 
 #include "JavaMethod.h"
-
-#include <ostream>
 
 using namespace JavaTypes;
 using namespace Bytecode;
