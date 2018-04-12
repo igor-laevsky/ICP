@@ -23,6 +23,9 @@ int main() {
   }
 
   auto Ret = SlowInterpreter::interpret(*java_main, {}, CM, true);
+
+  class_obj.getClass().print(std::cout);
+
   std::cout << "Interpreter returned: " << Ret.getAs<Runtime::JavaInt>();
 
   return 0;

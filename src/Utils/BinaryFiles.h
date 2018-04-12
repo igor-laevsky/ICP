@@ -29,28 +29,16 @@ uint64_t readDoubleWord(std::istream &Input);
 
 }
 
-template<class T, class _X = std::enable_if_t<std::is_integral_v<T>>>
-constexpr bool is8bit(T Val) {
-  static_assert(sizeof(T) > 1);
-  if (Val >= static_cast<T>(std::numeric_limits<int8_t>::min()) &&
-      Val <= static_cast<T>(std::numeric_limits<int8_t>::max()))
-    return true;
-  if (Val >= std::numeric_limits<uint8_t>::min() &&
-      Val <= std::numeric_limits<uint8_t>::max())
-    return true;
-  return false;
+template<class T, class _X = std::enable_if_t<std::is_unsigned_v<T>>>
+constexpr bool isUint8(T Val) {
+  return Val >= std::numeric_limits<uint8_t>::min() &&
+         Val <= std::numeric_limits<uint8_t>::max();
 };
 
-template<class T, class X = std::enable_if_t<std::is_integral_v<T>>>
-constexpr bool is16bit(T Val) {
-  static_assert(sizeof(T) > 2);
-  if (Val >= static_cast<T>(std::numeric_limits<int16_t>::min()) &&
-      Val <= static_cast<T>(std::numeric_limits<int16_t>::max()))
-    return true;
-  if (Val >= std::numeric_limits<uint16_t>::min() &&
-      Val <= std::numeric_limits<uint16_t>::max())
-    return true;
-  return false;
+template<class T, class X = std::enable_if_t<std::is_unsigned_v<T>>>
+constexpr bool isUint16(T Val) {
+  return Val >= std::numeric_limits<uint16_t>::min() &&
+         Val <= std::numeric_limits<uint16_t>::max();
 };
 
 }

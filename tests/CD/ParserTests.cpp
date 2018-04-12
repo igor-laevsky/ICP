@@ -122,18 +122,18 @@ TEST_CASE("FieldRef", "[CD][Parser]") {
 }
 
 TEST_CASE("is8bit is16bit utils", "[CD][Utils][Parser]") {
-  REQUIRE(Utils::is8bit<int32_t>(0));
-  REQUIRE(Utils::is16bit<int32_t>(0));
-  REQUIRE(Utils::is8bit<int32_t>(-1));
-  REQUIRE(Utils::is16bit<int32_t>(-1));
-  REQUIRE(Utils::is8bit<int32_t>(255));
-  REQUIRE(Utils::is16bit<int32_t>(255));
-  REQUIRE_FALSE(Utils::is8bit<int32_t>(256));
-  REQUIRE(Utils::is16bit<int32_t>(256));
-  REQUIRE_FALSE(Utils::is8bit<uint32_t>(-1));
-  REQUIRE_FALSE(Utils::is16bit<uint32_t>(-1));
-  REQUIRE_FALSE(Utils::is8bit<int32_t>(-130));
-  REQUIRE(Utils::is16bit<int32_t>(-130));
-  REQUIRE(Utils::is8bit<int32_t>(-128));
-  REQUIRE(Utils::is16bit<int32_t>(-128));
+  REQUIRE(Utils::isUint8<uint32_t>(0));
+  REQUIRE(Utils::isUint16<uint32_t>(0));
+  REQUIRE_FALSE(Utils::isUint8<uint32_t>(-1));
+  REQUIRE_FALSE(Utils::isUint16<uint32_t>(-1));
+  REQUIRE(Utils::isUint8<uint32_t>(255));
+  REQUIRE(Utils::isUint16<uint32_t>(255));
+  REQUIRE_FALSE(Utils::isUint8<uint32_t>(256));
+  REQUIRE(Utils::isUint16<uint32_t>(256));
+  REQUIRE_FALSE(Utils::isUint8<uint32_t>(-1));
+  REQUIRE_FALSE(Utils::isUint16<uint32_t>(-1));
+  REQUIRE_FALSE(Utils::isUint8<uint32_t>(-130));
+  REQUIRE_FALSE(Utils::isUint16<uint32_t>(-130));
+  REQUIRE_FALSE(Utils::isUint8<uint32_t>(-128));
+  REQUIRE_FALSE(Utils::isUint16<uint32_t>(-128));
 }

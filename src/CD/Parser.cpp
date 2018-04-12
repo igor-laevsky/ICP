@@ -51,10 +51,10 @@ static std::optional<ConstantPool::IndexType> tryParseCPIndex(Lexer &Lex) {
     const auto &second_byte_tok = consumeOrThrow(Token::Num(), Lex);
     consumeOrThrow(Token::RSBrace, Lex);
 
-    auto first_byte = std::stoi(first_byte_tok.getData());
-    auto second_byte = std::stoi(second_byte_tok.getData());
+    auto first_byte = std::stoul(first_byte_tok.getData());
+    auto second_byte = std::stoul(second_byte_tok.getData());
 
-    if (!Utils::is8bit(first_byte) || !Utils::is8bit(second_byte))
+    if (!Utils::isUint8(first_byte) || !Utils::isUint8(second_byte))
       throw ParserError("Compound indexes should fit into single byte");
 
     return (static_cast<uint8_t>(first_byte) << 8) |
@@ -63,9 +63,9 @@ static std::optional<ConstantPool::IndexType> tryParseCPIndex(Lexer &Lex) {
 
   // It's #<number> form
   const auto &res_tok = consumeOrThrow(Token::Num(), Lex);
-  auto res = std::stoi(res_tok.getData());
+  auto res = std::stoul(res_tok.getData());
 
-  if (!Utils::is16bit(res))
+  if (!Utils::isUint16(res))
     throw ParserError("Index must fir into 16 bits");
   return static_cast<ConstantPool::IndexType>(res);
 }
